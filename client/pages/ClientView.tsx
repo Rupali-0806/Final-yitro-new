@@ -235,7 +235,7 @@ export default function ClientView() {
               <Users className="h-4 w-4 text-purple-600" />
               <div>
                 <p className="text-sm text-gray-600">Contacts</p>
-                <p className="text-xl font-bold">{accountContacts.length}</p>
+                <p className="text-xl font-bold">{accountContacts?.length || 0}</p>
               </div>
             </div>
           </CardContent>
