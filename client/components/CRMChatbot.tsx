@@ -282,7 +282,7 @@ I'm here to help you stay on top of your sales game!`,
 
       if (topWeeklyLeads.length > 0) {
         topWeeklyLeads.forEach((lead, index) => {
-          response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
+          response += `${index + 1}. <b>${lead.name}</b> from ${lead.company}\n`;
           response += `   Lead Score: ${lead.score}/100\n`;
           response += `   Potential Value: ${lead.value}\n`;
           response += `   Contact: ${lead.phone}\n`;
@@ -309,7 +309,7 @@ I'm here to help you stay on top of your sales game!`,
 
       if (analysis.topLeads && analysis.topLeads.length > 0) {
         analysis.topLeads.forEach((lead, index) => {
-          response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
+          response += `${index + 1}. <b>${lead.name}</b> from ${lead.company}\n`;
           response += `   • Score: ${lead.score}/100\n`;
           response += `   • Value: ${lead.value}\n`;
           response += `   • Status: ${lead.status}\n`;
