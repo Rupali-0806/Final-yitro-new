@@ -55,14 +55,14 @@ export function CRMChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: `👋 Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant.
+      content: `Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant.
 
 I can help you analyze your sales data, track performance, and provide insights about your:
 
-🎯 **Leads** (${leads.length} total)
-🏢 **Accounts** (${accounts.length} total)
-💼 **Deals** (${deals.length} total)
-👥 **Contacts** (${contacts.length} total)
+**Leads** (${leads.length} total)
+**Accounts** (${accounts.length} total)
+**Deals** (${deals.length} total)
+**Contacts** (${contacts.length} total)
 
 **Try asking me:**
 • "Show me top leads this week"
@@ -71,7 +71,7 @@ I can help you analyze your sales data, track performance, and provide insights 
 • "Show my profile"
 • "Search for [company/contact]"
 
-I'm here to help you stay on top of your sales game! 🚀`,
+I'm here to help you stay on top of your sales game!`,
       sender: "bot",
       timestamp: new Date(),
       quickActions: [
@@ -278,20 +278,20 @@ I'm here to help you stay on top of your sales game! 🚀`,
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
 
-      let response = "🎯 **Top Leads This Week:**\n\n";
+      let response = "**Top Leads This Week:**\n\n";
 
       if (topWeeklyLeads.length > 0) {
         topWeeklyLeads.forEach((lead, index) => {
           response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
-          response += `   📊 Lead Score: ${lead.score}/100\n`;
-          response += `   💰 Potential Value: ${lead.value}\n`;
-          response += `   📞 Contact: ${lead.phone}\n`;
-          response += `   ✉️ Email: ${lead.email}\n`;
-          response += `   🔥 Status: ${lead.status}\n\n`;
+          response += `   Lead Score: ${lead.score}/100\n`;
+          response += `   Potential Value: ${lead.value}\n`;
+          response += `   Contact: ${lead.phone}\n`;
+          response += `   Email: ${lead.email}\n`;
+          response += `   Status: ${lead.status}\n\n`;
         });
 
         response +=
-          "💡 **Recommendation:** Focus on the highest scoring leads first. ";
+          "**Recommendation:** Focus on the highest scoring leads first. ";
         response += `${topWeeklyLeads[0]?.name} has the highest score (${topWeeklyLeads[0]?.score}) and should be your priority!`;
       } else {
         response +=
@@ -364,17 +364,21 @@ I'm here to help you stay on top of your sales game! 🚀`,
       let response = "";
 
       if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
-        response += "💼 **Deals Closing This Week:**\n\n";
+        response += "**Deals Closing This Week:**\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
-          const urgencyIcon =
-            deal.probability > 75 ? "🔥" : deal.probability > 50 ? "⚡" : "⏰";
-          response += `${urgencyIcon} ${index + 1}. **${deal.dealName}**\n`;
-          response += `   🏢 Account: ${deal.associatedAccount}\n`;
-          response += `   💰 Value: $${deal.dealValue.toLocaleString()}\n`;
-          response += `   📅 Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
-          response += `   📈 Probability: ${deal.probability}%\n`;
-          response += `   🔄 Stage: ${deal.stage}\n`;
-          response += `   ➡️ Next Step: ${deal.nextStep}\n\n`;
+          const urgencyLabel =
+            deal.probability > 75
+              ? "HIGH PRIORITY"
+              : deal.probability > 50
+                ? "MEDIUM PRIORITY"
+                : "LOW PRIORITY";
+          response += `${urgencyLabel} ${index + 1}. **${deal.dealName}**\n`;
+          response += `   Account: ${deal.associatedAccount}\n`;
+          response += `   Value: $${deal.dealValue.toLocaleString()}\n`;
+          response += `   Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
+          response += `   Probability: ${deal.probability}%\n`;
+          response += `   Stage: ${deal.stage}\n`;
+          response += `   Next Step: ${deal.nextStep}\n\n`;
         });
 
         // Add recommendations based on deal analysis
@@ -382,17 +386,17 @@ I'm here to help you stay on top of your sales game! 🚀`,
           (d) => d.probability > 75,
         );
         if (highProbDeals.length > 0) {
-          response += `🎯 **Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
+          response += `**Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
-        response += "📋 No deals are closing this week.\n\n";
+        response += "No deals are closing this week.\n\n";
         response +=
-          "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+          "**Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
       }
 
       if (analysis.metrics) {
-        response += `📊 **Pipeline Summary:**\n`;
+        response += `**Pipeline Summary:**\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Pipeline Value: $${analysis.metrics.totalPipelineValue.toLocaleString()}\n`;
         response += `• Won Deals: ${analysis.metrics.wonDeals}\n`;
@@ -404,7 +408,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
           (analysis.metrics.wonDeals /
             (analysis.metrics.wonDeals + analysis.metrics.activeDeals)) *
           100;
-        response += `🏆 **Win Rate:** ${Math.round(winRate)}%`;
+        response += `**Win Rate:** ${Math.round(winRate)}%`;
       }
 
       return response;
@@ -456,13 +460,13 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("about me") ||
       lowercaseQuery.includes("my info")
     ) {
-      let response = `👤 **Your Profile Information:**\n\n`;
+      let response = `**Your Profile Information:**\n\n`;
       response += `• Name: ${user?.displayName || "Not set"}\n`;
       response += `• Email: ${user?.email || "Not set"}\n`;
       response += `• Role: ${user?.role || "User"}\n`;
       response += `• Account Type: ${user?.role === "admin" ? "Administrator" : "CRM User"}\n\n`;
 
-      response += `📊 **Your CRM Activity:**\n`;
+      response += `**Your CRM Activity:**\n`;
       response += `• Managing ${leads.length} leads\n`;
       response += `• Overseeing ${accounts.length} accounts\n`;
       response += `• Tracking ${deals.length} deals\n`;
@@ -475,7 +479,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
         .filter((deal) => !["Order Won", "Order Lost"].includes(deal.stage))
         .reduce((sum, deal) => sum + deal.dealValue, 0);
 
-      response += `💼 **Your Performance:**\n`;
+      response += `**Your Performance:**\n`;
       response += `• Active Deals: ${activeDealsCount}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
       response += `• Closed Deals: ${deals.filter((d) => d.stage === "Order Won").length}\n`;
@@ -488,7 +492,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
       (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) &&
       !searchQuery
     ) {
-      let response = "🔍 **Search Help:**\n\n";
+      let response = "**Search Help:**\n\n";
       response += "I can help you find specific information. Try asking:\n\n";
       response += '• "Find contact John Smith"\n';
       response += '• "Search for TechCorp account"\n';
@@ -505,50 +509,50 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("hi") ||
       lowercaseQuery.includes("hey")
     ) {
-      return `👋 Hi there! I'm your CRM assistant. I've got all your latest data ready. What would you like to know about your sales pipeline today?`;
+      return `Hi there! I'm your CRM assistant. I've got all your latest data ready. What would you like to know about your sales pipeline today?`;
     }
 
     if (lowercaseQuery.includes("thank") || lowercaseQuery.includes("thanks")) {
-      return `😊 You're welcome! I'm always here to help with your CRM data. Is there anything else you'd like to know?`;
+      return `You're welcome! I'm always here to help with your CRM data. Is there anything else you'd like to know?`;
     }
 
     if (lowercaseQuery.includes("help") || lowercaseQuery === "?") {
-      return `🤖 **I can help you with:**
+      return `**I can help you with:**
 
-🎯 **Lead Management:** "Top leads this week", "New leads", "Lead status"
-🏢 **Account Insights:** "Best accounts", "Account summary", "Customer analysis"
-💼 **Deal Tracking:** "Closing deals", "Pipeline status", "Deal performance"
-👥 **Contact Info:** "Recent contacts", "Find contact [name]"
-📊 **Analytics:** "Performance metrics", "Revenue analysis", "My statistics"
-🔍 **Search:** "Find [anything]", "Search for [company/person]"
-👤 **Profile:** "My profile", "My performance", "Account info"
+**Lead Management:** "Top leads this week", "New leads", "Lead status"
+**Account Insights:** "Best accounts", "Account summary", "Customer analysis"
+**Deal Tracking:** "Closing deals", "Pipeline status", "Deal performance"
+**Contact Info:** "Recent contacts", "Find contact [name]"
+**Analytics:** "Performance metrics", "Revenue analysis", "My statistics"
+**Search:** "Find [anything]", "Search for [company/person]"
+**Profile:** "My profile", "My performance", "Account info"
 
-💡 **Pro Tips:**
+**Pro Tips:**
 • I remember our conversation context
 • Try "tell me more" for deeper insights
 • Use "clear" to reset our conversation
 
-Just ask me naturally - I understand context! 🚀`;
+Just ask me naturally - I understand context!`;
     }
 
     // Handle conversation management
     if (lowercaseQuery.includes("clear") || lowercaseQuery.includes("reset")) {
       setConversationContext([]);
-      return "🧹 Conversation cleared! How can I help you with your CRM data?";
+      return "Conversation cleared! How can I help you with your CRM data?";
     }
 
     // Handle fun easter eggs
     if (lowercaseQuery.includes("joke") || lowercaseQuery.includes("funny")) {
       const jokes = [
-        "Why don't sales reps ever get lost? Because they always follow the pipeline! 😄",
-        "What do you call a lead that never converts? A cold call forever! ❄️",
-        "Why did the CRM break up with the spreadsheet? Too many cells, not enough chemistry! 💔",
+        "Why don't sales reps ever get lost? Because they always follow the pipeline!",
+        "What do you call a lead that never converts? A cold call forever!",
+        "Why did the CRM break up with the spreadsheet? Too many cells, not enough chemistry!",
       ];
       return jokes[Math.floor(Math.random() * jokes.length)];
     }
 
     if (lowercaseQuery.includes("coffee") || lowercaseQuery.includes("tired")) {
-      return "☕ I don't drink coffee, but I can definitely energize you with some exciting sales insights! How about checking your top performing leads?";
+      return "I don't drink coffee, but I can definitely energize you with some exciting sales insights! How about checking your top performing leads?";
     }
 
     // Handle performance and analytics queries
@@ -572,14 +576,14 @@ Just ask me naturally - I understand context! 🚀`;
         0,
       );
 
-      let response = "📈 **Performance Analytics:**\n\n";
-      response += `💰 **Revenue Metrics:**\n`;
+      let response = "**Performance Analytics:**\n\n";
+      response += `**Revenue Metrics:**\n`;
       response += `• Total Revenue: $${totalRevenue.toLocaleString()}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
       response += `• Average Deal Size: $${Math.round(avgDealSize).toLocaleString()}\n`;
       response += `• Lead-to-Deal Conversion: ${Math.round(conversionRate)}%\n\n`;
 
-      response += `📊 **Activity Summary:**\n`;
+      response += `**Activity Summary:**\n`;
       response += `• Leads in Pipeline: ${leads.length}\n`;
       response += `• Active Accounts: ${accounts.filter((a) => a.type === "Customer").length}\n`;
       response += `• Deals in Progress: ${activeDeals.length}\n`;
@@ -590,23 +594,23 @@ Just ask me naturally - I understand context! 🚀`;
 
       if (conversionRate < 10) {
         recommendations.push(
-          "🎯 Focus on lead qualification - your conversion rate needs improvement",
+          "Focus on lead qualification - your conversion rate needs improvement",
         );
       } else if (conversionRate > 20) {
         recommendations.push(
-          "🏆 Excellent conversion rate! Consider scaling your lead generation",
+          "Excellent conversion rate! Consider scaling your lead generation",
         );
       }
 
       if (activeDeals.length > wonDeals.length * 2) {
         recommendations.push(
-          "⚡ You have many active deals - focus on closing them",
+          "You have many active deals - focus on closing them",
         );
       }
 
       if (leads.filter((l) => l.status === "New").length > leads.length * 0.5) {
         recommendations.push(
-          "📞 Many new leads need follow-up - prioritize outreach",
+          "Many new leads need follow-up - prioritize outreach",
         );
       }
 
@@ -615,16 +619,16 @@ Just ask me naturally - I understand context! 🚀`;
       );
       if (highValueDeals.length > 0) {
         recommendations.push(
-          `💎 Focus on ${highValueDeals.length} high-value deals for maximum impact`,
+          `Focus on ${highValueDeals.length} high-value deals for maximum impact`,
         );
       }
 
       if (recommendations.length > 0) {
-        response += "💡 **Smart Recommendations:**\n";
+        response += "**Smart Recommendations:**\n";
         recommendations.forEach((rec) => (response += `• ${rec}\n`));
       } else {
         response +=
-          "🎉 **Great job!** Your pipeline looks healthy and well-balanced!";
+          "**Great job!** Your pipeline looks healthy and well-balanced!";
       }
 
       return response;
@@ -633,13 +637,13 @@ Just ask me naturally - I understand context! 🚀`;
     // Default response
     return `I understand you're asking about "${query}". I can help you with information about:
 
-🎯 **Leads** - "Show me top leads this week" or "lead status"
-🏢 **Accounts** - "Show me best accounts" or "account summary"
-💼 **Deals** - "What deals are closing?" or "pipeline status"
-👥 **Contacts** - "Contact summary" or "recent contacts"
-📊 **Overview** - "Dashboard summary" or "CRM overview"
-👤 **Profile** - "My profile" or "my performance"
-📈 **Analytics** - "Show performance metrics" or "analytics"
+**Leads** - "Show me top leads this week" or "lead status"
+**Accounts** - "Show me best accounts" or "account summary"
+**Deals** - "What deals are closing?" or "pipeline status"
+**Contacts** - "Contact summary" or "recent contacts"
+**Overview** - "Dashboard summary" or "CRM overview"
+**Profile** - "My profile" or "my performance"
+**Analytics** - "Show performance metrics" or "analytics"
 
 What would you like to know more about?`;
   };
@@ -746,7 +750,7 @@ What would you like to know more about?`;
                 setMessages([
                   {
                     id: "welcome-reset",
-                    content: `👋 Fresh start! I'm ready to help you with your CRM data again.`,
+                    content: `Fresh start! I'm ready to help you with your CRM data again.`,
                     sender: "bot",
                     timestamp: new Date(),
                     quickActions: [
@@ -884,15 +888,9 @@ What would you like to know more about?`;
                     </div>
                     <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div
-                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.1s" }}
-                        ></div>
-                        <div
-                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                       </div>
                     </div>
                   </div>

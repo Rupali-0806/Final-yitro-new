@@ -33,7 +33,10 @@ import {
   DollarSign,
   Save,
   X,
+  Eye,
 } from "lucide-react";
+import Account360View from "./Account360View";
+import AccountDetail from "./AccountDetail";
 import {
   Dialog,
   DialogContent,
@@ -56,6 +59,8 @@ export function CRMAccounts() {
   const [showNewAccountDialog, setShowNewAccountDialog] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [formData, setFormData] = useState<Partial<Account>>({});
+  const [view360AccountId, setView360AccountId] = useState<string | null>(null);
+  const [editAccountId, setEditAccountId] = useState<string | null>(null);
 
   useEffect(() => {
     const handleTriggerNewItem = (event: CustomEvent) => {
@@ -140,6 +145,21 @@ export function CRMAccounts() {
     }
   };
 
+  const handleView360 = (accountId: string) => {
+    console.log("Opening 360 view for account:", accountId);
+    setView360AccountId(accountId);
+  };
+
+  const handleEditDetail = (accountId: string) => {
+    console.log("Opening account detail edit for account:", accountId);
+    setEditAccountId(accountId);
+  };
+
+  const handleBackToList = () => {
+    setView360AccountId(null);
+    setEditAccountId(null);
+  };
+
   const resetForm = () => {
     setFormData({});
     setEditingAccount(null);
@@ -190,6 +210,24 @@ export function CRMAccounts() {
 
     return matchesFilter;
   });
+
+  // Show 360 view if account is selected
+  if (view360AccountId) {
+    return (
+      <Account360View
+        accountId={view360AccountId}
+        onBack={handleBackToList}
+        onEdit={() => handleEditDetail(view360AccountId)}
+      />
+    );
+  }
+
+  // Show account detail edit view if account is selected for editing
+  if (editAccountId) {
+    return (
+      <AccountDetail accountId={editAccountId} onBack={handleBackToList} />
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -556,7 +594,22 @@ export function CRMAccounts() {
                     {account.lastActivity}
                   </TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          console.log(
+                            "360 View button clicked for account:",
+                            account,
+                          );
+                          handleView360(account.id.toString());
+                        }}
+                        className="text-blue-600"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        360 View
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"

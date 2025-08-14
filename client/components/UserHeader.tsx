@@ -27,6 +27,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
+import { RecommendationNotifications } from "./RecommendationNotifications";
 
 interface UserHeaderProps {
   isDarkMode?: boolean;
@@ -100,6 +101,9 @@ export function UserHeader({
 
         {/* Right side - Actions and User Menu */}
         <div className="flex items-center space-x-4">
+          {/* Recommendation Notifications */}
+          <RecommendationNotifications />
+
           {/* Dark Mode Toggle */}
           <Button
             variant="ghost"
