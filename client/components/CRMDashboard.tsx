@@ -9,6 +9,7 @@ import { CRMActiveDeals } from "./CRMActiveDeals";
 import { CRMContacts } from "./CRMContacts";
 import { useTheme } from "./ThemeProvider";
 import { useCRM } from "../contexts/CRMContext";
+import { CRMChatbot } from "./CRMChatbot";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -590,6 +591,9 @@ export function CRMDashboard({ onSettingsClick }: CRMDashboardProps) {
         onTabChange={setCurrentTab}
       />
       {renderTabContent()}
+
+      {/* CRM Chatbot */}
+      <CRMChatbot />
 
       {/* Task Creation Dialog */}
       <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
