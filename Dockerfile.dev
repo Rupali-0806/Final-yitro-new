@@ -1,0 +1,30 @@
+# Development Dockerfile for separated frontend/backend
+
+# Base stage with common dependencies
+FROM node:18-alpine AS base
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+
+# Frontend development stage
+FROM base AS frontend
+COPY client/ ./client/
+COPY shared/ ./shared/
+COPY tailwind.config.ts ./
+COPY postcss.config.js ./
+COPY components.json ./
+COPY vite.config.ts ./
+COPY tsconfig.json ./
+COPY index.html ./
+EXPOSE 8080
+CMD ["npm", "run", "dev"]
+
+# Backend development stage  
+FROM base AS backend
+COPY server/ ./server/
+COPY shared/ ./shared/
+COPY prisma/ ./prisma/
+COPY vite.config.server.ts ./
+COPY tsconfig.json ./
+EXPOSE 3001
+CMD ["npm", "run", "dev:server"]
