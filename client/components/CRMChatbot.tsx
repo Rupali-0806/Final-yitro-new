@@ -418,7 +418,7 @@ I'm here to help you stay on top of your sales game!`,
       let response = "Here's your contact summary:\n\n";
 
       if (analysis.metrics) {
-        response += `**Contact Summary:**\n`;
+        response += `<b>Contact Summary:</b>\n`;
         response += `• Total Contacts: ${analysis.metrics.totalContacts}\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Prospects: ${analysis.metrics.prospects}\n`;
