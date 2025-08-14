@@ -57,14 +57,14 @@ export function CRMChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: `👋 Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant with personalized recommendations.
+      content: `Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant with personalized recommendations.
 
 I can analyze your sales data and provide tailored advice about your:
 
-🎯 **Leads** (${leads.length} total)
-🏢 **Accounts** (${accounts.length} total)
-💼 **Deals** (${deals.length} total)
-👥 **Contacts** (${contacts.length} total)
+**Leads** (${leads.length} total)
+**Accounts** (${accounts.length} total)
+**Deals** (${deals.length} total)
+**Contacts** (${contacts.length} total)
 
 **Try asking me:**
 • "Give me personalized recommendations"
@@ -73,7 +73,7 @@ I can analyze your sales data and provide tailored advice about your:
 • "What deals need attention?"
 • "Help me plan my week"
 
-💡 I provide specific "DO" and "DON'T" advice based on your actual data! 🚀`,
+I provide specific "DO" and "DON'T" advice based on your actual data!`,
       sender: "bot",
       timestamp: new Date(),
       quickActions: [
@@ -640,7 +640,7 @@ I can analyze your sales data and provide tailored advice about your:
       return `🤖 **I can help you with:**
 
 🎯 **Lead Management:** "Top leads this week", "New leads", "Lead status"
-🏢 **Account Insights:** "Best accounts", "Account summary", "Customer analysis"
+�� **Account Insights:** "Best accounts", "Account summary", "Customer analysis"
 💼 **Deal Tracking:** "Closing deals", "Pipeline status", "Deal performance"
 👥 **Contact Info:** "Recent contacts", "Find contact [name]"
 📊 **Analytics:** "Performance metrics", "Revenue analysis", "My statistics"
