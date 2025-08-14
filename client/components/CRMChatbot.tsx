@@ -408,7 +408,7 @@ I'm here to help you stay on top of your sales game!`,
           (analysis.metrics.wonDeals /
             (analysis.metrics.wonDeals + analysis.metrics.activeDeals)) *
           100;
-        response += `**Win Rate:** ${Math.round(winRate)}%`;
+        response += `<b>Win Rate:</b> ${Math.round(winRate)}%`;
       }
 
       return response;
