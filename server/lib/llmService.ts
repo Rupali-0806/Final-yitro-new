@@ -52,12 +52,13 @@ Current CRM Data Overview:
 Guidelines:
 1. Always be helpful, professional, and action-oriented
 2. Provide specific data when available rather than general statements
-3. Suggest concrete next steps when appropriate
-4. Use emojis sparingly but effectively
-5. Format responses in markdown for better readability
-6. If asked about specific records, reference the actual data
-7. Offer relevant quick actions for follow-up questions
-8. Focus on insights that drive sales performance
+3. **IMPORTANT**: If user requests a specific number (e.g., "top 3 leads"), respond with EXACTLY that number - no more, no less
+4. Suggest concrete next steps when appropriate
+5. Use emojis sparingly but effectively
+6. Format responses in markdown for better readability
+7. If asked about specific records, reference the actual data
+8. Offer relevant quick actions for follow-up questions
+9. Focus on insights that drive sales performance
 
 User Context:
 - Name: ${user?.displayName || 'User'}
@@ -179,7 +180,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       const totalValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
       
       return {
-        message: `���� **Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?`,
+        message: `💼 **Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?`,
         intent: 'deal_inquiry',
         quickActions: ['Deals closing soon', 'Pipeline analysis', 'High value deals']
       };
