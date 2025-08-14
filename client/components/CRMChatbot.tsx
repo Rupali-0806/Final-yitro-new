@@ -628,6 +628,23 @@ What would you like to know more about?`;
             <Button
               variant="ghost"
               size="sm"
+              onClick={() => {
+                setMessages([{
+                  id: "welcome-reset",
+                  content: `👋 Fresh start! I'm ready to help you with your CRM data again.`,
+                  sender: "bot",
+                  timestamp: new Date(),
+                  quickActions: ["Top leads this week", "Deals closing soon", "My performance", "Account summary"],
+                }]);
+                setConversationContext([]);
+              }}
+              title="Clear conversation"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setIsMinimized(!isMinimized)}
             >
               {isMinimized ? (
