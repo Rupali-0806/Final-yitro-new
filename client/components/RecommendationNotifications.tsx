@@ -353,7 +353,21 @@ export function RecommendationNotifications() {
     }
   };
 
-  const getPriorityColor = (priority: Recommendation["priority"]) => {
+  const getPriorityColor = (priority: Recommendation["priority"], type?: Recommendation["type"]) => {
+    // Special styling for AI recommendations
+    if (type === "ai-recommendation") {
+      switch (priority) {
+        case "high":
+          return "text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/20 dark:border-purple-800";
+        case "medium":
+          return "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-900/20 dark:border-indigo-800";
+        case "low":
+          return "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/20 dark:border-blue-800";
+        default:
+          return "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-900/20 dark:border-violet-800";
+      }
+    }
+
     switch (priority) {
       case "high":
         return "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/20 dark:border-red-800";
