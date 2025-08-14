@@ -173,7 +173,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     }
 
     if (qualifiedLeads.length > 0) {
-      recommendations += `- 🎯 Convert ${qualifiedLeads.length} qualified leads to opportunities\n`;
+      recommendations += `- �� Convert ${qualifiedLeads.length} qualified leads to opportunities\n`;
     }
 
     if (inactiveAccounts.length > 0 && inactiveAccounts.length < accounts.length * 0.5) {
@@ -275,6 +275,9 @@ Respond naturally to user queries about their CRM data, sales performance, and p
   private generateFallbackResponse(query: string, crmContext: CRMContext): LLMResponse {
     const lowerQuery = query.toLowerCase();
     const { leads, accounts, contacts, deals } = crmContext;
+
+    // Generate personalized recommendations for all responses
+    const recommendations = this.generatePersonalizedRecommendations(crmContext);
 
     // Simple keyword-based fallback responses
     if (lowerQuery.includes('lead')) {
