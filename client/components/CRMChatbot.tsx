@@ -572,8 +572,26 @@ What would you like to know more about?`;
                               size="sm"
                               className="text-xs h-6 px-2"
                               onClick={() => {
-                                setInputValue(action);
-                                handleSendMessage();
+                                const userMessage: Message = {
+                                  id: `user-${Date.now()}`,
+                                  content: action,
+                                  sender: "user",
+                                  timestamp: new Date(),
+                                };
+                                setMessages(prev => [...prev, userMessage]);
+                                setIsTyping(true);
+
+                                setTimeout(() => {
+                                  const botResponse = generateResponse(action);
+                                  const botMessage: Message = {
+                                    id: `bot-${Date.now()}`,
+                                    content: botResponse,
+                                    sender: "bot",
+                                    timestamp: new Date(),
+                                  };
+                                  setMessages(prev => [...prev, botMessage]);
+                                  setIsTyping(false);
+                                }, 1000);
                               }}
                             >
                               {action}
