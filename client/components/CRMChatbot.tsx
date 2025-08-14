@@ -563,6 +563,24 @@ What would you like to know more about?`;
                           minute: "2-digit",
                         })}
                       </div>
+                      {message.quickActions && message.sender === "bot" && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {message.quickActions.map((action, index) => (
+                            <Button
+                              key={index}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs h-6 px-2"
+                              onClick={() => {
+                                setInputValue(action);
+                                handleSendMessage();
+                              }}
+                            >
+                              {action}
+                            </Button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
