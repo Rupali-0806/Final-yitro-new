@@ -44,6 +44,7 @@ interface ChatbotAnalysis {
   topLeads?: any[];
   topAccounts?: any[];
   upcomingDeals?: any[];
+  activeDeals?: any[];
   metrics?: any;
   suggestions?: string[];
 }
