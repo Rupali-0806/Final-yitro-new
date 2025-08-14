@@ -821,9 +821,10 @@ What would you like to know more about?`;
                           : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                       }`}
                     >
-                      <div className="text-sm whitespace-pre-line">
-                        {message.content}
-                      </div>
+                      <div
+                        className="text-sm whitespace-pre-line"
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      />
                       <div
                         className={`text-xs mt-1 opacity-70 ${
                           message.sender === "user"
