@@ -374,7 +374,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       const prospects = accounts.filter(a => a.type === 'Prospect').length;
       
       return {
-        message: `🏢 **Account Overview**\n\nYou're managing ${accounts.length} total accounts:\n- ${customers} customers\n- ${prospects} prospects\n\nWhat would you like to know about your accounts?${recommendations}`,
+        message: `**Account Overview**\n\nYou're managing ${accounts.length} total accounts:\n- ${customers} customers\n- ${prospects} prospects\n\nWhat would you like to know about your accounts?${recommendations}`,
         intent: 'account_inquiry',
         quickActions: ['Top customers', 'New prospects', 'Account health']
       };
