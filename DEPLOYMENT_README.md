@@ -20,6 +20,7 @@ This guide covers deploying your Yitro CRM application to production without Doc
 ## 🗄️ Database Setup (Required First)
 
 ### Option 1: Neon Database (Recommended)
+
 ```bash
 # 1. Sign up at https://neon.tech
 # 2. Create a new project
@@ -28,6 +29,7 @@ This guide covers deploying your Yitro CRM application to production without Doc
 ```
 
 ### Option 2: Supabase
+
 ```bash
 # 1. Sign up at https://supabase.com
 # 2. Create new project
@@ -36,6 +38,7 @@ This guide covers deploying your Yitro CRM application to production without Doc
 ```
 
 ### Option 3: PlanetScale
+
 ```bash
 # 1. Sign up at https://planetscale.com
 # 2. Create database
@@ -48,7 +51,9 @@ This guide covers deploying your Yitro CRM application to production without Doc
 ## 🔥 Option 1: Netlify (Easiest - Already Configured)
 
 ### Automatic Deployment
+
 1. **Push to Git**:
+
    ```bash
    git add .
    git commit -m "Deploy to production"
@@ -56,6 +61,7 @@ This guide covers deploying your Yitro CRM application to production without Doc
    ```
 
 2. **Connect to Netlify**:
+
    - Go to [netlify.com](https://netlify.com)
    - Click "Add new site" → "Import an existing project"
    - Connect your Git repository
@@ -73,6 +79,7 @@ This guide covers deploying your Yitro CRM application to production without Doc
    ```
 
 ### Manual Deployment
+
 ```bash
 # Install Netlify CLI
 npm install -g netlify-cli
@@ -89,9 +96,11 @@ netlify deploy --prod
 ## ⚡ Option 2: Vercel
 
 ### Automatic Deployment
+
 1. **Push to Git** (same as above)
 
 2. **Connect to Vercel**:
+
    - Go to [vercel.com](https://vercel.com)
    - Click "New Project"
    - Import your repository
@@ -103,6 +112,7 @@ netlify deploy --prod
 3. **Set Environment Variables** (same as Netlify)
 
 ### Manual Deployment
+
 ```bash
 # Install Vercel CLI
 npm install -g vercel
@@ -117,14 +127,17 @@ vercel --prod
 ## 🚂 Option 3: Railway
 
 1. **Connect Repository**:
+
    - Sign up at [railway.app](https://railway.app)
    - Create new project from GitHub repo
 
 2. **Configure Build**:
+
    - **Build Command**: `npm run build`
    - **Start Command**: `npm run start:production`
 
 3. **Add PostgreSQL Database**:
+
    - Add PostgreSQL service to your project
    - Railway will provide `DATABASE_URL` automatically
 
@@ -135,11 +148,13 @@ vercel --prod
 ## 🎯 Option 4: Render
 
 1. **Create Web Service**:
+
    - Go to [render.com](https://render.com)
    - Create new "Web Service"
    - Connect your repository
 
 2. **Configure Build**:
+
    - **Build Command**: `npm install && npx prisma generate && npm run build`
    - **Start Command**: `npm run start:production`
 
@@ -152,10 +167,12 @@ vercel --prod
 ## 🔧 Manual Server Deployment (VPS/Cloud Instance)
 
 ### Prerequisites
+
 - Ubuntu/Debian server with root access
 - Domain name pointed to server IP
 
 ### Setup Process
+
 ```bash
 # 1. Update system
 sudo apt update && sudo apt upgrade -y
@@ -194,28 +211,33 @@ pm2 startup
 ```
 
 ### Create PM2 Configuration
+
 Create `ecosystem.config.js`:
+
 ```javascript
 module.exports = {
-  apps: [{
-    name: 'yitro-crm',
-    script: 'start.js',
-    instances: 'max',
-    exec_mode: 'cluster',
-    env_production: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    }
-  }]
-}
+  apps: [
+    {
+      name: "yitro-crm",
+      script: "start.js",
+      instances: "max",
+      exec_mode: "cluster",
+      env_production: {
+        NODE_ENV: "production",
+        PORT: 3000,
+      },
+    },
+  ],
+};
 ```
 
 ### Nginx Configuration
+
 ```nginx
 server {
     listen 80;
     server_name your-domain.com;
-    
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
@@ -255,6 +277,7 @@ PORT=3000
 ```
 
 ### Getting Gmail App Password
+
 1. Enable 2-factor authentication on Gmail
 2. Go to Google Account settings
 3. Security → App passwords
@@ -266,6 +289,7 @@ PORT=3000
 ## 🧪 Pre-Deployment Testing
 
 ### 1. Test Build Locally
+
 ```bash
 # Install dependencies
 npm install
@@ -281,6 +305,7 @@ npm run start:production
 ```
 
 ### 2. Test Database Connection
+
 ```bash
 # Test database migration
 npx prisma migrate deploy
@@ -290,6 +315,7 @@ npm run test-config
 ```
 
 ### 3. Environment Variables Check
+
 ```bash
 # Verify all required env vars are set
 node -e "
@@ -310,6 +336,7 @@ console.log('✅ All required environment variables are set');
 ### Common Issues
 
 #### 1. Database Connection Errors
+
 ```bash
 # Verify DATABASE_URL format
 echo $DATABASE_URL
@@ -319,6 +346,7 @@ npx prisma db pull
 ```
 
 #### 2. Build Failures
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -329,17 +357,21 @@ npm run typecheck
 ```
 
 #### 3. Environment Variable Issues
+
 ```bash
 # Verify env vars are loaded
 node -e "console.log(process.env.DATABASE_URL ? '✅ DATABASE_URL set' : '❌ DATABASE_URL missing')"
 ```
 
 #### 4. Production Login Issues
+
 The app includes test accounts for development:
+
 - **Admin**: admin@yitro.com / admin123
 - **User**: user@yitro.com / user123
 
 For production, either:
+
 - Change these credentials in the database
 - Create new accounts via the registration flow
 - Set up proper user management
@@ -349,14 +381,17 @@ For production, either:
 ## 📊 Performance Optimization
 
 ### 1. Enable Gzip Compression
+
 Most platforms enable this automatically, but verify in your platform settings.
 
 ### 2. Set Up CDN
+
 - Netlify: Automatic global CDN
 - Vercel: Automatic Edge Network
 - Other platforms: Consider Cloudflare
 
 ### 3. Database Optimization
+
 ```sql
 -- Add indexes for common queries
 CREATE INDEX idx_accounts_user_id ON accounts(user_id);
@@ -368,7 +403,9 @@ CREATE INDEX idx_activities_account_id ON activities(account_id);
 ## 🔄 CI/CD Setup (Optional)
 
 ### GitHub Actions Example
+
 Create `.github/workflows/deploy.yml`:
+
 ```yaml
 name: Deploy to Production
 
@@ -383,7 +420,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
       - run: npm install
       - run: npx prisma generate
       - run: npm run build
@@ -403,6 +440,7 @@ If you encounter issues:
 4. **Review build output** for error messages
 
 For platform-specific issues:
+
 - **Netlify**: Check function logs in dashboard
 - **Vercel**: Review build and runtime logs
 - **Railway**: Monitor deployment logs
@@ -423,6 +461,7 @@ Once deployed, your Yitro CRM will be available at your chosen platform's URL. T
 - ✅ Admin panel
 
 **Next Steps**:
+
 1. Set up your production user accounts
 2. Configure email settings for notifications
 3. Customize branding and company information
@@ -431,4 +470,4 @@ Once deployed, your Yitro CRM will be available at your chosen platform's URL. T
 
 ---
 
-*This deployment guide covers all major platforms and scenarios. Choose the option that best fits your needs and technical expertise.*
+_This deployment guide covers all major platforms and scenarios. Choose the option that best fits your needs and technical expertise._
