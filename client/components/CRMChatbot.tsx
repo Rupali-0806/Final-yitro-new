@@ -278,7 +278,7 @@ I'm here to help you stay on top of your sales game!`,
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
 
-      let response = "**Top Leads This Week:**\n\n";
+      let response = "<b>Top Leads This Week:</b>\n\n";
 
       if (topWeeklyLeads.length > 0) {
         topWeeklyLeads.forEach((lead, index) => {
