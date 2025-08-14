@@ -208,13 +208,41 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     }
 
     if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) {
+      // Extract specific number if requested
+      const numberMatch = lowerQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+
       const activeDeals = deals.filter(d => !['Order Won', 'Order Lost'].includes(d.stage));
+
+      if (requestedCount && activeDeals.length > 0) {
+        const topDeals = activeDeals
+          .sort((a, b) => b.dealValue - a.dealValue)
+          .slice(0, requestedCount);
+
+        let response = `💼 **Top ${requestedCount} Active Deals:**\n\n`;
+
+        topDeals.forEach((deal, index) => {
+          response += `${index + 1}. **${deal.dealName}**\n`;
+          response += `   💰 Value: $${deal.dealValue.toLocaleString()} | 🔄 Stage: ${deal.stage}\n`;
+          response += `   📅 Closes: ${new Date(deal.closingDate).toLocaleDateString()} | 📈 ${deal.probability}% likely\n\n`;
+        });
+
+        const totalValue = topDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
+        response += `💎 **Total Value**: $${totalValue.toLocaleString()}`;
+
+        return {
+          message: response,
+          intent: 'deal_inquiry',
+          quickActions: ['Deal details', 'Next steps', 'Pipeline analysis']
+        };
+      }
+
       const totalValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
-      
+
       return {
         message: `💼 **Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?`,
         intent: 'deal_inquiry',
-        quickActions: ['Deals closing soon', 'Pipeline analysis', 'High value deals']
+        quickActions: ['Top active deals', 'Deals closing soon', 'High value deals']
       };
     }
 
