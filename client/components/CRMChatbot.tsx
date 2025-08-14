@@ -57,9 +57,9 @@ export function CRMChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: `👋 Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant.
+      content: `👋 Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant with personalized recommendations.
 
-I can help you analyze your sales data, track performance, and provide insights about your:
+I can analyze your sales data and provide tailored advice about your:
 
 🎯 **Leads** (${leads.length} total)
 🏢 **Accounts** (${accounts.length} total)
@@ -67,13 +67,13 @@ I can help you analyze your sales data, track performance, and provide insights 
 👥 **Contacts** (${contacts.length} total)
 
 **Try asking me:**
-• "Show me top leads this week"
-• "What deals are closing soon?"
-• "My performance analytics"
-• "Show my profile"
-• "Search for [company/contact]"
+• "Give me personalized recommendations"
+• "What should I prioritize today?"
+• "Show me top 3 leads"
+• "What deals need attention?"
+• "Help me plan my week"
 
-I'm here to help you stay on top of your sales game! 🚀`,
+💡 I provide specific "DO" and "DON'T" advice based on your actual data! 🚀`,
       sender: "bot",
       timestamp: new Date(),
       quickActions: [
