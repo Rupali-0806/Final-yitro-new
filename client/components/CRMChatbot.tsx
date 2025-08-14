@@ -392,7 +392,7 @@ I'm here to help you stay on top of your sales game!`,
       } else {
         response += "No deals are closing this week.\n\n";
         response +=
-          "**Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+          "<b>Suggestion:</b> Focus on moving deals in your pipeline to the closing stage.\n\n";
       }
 
       if (analysis.metrics) {
