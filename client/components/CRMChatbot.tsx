@@ -27,6 +27,7 @@ import {
   Users,
   Calendar,
   DollarSign,
+  RotateCcw,
 } from "lucide-react";
 
 interface Message {
