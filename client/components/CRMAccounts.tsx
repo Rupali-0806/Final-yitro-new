@@ -33,7 +33,10 @@ import {
   DollarSign,
   Save,
   X,
+  Eye,
 } from "lucide-react";
+import Account360View from "./Account360View";
+import AccountDetail from "./AccountDetail";
 import {
   Dialog,
   DialogContent,
