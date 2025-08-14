@@ -136,7 +136,12 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("lead") ||
       lowercaseQuery.includes("top lead")
     ) {
-      const topLeads = leads.sort((a, b) => b.score - a.score).slice(0, 5);
+      // Extract specific number if requested (e.g., "top 3 leads", "give me 5 leads")
+      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const leadCount = Math.max(1, Math.min(requestedCount, 20)); // Between 1 and 20 leads
+
+      const topLeads = leads.sort((a, b) => b.score - a.score).slice(0, leadCount);
 
       const thisWeekLeads = leads.filter((lead) => {
         // Since we don't have exact creation dates, we'll use status for this week
