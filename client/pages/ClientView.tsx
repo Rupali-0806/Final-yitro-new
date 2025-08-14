@@ -126,25 +126,25 @@ export default function ClientView() {
   ]);
 
   useEffect(() => {
-    if (accountId) {
+    if (accountId && accounts && contacts && deals && activities) {
       // Find account details
       const foundAccount = accounts.find(acc => acc.id === accountId);
       setAccount(foundAccount);
 
       // Find related contacts
-      const relatedContacts = contacts.filter(contact => 
+      const relatedContacts = contacts.filter(contact =>
         contact.associatedAccount === accountId
       );
       setAccountContacts(relatedContacts);
 
       // Find related deals
-      const relatedDeals = deals.filter(deal => 
+      const relatedDeals = deals.filter(deal =>
         deal.associatedAccount === foundAccount?.name
       );
       setAccountDeals(relatedDeals);
 
       // Find related activities
-      const relatedActivities = activities.filter(activity => 
+      const relatedActivities = activities.filter(activity =>
         activity.associatedAccount === accountId
       );
       setAccountActivities(relatedActivities);
