@@ -75,6 +75,34 @@ export function CRMDashboard({ onSettingsClick }: CRMDashboardProps) {
     return () => clearInterval(cleanupInterval);
   }, []);
 
+  // Listen for navigation events from AI recommendations
+  useEffect(() => {
+    const handleNavigation = (event: CustomEvent) => {
+      if (event.detail.tab) {
+        setCurrentTab(event.detail.tab);
+
+        // If highlighting a specific deal, do it after tab switch
+        if (event.detail.highlightDeal) {
+          setTimeout(() => {
+            const dealRow = document.querySelector(`[data-deal-id="${event.detail.highlightDeal}"]`);
+            if (dealRow) {
+              dealRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              dealRow.classList.add('bg-yellow-100', 'dark:bg-yellow-900/50', 'animate-pulse');
+              setTimeout(() => {
+                dealRow.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/50', 'animate-pulse');
+              }, 3000);
+            }
+          }, 500);
+        }
+      }
+    };
+
+    window.addEventListener('navigateToTab', handleNavigation as EventListener);
+    return () => {
+      window.removeEventListener('navigateToTab', handleNavigation as EventListener);
+    };
+  }, []);
+
   // Calculate metrics directly from CRM context data
   const crmMetrics = {
     totalRevenue: deals
