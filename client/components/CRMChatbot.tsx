@@ -724,7 +724,7 @@ What would you like to know more about?`;
                               className="text-xs h-6 px-2"
                               onClick={() => {
                                 const userMessage: Message = {
-                                  id: `user-${Date.now()}`,
+                                  id: `user-${Date.now()}-${++messageCounterRef.current}`,
                                   content: action,
                                   sender: "user",
                                   timestamp: new Date(),
