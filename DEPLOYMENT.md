@@ -107,16 +107,16 @@ spec:
         app: crm-app
     spec:
       containers:
-      - name: crm-app
-        image: your-registry/crm-app:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: url
+        - name: crm-app
+          image: your-registry/crm-app:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: url
 ```
 
 ## Build Commands
@@ -125,7 +125,7 @@ spec:
 # Frontend only
 npm run build:client
 
-# Backend only  
+# Backend only
 npm run build:server
 
 # Both (production)
