@@ -27,6 +27,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
+import { RecommendationNotifications } from "./RecommendationNotifications";
 
 interface UserHeaderProps {
   isDarkMode?: boolean;
