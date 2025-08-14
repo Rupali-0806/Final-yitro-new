@@ -498,7 +498,7 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
           (d) => d.probability > 75,
         );
         if (highProbDeals.length > 0) {
-          response += `🎯 **Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
+          response += `**Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
@@ -506,16 +506,16 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
                                    (!lowercaseQuery.includes("closing") && !lowercaseQuery.includes("soon"));
 
         if (isActiveDealsRequest) {
-          response += "📋 No active deals found.\n\n";
-          response += "💡 **Suggestion:** Create new opportunities or convert leads to deals.\n\n";
+          response += "No active deals found.\n\n";
+          response += "**Suggestion:** Create new opportunities or convert leads to deals.\n\n";
         } else {
-          response += "📋 No deals are closing this week.\n\n";
-          response += "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+          response += "No deals are closing this week.\n\n";
+          response += "**Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
         }
       }
 
       if (analysis.metrics) {
-        response += `📊 **Pipeline Summary:**\n`;
+        response += `**Pipeline Summary:**\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Pipeline Value: $${analysis.metrics.totalPipelineValue.toLocaleString()}\n`;
         response += `• Won Deals: ${analysis.metrics.wonDeals}\n`;
@@ -527,7 +527,7 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
           (analysis.metrics.wonDeals /
             (analysis.metrics.wonDeals + analysis.metrics.activeDeals)) *
           100;
-        response += `🏆 **Win Rate:** ${Math.round(winRate)}%`;
+        response += `**Win Rate:** ${Math.round(winRate)}%`;
       }
 
       return response;
