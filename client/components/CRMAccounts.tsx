@@ -52,6 +52,7 @@ import {
 } from "./ui/select";
 
 export function CRMAccounts() {
+  const navigate = useNavigate();
   const { accounts, addAccount, updateAccount, deleteAccount } = useCRM();
   const [filterType, setFilterType] = useState("all");
   const [showNewAccountDialog, setShowNewAccountDialog] = useState(false);
