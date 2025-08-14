@@ -310,7 +310,7 @@ I'm here to help you stay on top of your sales game!`,
       if (analysis.topLeads && analysis.topLeads.length > 0) {
         analysis.topLeads.forEach((lead, index) => {
           response += `${index + 1}. <b>${lead.name}</b> from ${lead.company}\n`;
-          response += `   �� Score: ${lead.score}/100\n`;
+          response += `   • Score: ${lead.score}/100\n`;
           response += `   • Value: ${lead.value}\n`;
           response += `   • Status: ${lead.status}\n`;
           response += `   • Last Activity: ${lead.lastActivity}\n\n`;
@@ -637,13 +637,13 @@ Just ask me naturally - I understand context!`;
     // Default response
     return `I understand you're asking about "${query}". I can help you with information about:
 
-**Leads** - "Show me top leads this week" or "lead status"
-**Accounts** - "Show me best accounts" or "account summary"
-**Deals** - "What deals are closing?" or "pipeline status"
-**Contacts** - "Contact summary" or "recent contacts"
-**Overview** - "Dashboard summary" or "CRM overview"
-**Profile** - "My profile" or "my performance"
-**Analytics** - "Show performance metrics" or "analytics"
+<b>Leads</b> - "Show me top leads this week" or "lead status"
+<b>Accounts</b> - "Show me best accounts" or "account summary"
+<b>Deals</b> - "What deals are closing?" or "pipeline status"
+<b>Contacts</b> - "Contact summary" or "recent contacts"
+<b>Overview</b> - "Dashboard summary" or "CRM overview"
+<b>Profile</b> - "My profile" or "my performance"
+<b>Analytics</b> - "Show performance metrics" or "analytics"
 
 What would you like to know more about?`;
   };
