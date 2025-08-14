@@ -22,9 +22,15 @@ import {
   TrendingUp,
   Target,
   MessageSquare,
+  Bot,
+  FileText,
+  Presentation,
+  Percent,
+  Eye,
 } from "lucide-react";
 import { useCRM } from "../contexts/CRMContext";
 import { format, isToday, isTomorrow, addDays, parseISO } from "date-fns";
+import { aiRecommendationService, AIRecommendation } from "../services/aiRecommendationService";
 
 interface Recommendation {
   id: string;
