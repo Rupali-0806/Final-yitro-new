@@ -99,6 +99,30 @@ I'm here to help you stay on top of your sales game! 🚀`,
     scrollToBottom();
   }, [messages]);
 
+  // Check LLM availability on component mount
+  useEffect(() => {
+    const checkLLMAvailability = async () => {
+      try {
+        setLlmStatus('checking');
+        const result = await llmChatAPI.testLLMConnection();
+        setIsLLMEnabled(result.success);
+        setLlmStatus(result.success ? 'connected' : 'unavailable');
+
+        if (result.success) {
+          console.log('✅ LLM service connected - Enhanced chat responses enabled');
+        } else {
+          console.warn('⚠️ LLM service unavailable - Using fallback responses:', result.message);
+        }
+      } catch (error) {
+        console.error('LLM availability check failed:', error);
+        setIsLLMEnabled(false);
+        setLlmStatus('error');
+      }
+    };
+
+    checkLLMAvailability();
+  }, []);
+
   const analyzeCRMData = (query: string): ChatbotAnalysis => {
     const lowercaseQuery = query.toLowerCase();
 
@@ -907,8 +931,10 @@ What would you like to know more about?`;
                                 setMessages((prev) => [...prev, userMessage]);
                                 setIsTyping(true);
 
-                                setTimeout(() => {
-                                  const botResponse = generateResponse(action);
+                                setTimeout(async () => {
+                                  const botResponse = isLLMEnabled ?
+                                    await generateLLMResponse(action) :
+                                    generateFallbackResponse(action);
                                   const suggestedActions =
                                     getSuggestedActions(action);
                                   const botMessage: Message = {
