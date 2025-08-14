@@ -624,7 +624,7 @@ Just ask me naturally - I understand context!`;
       }
 
       if (recommendations.length > 0) {
-        response += "**Smart Recommendations:**\n";
+        response += "<b>Smart Recommendations:</b>\n";
         recommendations.forEach((rec) => (response += `• ${rec}\n`));
       } else {
         response +=
