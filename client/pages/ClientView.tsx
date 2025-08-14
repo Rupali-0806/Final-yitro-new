@@ -336,7 +336,7 @@ export default function ClientView() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Contacts ({accountContacts.length})</span>
+                <span>Contacts ({accountContacts?.length || 0})</span>
                 <Button size="sm">
                   <Plus className="h-4 w-4 mr-1" />
                   Add Contact
