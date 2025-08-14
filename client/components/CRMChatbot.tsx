@@ -438,7 +438,32 @@ I'm here to help you stay on top of your sales game! 🚀`,
 🔍 **Search:** "Find [anything]", "Search for [company/person]"
 👤 **Profile:** "My profile", "My performance", "Account info"
 
+💡 **Pro Tips:**
+• I remember our conversation context
+• Try "tell me more" for deeper insights
+• Use "clear" to reset our conversation
+
 Just ask me naturally - I understand context! 🚀`;
+    }
+
+    // Handle conversation management
+    if (lowercaseQuery.includes("clear") || lowercaseQuery.includes("reset")) {
+      setConversationContext([]);
+      return "🧹 Conversation cleared! How can I help you with your CRM data?";
+    }
+
+    // Handle fun easter eggs
+    if (lowercaseQuery.includes("joke") || lowercaseQuery.includes("funny")) {
+      const jokes = [
+        "Why don't sales reps ever get lost? Because they always follow the pipeline! 😄",
+        "What do you call a lead that never converts? A cold call forever! ❄️",
+        "Why did the CRM break up with the spreadsheet? Too many cells, not enough chemistry! 💔",
+      ];
+      return jokes[Math.floor(Math.random() * jokes.length)];
+    }
+
+    if (lowercaseQuery.includes("coffee") || lowercaseQuery.includes("tired")) {
+      return "☕ I don't drink coffee, but I can definitely energize you with some exciting sales insights! How about checking your top performing leads?";
     }
 
     // Handle performance and analytics queries
