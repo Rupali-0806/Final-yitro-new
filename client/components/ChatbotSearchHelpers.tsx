@@ -7,22 +7,24 @@ export interface SearchResult {
 }
 
 export class ChatbotSearchEngine {
-  static searchContacts(
-    contacts: Contact[],
-    query: string
-  ): SearchResult[] {
+  static searchContacts(contacts: Contact[], query: string): SearchResult[] {
     const searchTerms = query.toLowerCase().split(" ");
-    
+
     return contacts
-      .map(contact => {
+      .map((contact) => {
         let score = 0;
-        const searchableText = `${contact.firstName} ${contact.lastName} ${contact.emailAddress} ${contact.associatedAccount} ${contact.title}`.toLowerCase();
-        
-        searchTerms.forEach(term => {
+        const searchableText =
+          `${contact.firstName} ${contact.lastName} ${contact.emailAddress} ${contact.associatedAccount} ${contact.title}`.toLowerCase();
+
+        searchTerms.forEach((term) => {
           if (searchableText.includes(term)) {
             score += 1;
             // Boost score for name matches
-            if (`${contact.firstName} ${contact.lastName}`.toLowerCase().includes(term)) {
+            if (
+              `${contact.firstName} ${contact.lastName}`
+                .toLowerCase()
+                .includes(term)
+            ) {
               score += 2;
             }
             // Boost score for exact company matches
@@ -31,29 +33,27 @@ export class ChatbotSearchEngine {
             }
           }
         });
-        
+
         return {
           type: "contact" as const,
           data: contact,
           relevanceScore: score,
         };
       })
-      .filter(result => result.relevanceScore > 0)
+      .filter((result) => result.relevanceScore > 0)
       .sort((a, b) => b.relevanceScore - a.relevanceScore);
   }
 
-  static searchAccounts(
-    accounts: Account[],
-    query: string
-  ): SearchResult[] {
+  static searchAccounts(accounts: Account[], query: string): SearchResult[] {
     const searchTerms = query.toLowerCase().split(" ");
-    
+
     return accounts
-      .map(account => {
+      .map((account) => {
         let score = 0;
-        const searchableText = `${account.name} ${account.industry} ${account.type} ${account.location}`.toLowerCase();
-        
-        searchTerms.forEach(term => {
+        const searchableText =
+          `${account.name} ${account.industry} ${account.type} ${account.location}`.toLowerCase();
+
+        searchTerms.forEach((term) => {
           if (searchableText.includes(term)) {
             score += 1;
             // Boost score for name matches
@@ -62,29 +62,27 @@ export class ChatbotSearchEngine {
             }
           }
         });
-        
+
         return {
           type: "account" as const,
           data: account,
           relevanceScore: score,
         };
       })
-      .filter(result => result.relevanceScore > 0)
+      .filter((result) => result.relevanceScore > 0)
       .sort((a, b) => b.relevanceScore - a.relevanceScore);
   }
 
-  static searchLeads(
-    leads: Lead[],
-    query: string
-  ): SearchResult[] {
+  static searchLeads(leads: Lead[], query: string): SearchResult[] {
     const searchTerms = query.toLowerCase().split(" ");
-    
+
     return leads
-      .map(lead => {
+      .map((lead) => {
         let score = 0;
-        const searchableText = `${lead.name} ${lead.company} ${lead.title} ${lead.email} ${lead.source}`.toLowerCase();
-        
-        searchTerms.forEach(term => {
+        const searchableText =
+          `${lead.name} ${lead.company} ${lead.title} ${lead.email} ${lead.source}`.toLowerCase();
+
+        searchTerms.forEach((term) => {
           if (searchableText.includes(term)) {
             score += 1;
             // Boost score for name matches
@@ -97,29 +95,27 @@ export class ChatbotSearchEngine {
             }
           }
         });
-        
+
         return {
           type: "lead" as const,
           data: lead,
           relevanceScore: score,
         };
       })
-      .filter(result => result.relevanceScore > 0)
+      .filter((result) => result.relevanceScore > 0)
       .sort((a, b) => b.relevanceScore - a.relevanceScore);
   }
 
-  static searchDeals(
-    deals: ActiveDeal[],
-    query: string
-  ): SearchResult[] {
+  static searchDeals(deals: ActiveDeal[], query: string): SearchResult[] {
     const searchTerms = query.toLowerCase().split(" ");
-    
+
     return deals
-      .map(deal => {
+      .map((deal) => {
         let score = 0;
-        const searchableText = `${deal.dealName} ${deal.associatedAccount} ${deal.associatedContact} ${deal.businessLine} ${deal.stage}`.toLowerCase();
-        
-        searchTerms.forEach(term => {
+        const searchableText =
+          `${deal.dealName} ${deal.associatedAccount} ${deal.associatedContact} ${deal.businessLine} ${deal.stage}`.toLowerCase();
+
+        searchTerms.forEach((term) => {
           if (searchableText.includes(term)) {
             score += 1;
             // Boost score for deal name matches
@@ -132,14 +128,14 @@ export class ChatbotSearchEngine {
             }
           }
         });
-        
+
         return {
           type: "deal" as const,
           data: deal,
           relevanceScore: score,
         };
       })
-      .filter(result => result.relevanceScore > 0)
+      .filter((result) => result.relevanceScore > 0)
       .sort((a, b) => b.relevanceScore - a.relevanceScore);
   }
 
@@ -148,7 +144,7 @@ export class ChatbotSearchEngine {
     leads: Lead[],
     accounts: Account[],
     contacts: Contact[],
-    deals: ActiveDeal[]
+    deals: ActiveDeal[],
   ): SearchResult[] {
     const leadResults = this.searchLeads(leads, query);
     const accountResults = this.searchAccounts(accounts, query);
@@ -174,7 +170,7 @@ export class ChatbotSearchEngine {
 
     results.forEach((result, index) => {
       const data = result.data;
-      
+
       switch (result.type) {
         case "contact":
           response += `👤 ${index + 1}. **${data.firstName} ${data.lastName}**\n`;
@@ -183,7 +179,7 @@ export class ChatbotSearchEngine {
           response += `   💼 ${data.title || "No title"}\n`;
           response += `   📱 ${data.mobilePhone || data.deskPhone || "No phone"}\n`;
           break;
-          
+
         case "account":
           response += `🏢 ${index + 1}. **${data.name}**\n`;
           response += `   🏭 Industry: ${data.industry}\n`;
@@ -191,7 +187,7 @@ export class ChatbotSearchEngine {
           response += `   📍 Location: ${data.location}\n`;
           response += `   🎯 Type: ${data.type}\n`;
           break;
-          
+
         case "lead":
           response += `🎯 ${index + 1}. **${data.name}** from ${data.company}\n`;
           response += `   📊 Score: ${data.score}/100\n`;
@@ -199,7 +195,7 @@ export class ChatbotSearchEngine {
           response += `   📧 Email: ${data.email}\n`;
           response += `   🔥 Status: ${data.status}\n`;
           break;
-          
+
         case "deal":
           response += `💼 ${index + 1}. **${data.dealName}**\n`;
           response += `   🏢 Account: ${data.associatedAccount}\n`;
@@ -208,7 +204,7 @@ export class ChatbotSearchEngine {
           response += `   🔄 Stage: ${data.stage}\n`;
           break;
       }
-      
+
       response += "\n";
     });
 

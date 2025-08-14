@@ -74,7 +74,12 @@ I can help you analyze your sales data, track performance, and provide insights 
 I'm here to help you stay on top of your sales game! 🚀`,
       sender: "bot",
       timestamp: new Date(),
-      quickActions: ["Top leads this week", "Deals closing soon", "My performance", "Account summary"],
+      quickActions: [
+        "Top leads this week",
+        "Deals closing soon",
+        "My performance",
+        "Account summary",
+      ],
     },
   ]);
   const [inputValue, setInputValue] = useState("");
@@ -93,19 +98,20 @@ I'm here to help you stay on top of your sales game! 🚀`,
 
   const analyzeCRMData = (query: string): ChatbotAnalysis => {
     const lowercaseQuery = query.toLowerCase();
-    
+
     // Get current date for filtering
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
     // Analyze leads
-    if (lowercaseQuery.includes("lead") || lowercaseQuery.includes("top lead")) {
-      const topLeads = leads
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5);
-      
-      const thisWeekLeads = leads.filter(lead => {
+    if (
+      lowercaseQuery.includes("lead") ||
+      lowercaseQuery.includes("top lead")
+    ) {
+      const topLeads = leads.sort((a, b) => b.score - a.score).slice(0, 5);
+
+      const thisWeekLeads = leads.filter((lead) => {
         // Since we don't have exact creation dates, we'll use status for this week
         return lead.status === "New" || lead.status === "Qualified";
       });
@@ -114,17 +120,20 @@ I'm here to help you stay on top of your sales game! 🚀`,
         topLeads,
         metrics: {
           totalLeads: leads.length,
-          newLeads: leads.filter(l => l.status === "New").length,
-          qualifiedLeads: leads.filter(l => l.status === "Qualified").length,
-          workingLeads: leads.filter(l => l.status === "Working").length,
-        }
+          newLeads: leads.filter((l) => l.status === "New").length,
+          qualifiedLeads: leads.filter((l) => l.status === "Qualified").length,
+          workingLeads: leads.filter((l) => l.status === "Working").length,
+        },
       };
     }
 
     // Analyze accounts
-    if (lowercaseQuery.includes("account") || lowercaseQuery.includes("client")) {
+    if (
+      lowercaseQuery.includes("account") ||
+      lowercaseQuery.includes("client")
+    ) {
       const topAccounts = accounts
-        .filter(account => account.type === "Customer")
+        .filter((account) => account.type === "Customer")
         .sort((a, b) => b.activeDeals - a.activeDeals)
         .slice(0, 5);
 
@@ -132,27 +141,46 @@ I'm here to help you stay on top of your sales game! 🚀`,
         topAccounts,
         metrics: {
           totalAccounts: accounts.length,
-          customers: accounts.filter(a => a.type === "Customer").length,
-          prospects: accounts.filter(a => a.type === "Prospect").length,
-          partners: accounts.filter(a => a.type === "Partner").length,
-        }
+          customers: accounts.filter((a) => a.type === "Customer").length,
+          prospects: accounts.filter((a) => a.type === "Prospect").length,
+          partners: accounts.filter((a) => a.type === "Partner").length,
+        },
       };
     }
 
     // Analyze deals
-    if (lowercaseQuery.includes("deal") || lowercaseQuery.includes("closing") || lowercaseQuery.includes("pipeline")) {
+    if (
+      lowercaseQuery.includes("deal") ||
+      lowercaseQuery.includes("closing") ||
+      lowercaseQuery.includes("pipeline")
+    ) {
       const upcomingDeals = deals
-        .filter(deal => {
+        .filter((deal) => {
           const closingDate = new Date(deal.closingDate);
-          return closingDate >= now && closingDate <= nextWeek && 
-                 !["Order Won", "Order Lost"].includes(deal.stage);
+          return (
+            closingDate >= now &&
+            closingDate <= nextWeek &&
+            !["Order Won", "Order Lost"].includes(deal.stage)
+          );
         })
-        .sort((a, b) => new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime());
+        .sort(
+          (a, b) =>
+            new Date(a.closingDate).getTime() -
+            new Date(b.closingDate).getTime(),
+        );
 
-      const activeDeals = deals.filter(deal => !["Order Won", "Order Lost"].includes(deal.stage));
-      const totalPipelineValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
-      const wonDeals = deals.filter(deal => deal.stage === "Order Won");
-      const totalRevenue = wonDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
+      const activeDeals = deals.filter(
+        (deal) => !["Order Won", "Order Lost"].includes(deal.stage),
+      );
+      const totalPipelineValue = activeDeals.reduce(
+        (sum, deal) => sum + deal.dealValue,
+        0,
+      );
+      const wonDeals = deals.filter((deal) => deal.stage === "Order Won");
+      const totalRevenue = wonDeals.reduce(
+        (sum, deal) => sum + deal.dealValue,
+        0,
+      );
 
       return {
         upcomingDeals,
@@ -161,24 +189,31 @@ I'm here to help you stay on top of your sales game! 🚀`,
           totalPipelineValue,
           wonDeals: wonDeals.length,
           totalRevenue,
-          avgDealSize: activeDeals.length > 0 ? totalPipelineValue / activeDeals.length : 0,
-        }
+          avgDealSize:
+            activeDeals.length > 0
+              ? totalPipelineValue / activeDeals.length
+              : 0,
+        },
       };
     }
 
     // Analyze contacts
     if (lowercaseQuery.includes("contact")) {
       const recentContacts = contacts
-        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+        )
         .slice(0, 5);
 
       return {
         metrics: {
           totalContacts: contacts.length,
-          activeDeals: contacts.filter(c => c.status === "Active Deal").length,
-          prospects: contacts.filter(c => c.status === "Prospect").length,
-          suspects: contacts.filter(c => c.status === "Suspect").length,
-        }
+          activeDeals: contacts.filter((c) => c.status === "Active Deal")
+            .length,
+          prospects: contacts.filter((c) => c.status === "Prospect").length,
+          suspects: contacts.filter((c) => c.status === "Suspect").length,
+        },
       };
     }
 
@@ -189,8 +224,10 @@ I'm here to help you stay on top of your sales game! 🚀`,
         totalAccounts: accounts.length,
         totalContacts: contacts.length,
         totalDeals: deals.length,
-        activeDeals: deals.filter(deal => !["Order Won", "Order Lost"].includes(deal.stage)).length,
-      }
+        activeDeals: deals.filter(
+          (deal) => !["Order Won", "Order Lost"].includes(deal.stage),
+        ).length,
+      },
     };
   };
 
@@ -199,7 +236,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
     const lowercaseQuery = query.toLowerCase();
 
     // Update conversation context
-    setConversationContext(prev => [...prev.slice(-4), lowercaseQuery]);
+    setConversationContext((prev) => [...prev.slice(-4), lowercaseQuery]);
 
     // Handle search queries first
     const searchQuery = ChatbotSearchEngine.extractSearchQuery(query);
@@ -209,13 +246,18 @@ I'm here to help you stay on top of your sales game! 🚀`,
         leads,
         accounts,
         contacts,
-        deals
+        deals,
       );
       return ChatbotSearchEngine.formatSearchResults(searchResults);
     }
 
     // Handle contextual follow-up questions
-    if ((lowercaseQuery.includes("more") || lowercaseQuery.includes("details") || lowercaseQuery.includes("tell me more")) && conversationContext.length > 0) {
+    if (
+      (lowercaseQuery.includes("more") ||
+        lowercaseQuery.includes("details") ||
+        lowercaseQuery.includes("tell me more")) &&
+      conversationContext.length > 0
+    ) {
       const lastContext = conversationContext[conversationContext.length - 1];
       if (lastContext.includes("lead")) {
         return generateResponse("show me detailed lead analysis");
@@ -227,9 +269,12 @@ I'm here to help you stay on top of your sales game! 🚀`,
     }
 
     // Handle specific lead inquiries
-    if (lowercaseQuery.includes("lead") && (lowercaseQuery.includes("week") || lowercaseQuery.includes("this week"))) {
+    if (
+      lowercaseQuery.includes("lead") &&
+      (lowercaseQuery.includes("week") || lowercaseQuery.includes("this week"))
+    ) {
       const topWeeklyLeads = leads
-        .filter(lead => lead.status === "New" || lead.status === "Qualified")
+        .filter((lead) => lead.status === "New" || lead.status === "Qualified")
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
 
@@ -245,18 +290,23 @@ I'm here to help you stay on top of your sales game! 🚀`,
           response += `   🔥 Status: ${lead.status}\n\n`;
         });
 
-        response += "💡 **Recommendation:** Focus on the highest scoring leads first. ";
+        response +=
+          "💡 **Recommendation:** Focus on the highest scoring leads first. ";
         response += `${topWeeklyLeads[0]?.name} has the highest score (${topWeeklyLeads[0]?.score}) and should be your priority!`;
       } else {
-        response += "No new leads this week. Consider increasing marketing efforts or lead generation activities.";
+        response +=
+          "No new leads this week. Consider increasing marketing efforts or lead generation activities.";
       }
 
       return response;
     }
 
-    if (lowercaseQuery.includes("lead") || lowercaseQuery.includes("top lead")) {
+    if (
+      lowercaseQuery.includes("lead") ||
+      lowercaseQuery.includes("top lead")
+    ) {
       let response = "Here are your top leads by score:\n\n";
-      
+
       if (analysis.topLeads && analysis.topLeads.length > 0) {
         analysis.topLeads.forEach((lead, index) => {
           response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
@@ -278,9 +328,12 @@ I'm here to help you stay on top of your sales game! 🚀`,
       return response;
     }
 
-    if (lowercaseQuery.includes("account") || lowercaseQuery.includes("client")) {
+    if (
+      lowercaseQuery.includes("account") ||
+      lowercaseQuery.includes("client")
+    ) {
       let response = "Here are your top accounts:\n\n";
-      
+
       if (analysis.topAccounts && analysis.topAccounts.length > 0) {
         analysis.topAccounts.forEach((account, index) => {
           response += `${index + 1}. **${account.name}**\n`;
@@ -303,13 +356,18 @@ I'm here to help you stay on top of your sales game! 🚀`,
       return response;
     }
 
-    if (lowercaseQuery.includes("deal") || lowercaseQuery.includes("closing") || lowercaseQuery.includes("pipeline")) {
+    if (
+      lowercaseQuery.includes("deal") ||
+      lowercaseQuery.includes("closing") ||
+      lowercaseQuery.includes("pipeline")
+    ) {
       let response = "";
 
       if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
         response += "💼 **Deals Closing This Week:**\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
-          const urgencyIcon = deal.probability > 75 ? "🔥" : deal.probability > 50 ? "⚡" : "⏰";
+          const urgencyIcon =
+            deal.probability > 75 ? "🔥" : deal.probability > 50 ? "⚡" : "⏰";
           response += `${urgencyIcon} ${index + 1}. **${deal.dealName}**\n`;
           response += `   🏢 Account: ${deal.associatedAccount}\n`;
           response += `   💰 Value: $${deal.dealValue.toLocaleString()}\n`;
@@ -320,14 +378,17 @@ I'm here to help you stay on top of your sales game! 🚀`,
         });
 
         // Add recommendations based on deal analysis
-        const highProbDeals = analysis.upcomingDeals.filter(d => d.probability > 75);
+        const highProbDeals = analysis.upcomingDeals.filter(
+          (d) => d.probability > 75,
+        );
         if (highProbDeals.length > 0) {
           response += `🎯 **Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
         response += "📋 No deals are closing this week.\n\n";
-        response += "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+        response +=
+          "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
       }
 
       if (analysis.metrics) {
@@ -339,7 +400,10 @@ I'm here to help you stay on top of your sales game! 🚀`,
         response += `• Average Deal Size: $${Math.round(analysis.metrics.avgDealSize).toLocaleString()}\n\n`;
 
         // Add performance insights
-        const winRate = analysis.metrics.wonDeals / (analysis.metrics.wonDeals + analysis.metrics.activeDeals) * 100;
+        const winRate =
+          (analysis.metrics.wonDeals /
+            (analysis.metrics.wonDeals + analysis.metrics.activeDeals)) *
+          100;
         response += `🏆 **Win Rate:** ${Math.round(winRate)}%`;
       }
 
@@ -348,31 +412,37 @@ I'm here to help you stay on top of your sales game! 🚀`,
 
     if (lowercaseQuery.includes("contact")) {
       let response = "Here's your contact summary:\n\n";
-      
+
       if (analysis.metrics) {
         response += `**Contact Summary:**\n`;
         response += `• Total Contacts: ${analysis.metrics.totalContacts}\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Prospects: ${analysis.metrics.prospects}\n`;
         response += `• Suspects: ${analysis.metrics.suspects}\n\n`;
-        
-        response += "Recent contacts include key decision makers from your top accounts. ";
-        response += "Would you like me to show you specific contact details for any account?";
+
+        response +=
+          "Recent contacts include key decision makers from your top accounts. ";
+        response +=
+          "Would you like me to show you specific contact details for any account?";
       }
 
       return response;
     }
 
-    if (lowercaseQuery.includes("summary") || lowercaseQuery.includes("overview") || lowercaseQuery.includes("dashboard")) {
+    if (
+      lowercaseQuery.includes("summary") ||
+      lowercaseQuery.includes("overview") ||
+      lowercaseQuery.includes("dashboard")
+    ) {
       let response = "Here's your CRM overview:\n\n";
-      
+
       if (analysis.metrics) {
         response += `**Quick Stats:**\n`;
         response += `• Total Leads: ${analysis.metrics.totalLeads}\n`;
         response += `• Total Accounts: ${analysis.metrics.totalAccounts}\n`;
         response += `• Total Contacts: ${analysis.metrics.totalContacts}\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n\n`;
-        
+
         response += "Your CRM is looking healthy! ";
         response += "Would you like me to dive deeper into any specific area?";
       }
@@ -381,7 +451,11 @@ I'm here to help you stay on top of your sales game! 🚀`,
     }
 
     // Handle user profile queries
-    if (lowercaseQuery.includes("my profile") || lowercaseQuery.includes("about me") || lowercaseQuery.includes("my info")) {
+    if (
+      lowercaseQuery.includes("my profile") ||
+      lowercaseQuery.includes("about me") ||
+      lowercaseQuery.includes("my info")
+    ) {
       let response = `👤 **Your Profile Information:**\n\n`;
       response += `• Name: ${user?.displayName || "Not set"}\n`;
       response += `• Email: ${user?.email || "Not set"}\n`;
@@ -394,34 +468,43 @@ I'm here to help you stay on top of your sales game! 🚀`,
       response += `• Tracking ${deals.length} deals\n`;
       response += `• Connected to ${contacts.length} contacts\n\n`;
 
-      const activeDealsCount = deals.filter(deal => !["Order Won", "Order Lost"].includes(deal.stage)).length;
+      const activeDealsCount = deals.filter(
+        (deal) => !["Order Won", "Order Lost"].includes(deal.stage),
+      ).length;
       const pipelineValue = deals
-        .filter(deal => !["Order Won", "Order Lost"].includes(deal.stage))
+        .filter((deal) => !["Order Won", "Order Lost"].includes(deal.stage))
         .reduce((sum, deal) => sum + deal.dealValue, 0);
 
       response += `💼 **Your Performance:**\n`;
       response += `• Active Deals: ${activeDealsCount}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
-      response += `• Closed Deals: ${deals.filter(d => d.stage === "Order Won").length}\n`;
+      response += `• Closed Deals: ${deals.filter((d) => d.stage === "Order Won").length}\n`;
 
       return response;
     }
 
     // Handle specific search queries
-    if ((lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) && !searchQuery) {
+    if (
+      (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) &&
+      !searchQuery
+    ) {
       let response = "🔍 **Search Help:**\n\n";
       response += "I can help you find specific information. Try asking:\n\n";
-      response += "• \"Find contact John Smith\"\n";
-      response += "• \"Search for TechCorp account\"\n";
-      response += "• \"Show me deals over $100k\"\n";
-      response += "• \"Find leads from StartupCorp\"\n\n";
+      response += '• "Find contact John Smith"\n';
+      response += '• "Search for TechCorp account"\n';
+      response += '• "Show me deals over $100k"\n';
+      response += '• "Find leads from StartupCorp"\n\n';
       response += "What specifically are you looking for?";
 
       return response;
     }
 
     // Handle greetings and casual conversation
-    if (lowercaseQuery.includes("hello") || lowercaseQuery.includes("hi") || lowercaseQuery.includes("hey")) {
+    if (
+      lowercaseQuery.includes("hello") ||
+      lowercaseQuery.includes("hi") ||
+      lowercaseQuery.includes("hey")
+    ) {
       return `👋 Hi there! I'm your CRM assistant. I've got all your latest data ready. What would you like to know about your sales pipeline today?`;
     }
 
@@ -469,13 +552,25 @@ Just ask me naturally - I understand context! 🚀`;
     }
 
     // Handle performance and analytics queries
-    if (lowercaseQuery.includes("performance") || lowercaseQuery.includes("analytics") || lowercaseQuery.includes("metrics")) {
-      const totalRevenue = deals.filter(d => d.stage === "Order Won").reduce((sum, d) => sum + d.dealValue, 0);
-      const wonDeals = deals.filter(d => d.stage === "Order Won");
-      const avgDealSize = wonDeals.length > 0 ? totalRevenue / wonDeals.length : 0;
+    if (
+      lowercaseQuery.includes("performance") ||
+      lowercaseQuery.includes("analytics") ||
+      lowercaseQuery.includes("metrics")
+    ) {
+      const totalRevenue = deals
+        .filter((d) => d.stage === "Order Won")
+        .reduce((sum, d) => sum + d.dealValue, 0);
+      const wonDeals = deals.filter((d) => d.stage === "Order Won");
+      const avgDealSize =
+        wonDeals.length > 0 ? totalRevenue / wonDeals.length : 0;
       const conversionRate = (wonDeals.length / leads.length) * 100;
-      const activeDeals = deals.filter(d => !["Order Won", "Order Lost"].includes(d.stage));
-      const pipelineValue = activeDeals.reduce((sum, d) => sum + d.dealValue, 0);
+      const activeDeals = deals.filter(
+        (d) => !["Order Won", "Order Lost"].includes(d.stage),
+      );
+      const pipelineValue = activeDeals.reduce(
+        (sum, d) => sum + d.dealValue,
+        0,
+      );
 
       let response = "📈 **Performance Analytics:**\n\n";
       response += `💰 **Revenue Metrics:**\n`;
@@ -486,7 +581,7 @@ Just ask me naturally - I understand context! 🚀`;
 
       response += `📊 **Activity Summary:**\n`;
       response += `• Leads in Pipeline: ${leads.length}\n`;
-      response += `• Active Accounts: ${accounts.filter(a => a.type === "Customer").length}\n`;
+      response += `• Active Accounts: ${accounts.filter((a) => a.type === "Customer").length}\n`;
       response += `• Deals in Progress: ${activeDeals.length}\n`;
       response += `• Won Deals: ${wonDeals.length}\n\n`;
 
@@ -494,29 +589,42 @@ Just ask me naturally - I understand context! 🚀`;
       const recommendations = [];
 
       if (conversionRate < 10) {
-        recommendations.push("🎯 Focus on lead qualification - your conversion rate needs improvement");
+        recommendations.push(
+          "🎯 Focus on lead qualification - your conversion rate needs improvement",
+        );
       } else if (conversionRate > 20) {
-        recommendations.push("🏆 Excellent conversion rate! Consider scaling your lead generation");
+        recommendations.push(
+          "🏆 Excellent conversion rate! Consider scaling your lead generation",
+        );
       }
 
       if (activeDeals.length > wonDeals.length * 2) {
-        recommendations.push("⚡ You have many active deals - focus on closing them");
+        recommendations.push(
+          "⚡ You have many active deals - focus on closing them",
+        );
       }
 
-      if (leads.filter(l => l.status === "New").length > leads.length * 0.5) {
-        recommendations.push("📞 Many new leads need follow-up - prioritize outreach");
+      if (leads.filter((l) => l.status === "New").length > leads.length * 0.5) {
+        recommendations.push(
+          "📞 Many new leads need follow-up - prioritize outreach",
+        );
       }
 
-      const highValueDeals = activeDeals.filter(d => d.dealValue > avgDealSize * 1.5);
+      const highValueDeals = activeDeals.filter(
+        (d) => d.dealValue > avgDealSize * 1.5,
+      );
       if (highValueDeals.length > 0) {
-        recommendations.push(`💎 Focus on ${highValueDeals.length} high-value deals for maximum impact`);
+        recommendations.push(
+          `💎 Focus on ${highValueDeals.length} high-value deals for maximum impact`,
+        );
       }
 
       if (recommendations.length > 0) {
         response += "💡 **Smart Recommendations:**\n";
-        recommendations.forEach(rec => response += `• ${rec}\n`);
+        recommendations.forEach((rec) => (response += `• ${rec}\n`));
       } else {
-        response += "🎉 **Great job!** Your pipeline looks healthy and well-balanced!";
+        response +=
+          "🎉 **Great job!** Your pipeline looks healthy and well-balanced!";
       }
 
       return response;
@@ -551,7 +659,10 @@ What would you like to know more about?`;
       return ["Contact summary", "Deals closing soon", "Lead status"];
     }
 
-    if (lowercaseQuery.includes("performance") || lowercaseQuery.includes("analytics")) {
+    if (
+      lowercaseQuery.includes("performance") ||
+      lowercaseQuery.includes("analytics")
+    ) {
       return ["Top leads this week", "Deals closing soon", "Account summary"];
     }
 
@@ -573,7 +684,7 @@ What would you like to know more about?`;
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsTyping(true);
 
@@ -589,7 +700,7 @@ What would you like to know more about?`;
         quickActions: suggestedActions,
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
     }, 1000);
   };
@@ -614,9 +725,11 @@ What would you like to know more about?`;
   }
 
   return (
-    <Card className={`fixed bottom-6 right-6 z-50 shadow-xl transition-all duration-300 ${
-      isMinimized ? "w-80 h-16" : "w-96 h-[600px]"
-    }`}>
+    <Card
+      className={`fixed bottom-6 right-6 z-50 shadow-xl transition-all duration-300 ${
+        isMinimized ? "w-80 h-16" : "w-96 h-[600px]"
+      }`}
+    >
       <CardHeader className="pb-3 border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -630,13 +743,20 @@ What would you like to know more about?`;
               variant="ghost"
               size="sm"
               onClick={() => {
-                setMessages([{
-                  id: "welcome-reset",
-                  content: `👋 Fresh start! I'm ready to help you with your CRM data again.`,
-                  sender: "bot",
-                  timestamp: new Date(),
-                  quickActions: ["Top leads this week", "Deals closing soon", "My performance", "Account summary"],
-                }]);
+                setMessages([
+                  {
+                    id: "welcome-reset",
+                    content: `👋 Fresh start! I'm ready to help you with your CRM data again.`,
+                    sender: "bot",
+                    timestamp: new Date(),
+                    quickActions: [
+                      "Top leads this week",
+                      "Deals closing soon",
+                      "My performance",
+                      "Account summary",
+                    ],
+                  },
+                ]);
                 setConversationContext([]);
               }}
               title="Clear conversation"
@@ -654,11 +774,7 @@ What would you like to know more about?`;
                 <Minimize2 className="h-4 w-4" />
               )}
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -706,7 +822,9 @@ What would you like to know more about?`;
                       </div>
                       <div
                         className={`text-xs mt-1 opacity-70 ${
-                          message.sender === "user" ? "text-blue-100" : "text-gray-500"
+                          message.sender === "user"
+                            ? "text-blue-100"
+                            : "text-gray-500"
                         }`}
                       >
                         {message.timestamp.toLocaleTimeString([], {
@@ -729,12 +847,13 @@ What would you like to know more about?`;
                                   sender: "user",
                                   timestamp: new Date(),
                                 };
-                                setMessages(prev => [...prev, userMessage]);
+                                setMessages((prev) => [...prev, userMessage]);
                                 setIsTyping(true);
 
                                 setTimeout(() => {
                                   const botResponse = generateResponse(action);
-                                  const suggestedActions = getSuggestedActions(action);
+                                  const suggestedActions =
+                                    getSuggestedActions(action);
                                   const botMessage: Message = {
                                     id: `bot-${Date.now()}-${++messageCounterRef.current}`,
                                     content: botResponse,
@@ -742,7 +861,7 @@ What would you like to know more about?`;
                                     timestamp: new Date(),
                                     quickActions: suggestedActions,
                                   };
-                                  setMessages(prev => [...prev, botMessage]);
+                                  setMessages((prev) => [...prev, botMessage]);
                                   setIsTyping(false);
                                 }, 1000);
                               }}
@@ -756,7 +875,7 @@ What would you like to know more about?`;
                   </div>
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="flex items-start space-x-2">
@@ -766,14 +885,20 @@ What would you like to know more about?`;
                     <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.1s" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
           </CardContent>
