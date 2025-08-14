@@ -342,7 +342,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
         response += `💎 **Total Value**: $${totalValue.toLocaleString()}`;
 
         return {
-          message: response,
+          message: response + recommendations,
           intent: 'deal_inquiry',
           quickActions: ['Deal details', 'Next steps', 'Pipeline analysis']
         };
