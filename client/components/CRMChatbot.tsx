@@ -69,7 +69,7 @@ I can help you analyze your sales data, track performance, and provide insights 
 • "What deals are closing soon?"
 • "My performance analytics"
 • "Show my profile"
-��� "Search for [company/contact]"
+• "Search for [company/contact]"
 
 I'm here to help you stay on top of your sales game!`,
       sender: "bot",
@@ -372,7 +372,7 @@ I'm here to help you stay on top of your sales game!`,
               : deal.probability > 50
                 ? "MEDIUM PRIORITY"
                 : "LOW PRIORITY";
-          response += `${urgencyLabel} ${index + 1}. **${deal.dealName}**\n`;
+          response += `${urgencyLabel} ${index + 1}. <b>${deal.dealName}</b>\n`;
           response += `   Account: ${deal.associatedAccount}\n`;
           response += `   Value: $${deal.dealValue.toLocaleString()}\n`;
           response += `   Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
