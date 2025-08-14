@@ -261,29 +261,42 @@ export function CRMChatbot() {
 
     if (lowercaseQuery.includes("deal") || lowercaseQuery.includes("closing") || lowercaseQuery.includes("pipeline")) {
       let response = "";
-      
+
       if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
-        response += "Here are your deals closing this week:\n\n";
+        response += "💼 **Deals Closing This Week:**\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
-          response += `${index + 1}. **${deal.dealName}**\n`;
-          response += `   • Account: ${deal.associatedAccount}\n`;
-          response += `   • Value: $${deal.dealValue.toLocaleString()}\n`;
-          response += `   • Closing Date: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
-          response += `   • Probability: ${deal.probability}%\n`;
-          response += `   • Stage: ${deal.stage}\n`;
-          response += `   • Next Step: ${deal.nextStep}\n\n`;
+          const urgencyIcon = deal.probability > 75 ? "🔥" : deal.probability > 50 ? "⚡" : "⏰";
+          response += `${urgencyIcon} ${index + 1}. **${deal.dealName}**\n`;
+          response += `   🏢 Account: ${deal.associatedAccount}\n`;
+          response += `   💰 Value: $${deal.dealValue.toLocaleString()}\n`;
+          response += `   📅 Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
+          response += `   📈 Probability: ${deal.probability}%\n`;
+          response += `   🔄 Stage: ${deal.stage}\n`;
+          response += `   ➡️ Next Step: ${deal.nextStep}\n\n`;
         });
+
+        // Add recommendations based on deal analysis
+        const highProbDeals = analysis.upcomingDeals.filter(d => d.probability > 75);
+        if (highProbDeals.length > 0) {
+          response += `🎯 **Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
+          response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
+        }
       } else {
-        response += "No deals are closing this week.\n\n";
+        response += "📋 No deals are closing this week.\n\n";
+        response += "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
       }
 
       if (analysis.metrics) {
-        response += `**Pipeline Summary:**\n`;
+        response += `📊 **Pipeline Summary:**\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Pipeline Value: $${analysis.metrics.totalPipelineValue.toLocaleString()}\n`;
         response += `• Won Deals: ${analysis.metrics.wonDeals}\n`;
         response += `• Total Revenue: $${analysis.metrics.totalRevenue.toLocaleString()}\n`;
-        response += `• Average Deal Size: $${Math.round(analysis.metrics.avgDealSize).toLocaleString()}`;
+        response += `• Average Deal Size: $${Math.round(analysis.metrics.avgDealSize).toLocaleString()}\n\n`;
+
+        // Add performance insights
+        const winRate = analysis.metrics.wonDeals / (analysis.metrics.wonDeals + analysis.metrics.activeDeals) * 100;
+        response += `🏆 **Win Rate:** ${Math.round(winRate)}%`;
       }
 
       return response;
