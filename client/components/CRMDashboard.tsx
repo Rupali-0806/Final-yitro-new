@@ -592,6 +592,9 @@ export function CRMDashboard({ onSettingsClick }: CRMDashboardProps) {
       />
       {renderTabContent()}
 
+      {/* CRM Chatbot */}
+      <CRMChatbot />
+
       {/* Task Creation Dialog */}
       <Dialog open={showTaskDialog} onOpenChange={setShowTaskDialog}>
         <DialogContent className="sm:max-w-[425px]">
