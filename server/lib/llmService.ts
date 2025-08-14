@@ -285,7 +285,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
         lowerQuery.includes('help me prioritize') || lowerQuery.includes('suggestions')) {
 
       return {
-        message: `🎯 **Personalized CRM Recommendations**\n\nBased on your current data analysis:${recommendations}\n\n💬 **Next Steps:** Ask me about specific areas you'd like to focus on!`,
+        message: `**Personalized CRM Recommendations**\n\nBased on your current data analysis:${recommendations}\n\n**Next Steps:** Ask me about specific areas you'd like to focus on!`,
         intent: 'recommendation_request',
         quickActions: ['Lead priorities', 'Deal strategy', 'Account planning']
       };
