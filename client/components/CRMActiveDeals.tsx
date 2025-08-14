@@ -663,7 +663,7 @@ export function CRMActiveDeals() {
             </TableHeader>
             <TableBody>
               {filteredDeals.map((deal) => (
-                <TableRow key={deal.id}>
+                <TableRow key={deal.id} data-deal-id={deal.id}>
                   <TableCell>
                     <div>
                       <div className="font-medium text-gray-900 dark:text-gray-100">

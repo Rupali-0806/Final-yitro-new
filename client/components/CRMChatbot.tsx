@@ -59,12 +59,12 @@ export function CRMChatbot() {
 
 I can help you analyze your sales data, track performance, and provide insights about your:
 
-**Leads** (${leads.length} total)
-**Accounts** (${accounts.length} total)
-**Deals** (${deals.length} total)
-**Contacts** (${contacts.length} total)
+<b>Leads</b> (${leads.length} total)
+<b>Accounts</b> (${accounts.length} total)
+<b>Deals</b> (${deals.length} total)
+<b>Contacts</b> (${contacts.length} total)
 
-**Try asking me:**
+<b>Try asking me:</b>
 • "Show me top leads this week"
 • "What deals are closing soon?"
 • "My performance analytics"
@@ -278,11 +278,11 @@ I'm here to help you stay on top of your sales game!`,
         .sort((a, b) => b.score - a.score)
         .slice(0, 3);
 
-      let response = "**Top Leads This Week:**\n\n";
+      let response = "<b>Top Leads This Week:</b>\n\n";
 
       if (topWeeklyLeads.length > 0) {
         topWeeklyLeads.forEach((lead, index) => {
-          response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
+          response += `${index + 1}. <b>${lead.name}</b> from ${lead.company}\n`;
           response += `   Lead Score: ${lead.score}/100\n`;
           response += `   Potential Value: ${lead.value}\n`;
           response += `   Contact: ${lead.phone}\n`;
@@ -291,7 +291,7 @@ I'm here to help you stay on top of your sales game!`,
         });
 
         response +=
-          "**Recommendation:** Focus on the highest scoring leads first. ";
+          "<b>Recommendation:</b> Focus on the highest scoring leads first. ";
         response += `${topWeeklyLeads[0]?.name} has the highest score (${topWeeklyLeads[0]?.score}) and should be your priority!`;
       } else {
         response +=
@@ -309,7 +309,7 @@ I'm here to help you stay on top of your sales game!`,
 
       if (analysis.topLeads && analysis.topLeads.length > 0) {
         analysis.topLeads.forEach((lead, index) => {
-          response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
+          response += `${index + 1}. <b>${lead.name}</b> from ${lead.company}\n`;
           response += `   • Score: ${lead.score}/100\n`;
           response += `   • Value: ${lead.value}\n`;
           response += `   • Status: ${lead.status}\n`;
@@ -318,7 +318,7 @@ I'm here to help you stay on top of your sales game!`,
       }
 
       if (analysis.metrics) {
-        response += `**Lead Summary:**\n`;
+        response += `<b>Lead Summary:</b>\n`;
         response += `• Total Leads: ${analysis.metrics.totalLeads}\n`;
         response += `• New Leads: ${analysis.metrics.newLeads}\n`;
         response += `• Qualified Leads: ${analysis.metrics.qualifiedLeads}\n`;
@@ -336,7 +336,7 @@ I'm here to help you stay on top of your sales game!`,
 
       if (analysis.topAccounts && analysis.topAccounts.length > 0) {
         analysis.topAccounts.forEach((account, index) => {
-          response += `${index + 1}. **${account.name}**\n`;
+          response += `${index + 1}. <b>${account.name}</b>\n`;
           response += `   • Industry: ${account.industry}\n`;
           response += `   • Revenue: ${account.revenue}\n`;
           response += `   • Active Deals: ${account.activeDeals}\n`;
@@ -346,7 +346,7 @@ I'm here to help you stay on top of your sales game!`,
       }
 
       if (analysis.metrics) {
-        response += `**Account Summary:**\n`;
+        response += `<b>Account Summary:</b>\n`;
         response += `• Total Accounts: ${analysis.metrics.totalAccounts}\n`;
         response += `• Customers: ${analysis.metrics.customers}\n`;
         response += `• Prospects: ${analysis.metrics.prospects}\n`;
@@ -364,7 +364,7 @@ I'm here to help you stay on top of your sales game!`,
       let response = "";
 
       if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
-        response += "**Deals Closing This Week:**\n\n";
+        response += "<b>Deals Closing This Week:</b>\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
           const urgencyLabel =
             deal.probability > 75
@@ -372,7 +372,7 @@ I'm here to help you stay on top of your sales game!`,
               : deal.probability > 50
                 ? "MEDIUM PRIORITY"
                 : "LOW PRIORITY";
-          response += `${urgencyLabel} ${index + 1}. **${deal.dealName}**\n`;
+          response += `${urgencyLabel} ${index + 1}. <b>${deal.dealName}</b>\n`;
           response += `   Account: ${deal.associatedAccount}\n`;
           response += `   Value: $${deal.dealValue.toLocaleString()}\n`;
           response += `   Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
@@ -386,17 +386,17 @@ I'm here to help you stay on top of your sales game!`,
           (d) => d.probability > 75,
         );
         if (highProbDeals.length > 0) {
-          response += `**Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
+          response += `<b>Action Required:</b> You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
         response += "No deals are closing this week.\n\n";
         response +=
-          "**Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+          "<b>Suggestion:</b> Focus on moving deals in your pipeline to the closing stage.\n\n";
       }
 
       if (analysis.metrics) {
-        response += `**Pipeline Summary:**\n`;
+        response += `<b>Pipeline Summary:</b>\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Pipeline Value: $${analysis.metrics.totalPipelineValue.toLocaleString()}\n`;
         response += `• Won Deals: ${analysis.metrics.wonDeals}\n`;
@@ -408,7 +408,7 @@ I'm here to help you stay on top of your sales game!`,
           (analysis.metrics.wonDeals /
             (analysis.metrics.wonDeals + analysis.metrics.activeDeals)) *
           100;
-        response += `**Win Rate:** ${Math.round(winRate)}%`;
+        response += `<b>Win Rate:</b> ${Math.round(winRate)}%`;
       }
 
       return response;
@@ -418,7 +418,7 @@ I'm here to help you stay on top of your sales game!`,
       let response = "Here's your contact summary:\n\n";
 
       if (analysis.metrics) {
-        response += `**Contact Summary:**\n`;
+        response += `<b>Contact Summary:</b>\n`;
         response += `• Total Contacts: ${analysis.metrics.totalContacts}\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Prospects: ${analysis.metrics.prospects}\n`;
@@ -441,7 +441,7 @@ I'm here to help you stay on top of your sales game!`,
       let response = "Here's your CRM overview:\n\n";
 
       if (analysis.metrics) {
-        response += `**Quick Stats:**\n`;
+        response += `<b>Quick Stats:</b>\n`;
         response += `• Total Leads: ${analysis.metrics.totalLeads}\n`;
         response += `• Total Accounts: ${analysis.metrics.totalAccounts}\n`;
         response += `• Total Contacts: ${analysis.metrics.totalContacts}\n`;
@@ -460,13 +460,13 @@ I'm here to help you stay on top of your sales game!`,
       lowercaseQuery.includes("about me") ||
       lowercaseQuery.includes("my info")
     ) {
-      let response = `**Your Profile Information:**\n\n`;
+      let response = `<b>Your Profile Information:</b>\n\n`;
       response += `• Name: ${user?.displayName || "Not set"}\n`;
       response += `• Email: ${user?.email || "Not set"}\n`;
       response += `• Role: ${user?.role || "User"}\n`;
       response += `• Account Type: ${user?.role === "admin" ? "Administrator" : "CRM User"}\n\n`;
 
-      response += `**Your CRM Activity:**\n`;
+      response += `<b>Your CRM Activity:</b>\n`;
       response += `• Managing ${leads.length} leads\n`;
       response += `• Overseeing ${accounts.length} accounts\n`;
       response += `• Tracking ${deals.length} deals\n`;
@@ -479,7 +479,7 @@ I'm here to help you stay on top of your sales game!`,
         .filter((deal) => !["Order Won", "Order Lost"].includes(deal.stage))
         .reduce((sum, deal) => sum + deal.dealValue, 0);
 
-      response += `**Your Performance:**\n`;
+      response += `<b>Your Performance:</b>\n`;
       response += `• Active Deals: ${activeDealsCount}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
       response += `• Closed Deals: ${deals.filter((d) => d.stage === "Order Won").length}\n`;
@@ -492,7 +492,7 @@ I'm here to help you stay on top of your sales game!`,
       (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) &&
       !searchQuery
     ) {
-      let response = "**Search Help:**\n\n";
+      let response = "<b>Search Help:</b>\n\n";
       response += "I can help you find specific information. Try asking:\n\n";
       response += '• "Find contact John Smith"\n';
       response += '• "Search for TechCorp account"\n';
@@ -517,17 +517,17 @@ I'm here to help you stay on top of your sales game!`,
     }
 
     if (lowercaseQuery.includes("help") || lowercaseQuery === "?") {
-      return `**I can help you with:**
+      return `<b>I can help you with:</b>
 
-**Lead Management:** "Top leads this week", "New leads", "Lead status"
-**Account Insights:** "Best accounts", "Account summary", "Customer analysis"
-**Deal Tracking:** "Closing deals", "Pipeline status", "Deal performance"
-**Contact Info:** "Recent contacts", "Find contact [name]"
-**Analytics:** "Performance metrics", "Revenue analysis", "My statistics"
-**Search:** "Find [anything]", "Search for [company/person]"
-**Profile:** "My profile", "My performance", "Account info"
+<b>Lead Management:</b> "Top leads this week", "New leads", "Lead status"
+<b>Account Insights:</b> "Best accounts", "Account summary", "Customer analysis"
+<b>Deal Tracking:</b> "Closing deals", "Pipeline status", "Deal performance"
+<b>Contact Info:</b> "Recent contacts", "Find contact [name]"
+<b>Analytics:</b> "Performance metrics", "Revenue analysis", "My statistics"
+<b>Search:</b> "Find [anything]", "Search for [company/person]"
+<b>Profile:</b> "My profile", "My performance", "Account info"
 
-**Pro Tips:**
+<b>Pro Tips:</b>
 • I remember our conversation context
 • Try "tell me more" for deeper insights
 • Use "clear" to reset our conversation
@@ -576,14 +576,14 @@ Just ask me naturally - I understand context!`;
         0,
       );
 
-      let response = "**Performance Analytics:**\n\n";
-      response += `**Revenue Metrics:**\n`;
+      let response = "<b>Performance Analytics:</b>\n\n";
+      response += `<b>Revenue Metrics:</b>\n`;
       response += `• Total Revenue: $${totalRevenue.toLocaleString()}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
       response += `• Average Deal Size: $${Math.round(avgDealSize).toLocaleString()}\n`;
       response += `• Lead-to-Deal Conversion: ${Math.round(conversionRate)}%\n\n`;
 
-      response += `**Activity Summary:**\n`;
+      response += `<b>Activity Summary:</b>\n`;
       response += `• Leads in Pipeline: ${leads.length}\n`;
       response += `• Active Accounts: ${accounts.filter((a) => a.type === "Customer").length}\n`;
       response += `• Deals in Progress: ${activeDeals.length}\n`;
@@ -624,11 +624,11 @@ Just ask me naturally - I understand context!`;
       }
 
       if (recommendations.length > 0) {
-        response += "**Smart Recommendations:**\n";
+        response += "<b>Smart Recommendations:</b>\n";
         recommendations.forEach((rec) => (response += `• ${rec}\n`));
       } else {
         response +=
-          "**Great job!** Your pipeline looks healthy and well-balanced!";
+          "<b>Great job!</b> Your pipeline looks healthy and well-balanced!";
       }
 
       return response;
@@ -637,13 +637,13 @@ Just ask me naturally - I understand context!`;
     // Default response
     return `I understand you're asking about "${query}". I can help you with information about:
 
-**Leads** - "Show me top leads this week" or "lead status"
-**Accounts** - "Show me best accounts" or "account summary"
-**Deals** - "What deals are closing?" or "pipeline status"
-**Contacts** - "Contact summary" or "recent contacts"
-**Overview** - "Dashboard summary" or "CRM overview"
-**Profile** - "My profile" or "my performance"
-**Analytics** - "Show performance metrics" or "analytics"
+<b>Leads</b> - "Show me top leads this week" or "lead status"
+<b>Accounts</b> - "Show me best accounts" or "account summary"
+<b>Deals</b> - "What deals are closing?" or "pipeline status"
+<b>Contacts</b> - "Contact summary" or "recent contacts"
+<b>Overview</b> - "Dashboard summary" or "CRM overview"
+<b>Profile</b> - "My profile" or "my performance"
+<b>Analytics</b> - "Show performance metrics" or "analytics"
 
 What would you like to know more about?`;
   };
@@ -821,9 +821,10 @@ What would you like to know more about?`;
                           : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                       }`}
                     >
-                      <div className="text-sm whitespace-pre-line">
-                        {message.content}
-                      </div>
+                      <div
+                        className="text-sm whitespace-pre-line"
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      />
                       <div
                         className={`text-xs mt-1 opacity-70 ${
                           message.sender === "user"

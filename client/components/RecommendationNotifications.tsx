@@ -22,9 +22,18 @@ import {
   TrendingUp,
   Target,
   MessageSquare,
+  Bot,
+  FileText,
+  Presentation,
+  Percent,
+  Eye,
 } from "lucide-react";
 import { useCRM } from "../contexts/CRMContext";
 import { format, isToday, isTomorrow, addDays, parseISO } from "date-fns";
+import {
+  aiRecommendationService,
+  AIRecommendation,
+} from "../services/aiRecommendationService";
 
 interface Recommendation {
   id: string;
@@ -34,7 +43,8 @@ interface Recommendation {
     | "follow-up"
     | "deadline"
     | "opportunity"
-    | "urgent";
+    | "urgent"
+    | "ai-recommendation";
   title: string;
   description: string;
   priority: "high" | "medium" | "low";
@@ -48,6 +58,7 @@ interface Recommendation {
     label: string;
     onClick: () => void;
   };
+  aiRecommendation?: AIRecommendation;
 }
 
 export function RecommendationNotifications() {
@@ -65,6 +76,33 @@ export function RecommendationNotifications() {
     const now = new Date();
     const tomorrow = addDays(now, 1);
     const nextWeek = addDays(now, 7);
+
+    // Generate AI recommendations first for active deals
+    const aiRecommendations =
+      aiRecommendationService.generateRecommendations(deals);
+    aiRecommendations.slice(0, 5).forEach((aiRec) => {
+      const deal = deals.find((d) => d.id === aiRec.dealId);
+      if (deal) {
+        newRecommendations.push({
+          id: aiRec.id,
+          type: "ai-recommendation",
+          title: `AI: ${aiRec.action}`,
+          description: `${aiRec.reason} (Confidence: ${Math.round(aiRec.confidence * 100)}%)`,
+          priority: aiRec.priority,
+          dueDate: now,
+          relatedEntity: {
+            type: "deal",
+            id: deal.id.toString(),
+            name: deal.dealName,
+          },
+          action: {
+            label: getAIActionLabel(aiRec.actionType),
+            onClick: () => handleAIAction(aiRec, deal),
+          },
+          aiRecommendation: aiRec,
+        });
+      }
+    });
 
     // 1. High-priority leads that need immediate follow-up
     leads
@@ -84,7 +122,15 @@ export function RecommendationNotifications() {
           },
           action: {
             label: "Call Now",
-            onClick: () => console.log(`Calling ${lead.name}`),
+            onClick: () => {
+              if (lead.phone) {
+                // Try to open the phone dialer on mobile devices
+                const phoneNumber = lead.phone.replace(/[^\d]/g, "");
+                window.open(`tel:${phoneNumber}`, "_self");
+              } else {
+                alert(`No phone number available for ${lead.name}`);
+              }
+            },
           },
         });
       });
@@ -149,7 +195,14 @@ export function RecommendationNotifications() {
           },
           action: {
             label: "Schedule Call",
-            onClick: () => console.log(`Scheduling call with ${lead.name}`),
+            onClick: () => {
+              if (lead.phone) {
+                const phoneNumber = lead.phone.replace(/[^\d]/g, "");
+                window.open(`tel:${phoneNumber}`, "_self");
+              } else {
+                alert(`No phone number available for ${lead.name}`);
+              }
+            },
           },
         });
       });
@@ -270,7 +323,31 @@ export function RecommendationNotifications() {
     setUnreadCount(newRecommendations.length);
   };
 
-  const getIcon = (type: Recommendation["type"]) => {
+  const getIcon = (
+    type: Recommendation["type"],
+    aiRecommendation?: AIRecommendation,
+  ) => {
+    if (type === "ai-recommendation" && aiRecommendation) {
+      switch (aiRecommendation.actionType) {
+        case "call":
+          return Phone;
+        case "email":
+          return Mail;
+        case "meeting":
+          return Calendar;
+        case "proposal":
+          return FileText;
+        case "case-study":
+          return Presentation;
+        case "discount":
+          return Percent;
+        case "wait":
+          return Eye;
+        default:
+          return Bot;
+      }
+    }
+
     switch (type) {
       case "call":
         return Phone;
@@ -284,12 +361,31 @@ export function RecommendationNotifications() {
         return TrendingUp;
       case "urgent":
         return AlertTriangle;
+      case "ai-recommendation":
+        return Bot;
       default:
         return Bell;
     }
   };
 
-  const getPriorityColor = (priority: Recommendation["priority"]) => {
+  const getPriorityColor = (
+    priority: Recommendation["priority"],
+    type?: Recommendation["type"],
+  ) => {
+    // Special styling for AI recommendations
+    if (type === "ai-recommendation") {
+      switch (priority) {
+        case "high":
+          return "text-purple-600 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/20 dark:border-purple-800";
+        case "medium":
+          return "text-indigo-600 bg-indigo-50 border-indigo-200 dark:text-indigo-400 dark:bg-indigo-900/20 dark:border-indigo-800";
+        case "low":
+          return "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/20 dark:border-blue-800";
+        default:
+          return "text-violet-600 bg-violet-50 border-violet-200 dark:text-violet-400 dark:bg-violet-900/20 dark:border-violet-800";
+      }
+    }
+
     switch (priority) {
       case "high":
         return "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-900/20 dark:border-red-800";
@@ -306,6 +402,99 @@ export function RecommendationNotifications() {
     if (isToday(date)) return "Today";
     if (isTomorrow(date)) return "Tomorrow";
     return format(date, "MMM d");
+  };
+
+  const getAIActionLabel = (
+    actionType: AIRecommendation["actionType"],
+  ): string => {
+    switch (actionType) {
+      case "call":
+        return "Call Now";
+      case "email":
+        return "Send Email";
+      case "meeting":
+        return "Schedule Meeting";
+      case "proposal":
+        return "Send Proposal";
+      case "case-study":
+        return "Share Case Study";
+      case "discount":
+        return "Offer Discount";
+      case "wait":
+        return "Monitor";
+      default:
+        return "Take Action";
+    }
+  };
+
+  const handleAIAction = (aiRec: AIRecommendation, deal: any) => {
+    // Close the dropdown first
+    setIsOpen(false);
+
+    // Trigger navigation to active deals tab
+    const navigateEvent = new CustomEvent("navigateToTab", {
+      detail: { tab: "active-deals", highlightDeal: deal.id },
+    });
+    window.dispatchEvent(navigateEvent);
+
+    switch (aiRec.actionType) {
+      case "call":
+        // Open phone dialer if mobile, otherwise show call instruction
+        if (deal.associatedContact) {
+          // Try to find contact phone or use a placeholder
+          const phoneNumber = "555-0123"; // In real app, get from contact data
+          if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+            window.open(`tel:${phoneNumber}`, "_self");
+          } else {
+            alert(
+              `Call ${deal.associatedContact} at ${phoneNumber} regarding ${deal.dealName}`,
+            );
+          }
+        } else {
+          alert(`Contact information needed for ${deal.dealName}`);
+        }
+        break;
+      case "email":
+        // Open email client with pre-filled content
+        const subject = encodeURIComponent(`Follow-up on ${deal.dealName}`);
+        const body = encodeURIComponent(
+          `Hi,\n\nI wanted to follow up on our discussion regarding ${deal.dealName}.\n\nBest regards`,
+        );
+        window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
+        break;
+      case "meeting":
+        // Show meeting scheduling dialog or redirect to calendar
+        alert(
+          `Schedule a meeting/demo for ${deal.dealName}. Consider using your calendar app to set up the meeting.`,
+        );
+        break;
+      case "proposal":
+        // Show proposal action guidance
+        alert(
+          `Prepare and send proposal for ${deal.dealName}. Value: $${deal.dealValue?.toLocaleString()}, Stage: ${deal.stage}`,
+        );
+        break;
+      case "case-study":
+        // Open case study guidance
+        alert(
+          `Share relevant case studies with ${deal.associatedContact} for ${deal.dealName}. Focus on similar industry successes.`,
+        );
+        break;
+      case "discount":
+        // Show pricing discussion guidance
+        alert(
+          `Consider offering pricing incentives for ${deal.dealName}. Current value: $${deal.dealValue?.toLocaleString()}`,
+        );
+        break;
+      case "wait":
+        // Show monitoring guidance
+        alert(
+          `Continue monitoring ${deal.dealName}. Deal appears to be progressing well on its own.`,
+        );
+        break;
+      default:
+        alert(`Take action on ${deal.dealName} as recommended by AI analysis.`);
+    }
   };
 
   const handleNotificationClick = () => {
@@ -345,7 +534,7 @@ export function RecommendationNotifications() {
             <CardTitle className="text-base flex items-center justify-between">
               <span className="flex items-center">
                 <Target className="h-4 w-4 mr-2" />
-                Priority Recommendations
+                AI Recommendations
               </span>
               {recommendations.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
@@ -369,11 +558,11 @@ export function RecommendationNotifications() {
               <ScrollArea className="h-80">
                 <div className="p-2 space-y-2">
                   {recommendations.map((rec, index) => {
-                    const Icon = getIcon(rec.type);
+                    const Icon = getIcon(rec.type, rec.aiRecommendation);
                     return (
                       <div key={rec.id}>
                         <div
-                          className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${getPriorityColor(rec.priority)}`}
+                          className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${getPriorityColor(rec.priority, rec.type)}`}
                           onClick={rec.action?.onClick}
                         >
                           <div className="flex items-start space-x-3">
@@ -382,7 +571,10 @@ export function RecommendationNotifications() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-medium truncate">
+                                <h4 className="text-sm font-medium truncate flex items-center">
+                                  {rec.type === "ai-recommendation" && (
+                                    <Bot className="h-3 w-3 mr-1 opacity-70" />
+                                  )}
                                   {rec.title}
                                 </h4>
                                 {rec.dueDate && (
