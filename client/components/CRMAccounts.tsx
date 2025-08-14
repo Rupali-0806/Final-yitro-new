@@ -558,36 +558,49 @@ export function CRMAccounts() {
                     {account.lastActivity}
                   </TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-1">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          console.log(
-                            "Edit button clicked for account:",
-                            account,
-                          );
-                          handleEditAccount(account);
-                        }}
+                        onClick={() => navigate(`/client/${account.id}`)}
+                        className="text-blue-600"
                       >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edit
+                        View Details
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          console.log(
-                            "Delete button clicked for account:",
-                            account.id,
-                          );
-                          handleDeleteAccount(account.id);
-                        }}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Delete
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              console.log(
+                                "Edit button clicked for account:",
+                                account,
+                              );
+                              handleEditAccount(account);
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              console.log(
+                                "Delete button clicked for account:",
+                                account.id,
+                              );
+                              handleDeleteAccount(account.id);
+                            }}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </TableCell>
                 </TableRow>
