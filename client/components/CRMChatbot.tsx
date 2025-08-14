@@ -59,10 +59,10 @@ export function CRMChatbot() {
 
 I can help you analyze your sales data, track performance, and provide insights about your:
 
-**Leads** (${leads.length} total)
-**Accounts** (${accounts.length} total)
-**Deals** (${deals.length} total)
-**Contacts** (${contacts.length} total)
+<b>Leads</b> (${leads.length} total)
+<b>Accounts</b> (${accounts.length} total)
+<b>Deals</b> (${deals.length} total)
+<b>Contacts</b> (${contacts.length} total)
 
 **Try asking me:**
 • "Show me top leads this week"
