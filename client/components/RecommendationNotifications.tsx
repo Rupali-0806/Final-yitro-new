@@ -518,7 +518,10 @@ export function RecommendationNotifications() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-medium truncate">
+                                <h4 className="text-sm font-medium truncate flex items-center">
+                                  {rec.type === "ai-recommendation" && (
+                                    <Bot className="h-3 w-3 mr-1 opacity-70" />
+                                  )}
                                   {rec.title}
                                 </h4>
                                 {rec.dueDate && (
