@@ -345,7 +345,7 @@ export function RecommendationNotifications() {
             <CardTitle className="text-base flex items-center justify-between">
               <span className="flex items-center">
                 <Target className="h-4 w-4 mr-2" />
-                Priority Recommendations
+                AI Recommendations
               </span>
               {recommendations.length > 0 && (
                 <Badge variant="secondary" className="text-xs">
