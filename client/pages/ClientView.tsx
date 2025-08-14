@@ -310,7 +310,7 @@ export default function ClientView() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {accountActivities.slice(0, 5).map((activity, index) => (
+                  {accountActivities?.slice(0, 5).map((activity, index) => (
                     <div key={index} className="flex items-start space-x-3 pb-3 border-b border-gray-100 last:border-0">
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                       <div className="flex-1">
@@ -321,8 +321,8 @@ export default function ClientView() {
                         </p>
                       </div>
                     </div>
-                  ))}
-                  {accountActivities.length === 0 && (
+                  )) || []}
+                  {(accountActivities?.length || 0) === 0 && (
                     <p className="text-sm text-gray-500">No recent activities</p>
                   )}
                 </div>
