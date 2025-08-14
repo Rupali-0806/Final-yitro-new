@@ -196,6 +196,9 @@ I'm here to help you stay on top of your sales game! 🚀`,
     const analysis = analyzeCRMData(query);
     const lowercaseQuery = query.toLowerCase();
 
+    // Update conversation context
+    setConversationContext(prev => [...prev.slice(-4), lowercaseQuery]);
+
     // Handle search queries first
     const searchQuery = ChatbotSearchEngine.extractSearchQuery(query);
     if (searchQuery) {
@@ -207,6 +210,18 @@ I'm here to help you stay on top of your sales game! 🚀`,
         deals
       );
       return ChatbotSearchEngine.formatSearchResults(searchResults);
+    }
+
+    // Handle contextual follow-up questions
+    if ((lowercaseQuery.includes("more") || lowercaseQuery.includes("details") || lowercaseQuery.includes("tell me more")) && conversationContext.length > 0) {
+      const lastContext = conversationContext[conversationContext.length - 1];
+      if (lastContext.includes("lead")) {
+        return generateResponse("show me detailed lead analysis");
+      } else if (lastContext.includes("deal")) {
+        return generateResponse("detailed pipeline analysis");
+      } else if (lastContext.includes("account")) {
+        return generateResponse("detailed account breakdown");
+      }
     }
 
     // Handle specific lead inquiries
