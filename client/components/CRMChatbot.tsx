@@ -52,13 +52,23 @@ export function CRMChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: `Hello ${user?.displayName || "there"}! I'm your CRM assistant. I can help you with information about your leads, accounts, deals, and contacts. Try asking me things like:
-      
+      content: `👋 Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant.
+
+I can help you analyze your sales data, track performance, and provide insights about your:
+
+🎯 **Leads** (${leads.length} total)
+🏢 **Accounts** (${accounts.length} total)
+💼 **Deals** (${deals.length} total)
+👥 **Contacts** (${contacts.length} total)
+
+**Try asking me:**
 • "Show me top leads this week"
-• "What deals are closing soon?"  
-• "Tell me about my best accounts"
-• "Show me contact details for [name]"
-• "What's my sales pipeline looking like?"`,
+• "What deals are closing soon?"
+• "My performance analytics"
+• "Show my profile"
+• "Search for [company/contact]"
+
+I'm here to help you stay on top of your sales game! 🚀`,
       sender: "bot",
       timestamp: new Date(),
     },
