@@ -719,9 +719,10 @@ What would you like to know more about?`;
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
+    const userQuery = inputValue;
     const userMessage: Message = {
       id: `user-${Date.now()}-${++messageCounterRef.current}`,
-      content: inputValue,
+      content: userQuery,
       sender: "user",
       timestamp: new Date(),
     };
@@ -730,10 +731,13 @@ What would you like to know more about?`;
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate typing delay
-    setTimeout(() => {
-      const botResponse = generateResponse(inputValue);
-      const suggestedActions = getSuggestedActions(inputValue);
+    try {
+      // Try LLM response first if enabled, otherwise use fallback
+      const botResponse = isLLMEnabled ?
+        await generateLLMResponse(userQuery) :
+        generateFallbackResponse(userQuery);
+
+      const suggestedActions = getSuggestedActions(userQuery);
       const botMessage: Message = {
         id: `bot-${Date.now()}-${++messageCounterRef.current}`,
         content: botResponse,
@@ -744,7 +748,18 @@ What would you like to know more about?`;
 
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
-    }, 1000);
+    } catch (error) {
+      console.error('Error generating response:', error);
+      const errorMessage: Message = {
+        id: `bot-${Date.now()}-${++messageCounterRef.current}`,
+        content: "I apologize, but I'm having trouble processing your request right now. Please try again.",
+        sender: "bot",
+        timestamp: new Date(),
+        quickActions: ["Try again", "Help", "Contact support"],
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      setIsTyping(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
