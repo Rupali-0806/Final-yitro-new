@@ -476,7 +476,7 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
 
         const highValueDeals = analysis.activeDeals.filter(d => d.dealValue > 50000);
         if (highValueDeals.length > 0) {
-          response += `💎 **High Value Opportunity:** ${highValueDeals[0].dealName} ($${highValueDeals[0].dealValue.toLocaleString()}) - prioritize this deal!\n\n`;
+          response += `**High Value Opportunity:** ${highValueDeals[0].dealName} ($${highValueDeals[0].dealValue.toLocaleString()}) - prioritize this deal!\n\n`;
         }
       }
       // Handle closing deals requests
