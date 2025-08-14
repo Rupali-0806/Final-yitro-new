@@ -400,47 +400,58 @@ export function RecommendationNotifications() {
   };
 
   const handleAIAction = (aiRec: AIRecommendation, deal: any) => {
+    // Close the dropdown first
+    setIsOpen(false);
+
+    // Trigger navigation to active deals tab
+    const navigateEvent = new CustomEvent('navigateToTab', {
+      detail: { tab: 'active-deals', highlightDeal: deal.id }
+    });
+    window.dispatchEvent(navigateEvent);
+
     switch (aiRec.actionType) {
       case 'call':
-        // Navigate to active deals and highlight the deal
-        window.location.hash = 'active-deals';
-        setTimeout(() => {
-          // Try to find and scroll to the deal in the table
-          const dealRow = document.querySelector(`[data-deal-id="${deal.id}"]`);
-          if (dealRow) {
-            dealRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            dealRow.classList.add('bg-yellow-100', 'dark:bg-yellow-900');
-            setTimeout(() => dealRow.classList.remove('bg-yellow-100', 'dark:bg-yellow-900'), 3000);
+        // Open phone dialer if mobile, otherwise show call instruction
+        if (deal.associatedContact) {
+          // Try to find contact phone or use a placeholder
+          const phoneNumber = '555-0123'; // In real app, get from contact data
+          if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
+            window.open(`tel:${phoneNumber}`, '_self');
+          } else {
+            alert(`Call ${deal.associatedContact} at ${phoneNumber} regarding ${deal.dealName}`);
           }
-        }, 500);
+        } else {
+          alert(`Contact information needed for ${deal.dealName}`);
+        }
         break;
       case 'email':
-        // Open email client
+        // Open email client with pre-filled content
         const subject = encodeURIComponent(`Follow-up on ${deal.dealName}`);
         const body = encodeURIComponent(`Hi,\n\nI wanted to follow up on our discussion regarding ${deal.dealName}.\n\nBest regards`);
         window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
         break;
       case 'meeting':
-        // Navigate to active deals for meeting scheduling
-        window.location.hash = 'active-deals';
-        alert(`Navigate to ${deal.dealName} to schedule a meeting/demo.`);
+        // Show meeting scheduling dialog or redirect to calendar
+        alert(`Schedule a meeting/demo for ${deal.dealName}. Consider using your calendar app to set up the meeting.`);
         break;
       case 'proposal':
-        // Navigate to active deals for proposal action
-        window.location.hash = 'active-deals';
-        alert(`Navigate to ${deal.dealName} to send proposal or contract.`);
+        // Show proposal action guidance
+        alert(`Prepare and send proposal for ${deal.dealName}. Value: $${deal.dealValue?.toLocaleString()}, Stage: ${deal.stage}`);
         break;
       case 'case-study':
-        // Open a case study template
-        alert(`Prepare case study for ${deal.dealName}. Consider sharing similar client success stories.`);
+        // Open case study guidance
+        alert(`Share relevant case studies with ${deal.associatedContact} for ${deal.dealName}. Focus on similar industry successes.`);
         break;
       case 'discount':
-        // Navigate to deal for pricing discussion
-        window.location.hash = 'active-deals';
-        alert(`Navigate to ${deal.dealName} to discuss pricing options and potential discounts.`);
+        // Show pricing discussion guidance
+        alert(`Consider offering pricing incentives for ${deal.dealName}. Current value: $${deal.dealValue?.toLocaleString()}`);
+        break;
+      case 'wait':
+        // Show monitoring guidance
+        alert(`Continue monitoring ${deal.dealName}. Deal appears to be progressing well on its own.`);
         break;
       default:
-        window.location.hash = 'active-deals';
+        alert(`Take action on ${deal.dealName} as recommended by AI analysis.`);
     }
   };
 
