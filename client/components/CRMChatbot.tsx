@@ -428,27 +428,52 @@ Just ask me naturally - I understand context! 🚀`;
     // Handle performance and analytics queries
     if (lowercaseQuery.includes("performance") || lowercaseQuery.includes("analytics") || lowercaseQuery.includes("metrics")) {
       const totalRevenue = deals.filter(d => d.stage === "Order Won").reduce((sum, d) => sum + d.dealValue, 0);
-      const avgDealSize = deals.length > 0 ? totalRevenue / deals.filter(d => d.stage === "Order Won").length : 0;
-      const conversionRate = (deals.filter(d => d.stage === "Order Won").length / leads.length) * 100;
+      const wonDeals = deals.filter(d => d.stage === "Order Won");
+      const avgDealSize = wonDeals.length > 0 ? totalRevenue / wonDeals.length : 0;
+      const conversionRate = (wonDeals.length / leads.length) * 100;
+      const activeDeals = deals.filter(d => !["Order Won", "Order Lost"].includes(d.stage));
+      const pipelineValue = activeDeals.reduce((sum, d) => sum + d.dealValue, 0);
 
       let response = "📈 **Performance Analytics:**\n\n";
       response += `💰 **Revenue Metrics:**\n`;
       response += `• Total Revenue: $${totalRevenue.toLocaleString()}\n`;
+      response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
       response += `• Average Deal Size: $${Math.round(avgDealSize).toLocaleString()}\n`;
       response += `• Lead-to-Deal Conversion: ${Math.round(conversionRate)}%\n\n`;
 
       response += `📊 **Activity Summary:**\n`;
       response += `• Leads in Pipeline: ${leads.length}\n`;
       response += `• Active Accounts: ${accounts.filter(a => a.type === "Customer").length}\n`;
-      response += `• Deals in Progress: ${deals.filter(d => !["Order Won", "Order Lost"].includes(d.stage)).length}\n\n`;
+      response += `• Deals in Progress: ${activeDeals.length}\n`;
+      response += `• Won Deals: ${wonDeals.length}\n\n`;
 
-      // Add recommendations based on performance
+      // Smart recommendations based on data analysis
+      const recommendations = [];
+
       if (conversionRate < 10) {
-        response += "💡 **Recommendation:** Your conversion rate could be improved. Focus on lead qualification and follow-up strategies.";
+        recommendations.push("🎯 Focus on lead qualification - your conversion rate needs improvement");
       } else if (conversionRate > 20) {
-        response += "🎉 **Great job!** Your conversion rate is excellent. Keep up the good work!";
+        recommendations.push("🏆 Excellent conversion rate! Consider scaling your lead generation");
+      }
+
+      if (activeDeals.length > wonDeals.length * 2) {
+        recommendations.push("⚡ You have many active deals - focus on closing them");
+      }
+
+      if (leads.filter(l => l.status === "New").length > leads.length * 0.5) {
+        recommendations.push("📞 Many new leads need follow-up - prioritize outreach");
+      }
+
+      const highValueDeals = activeDeals.filter(d => d.dealValue > avgDealSize * 1.5);
+      if (highValueDeals.length > 0) {
+        recommendations.push(`💎 Focus on ${highValueDeals.length} high-value deals for maximum impact`);
+      }
+
+      if (recommendations.length > 0) {
+        response += "💡 **Smart Recommendations:**\n";
+        recommendations.forEach(rec => response += `• ${rec}\n`);
       } else {
-        response += "👍 **Good performance!** Your metrics are solid. Consider increasing lead generation for growth.";
+        response += "🎉 **Great job!** Your pipeline looks healthy and well-balanced!";
       }
 
       return response;
