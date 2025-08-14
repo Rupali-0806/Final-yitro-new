@@ -493,6 +493,33 @@ Just ask me naturally - I understand context! 🚀`;
 What would you like to know more about?`;
   };
 
+  const getSuggestedActions = (query: string): string[] => {
+    const lowercaseQuery = query.toLowerCase();
+
+    if (lowercaseQuery.includes("lead")) {
+      return ["Account summary", "Pipeline status", "My performance"];
+    }
+
+    if (lowercaseQuery.includes("deal") || lowercaseQuery.includes("closing")) {
+      return ["Top leads this week", "Account summary", "Revenue analysis"];
+    }
+
+    if (lowercaseQuery.includes("account")) {
+      return ["Contact summary", "Deals closing soon", "Lead status"];
+    }
+
+    if (lowercaseQuery.includes("performance") || lowercaseQuery.includes("analytics")) {
+      return ["Top leads this week", "Deals closing soon", "Account summary"];
+    }
+
+    if (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) {
+      return ["Dashboard summary", "My performance", "Account summary"];
+    }
+
+    // Default suggestions
+    return ["My performance", "Deals closing soon", "Top leads this week"];
+  };
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
