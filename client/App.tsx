@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { CRMProvider } from "@/contexts/CRMContext";
 import CompanyLogin from "./pages/CompanyLogin";
 import Dashboard from "./pages/Dashboard";
+import ClientView from "./pages/ClientView";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
                 <Route path="/" element={<CompanyLogin />} />
                 <Route path="/login" element={<CompanyLogin />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/client/:accountId" element={<ClientView />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

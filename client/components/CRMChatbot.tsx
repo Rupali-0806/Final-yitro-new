@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useCRM } from "../contexts/CRMContext";
 import { useAuth } from "./RealAuthProvider";
 import { ChatbotSearchEngine } from "./ChatbotSearchHelpers";
+import { llmChatAPI } from "../services/llmChatApi";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -43,6 +44,7 @@ interface ChatbotAnalysis {
   topLeads?: any[];
   topAccounts?: any[];
   upcomingDeals?: any[];
+  activeDeals?: any[];
   metrics?: any;
   suggestions?: string[];
 }
@@ -55,36 +57,38 @@ export function CRMChatbot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: `👋 Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant.
+      content: `Hello ${user?.displayName || "there"}! I'm your intelligent CRM assistant with personalized recommendations.
 
-I can help you analyze your sales data, track performance, and provide insights about your:
+I can analyze your sales data and provide tailored advice about your:
 
-🎯 **Leads** (${leads.length} total)
-🏢 **Accounts** (${accounts.length} total)
-💼 **Deals** (${deals.length} total)
-👥 **Contacts** (${contacts.length} total)
+**Leads** (${leads.length} total)
+**Accounts** (${accounts.length} total)
+**Deals** (${deals.length} total)
+**Contacts** (${contacts.length} total)
 
 **Try asking me:**
-• "Show me top leads this week"
-• "What deals are closing soon?"
-• "My performance analytics"
-• "Show my profile"
-• "Search for [company/contact]"
+• "Give me personalized recommendations"
+• "What should I prioritize today?"
+• "Show me top 3 leads"
+• "What deals need attention?"
+• "Help me plan my week"
 
-I'm here to help you stay on top of your sales game! 🚀`,
+I provide specific "DO" and "DON'T" advice based on your actual data!`,
       sender: "bot",
       timestamp: new Date(),
       quickActions: [
-        "Top leads this week",
+        "Give me recommendations",
+        "What should I prioritize?",
+        "Top 3 leads",
         "Deals closing soon",
-        "My performance",
-        "Account summary",
       ],
     },
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [conversationContext, setConversationContext] = useState<string[]>([]);
+  const [isLLMEnabled, setIsLLMEnabled] = useState<boolean | null>(null);
+  const [llmStatus, setLlmStatus] = useState<string>("checking");
   const messageCounterRef = useRef<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -95,6 +99,35 @@ I'm here to help you stay on top of your sales game! 🚀`,
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Check LLM availability on component mount
+  useEffect(() => {
+    const checkLLMAvailability = async () => {
+      try {
+        setLlmStatus("checking");
+        const result = await llmChatAPI.testLLMConnection();
+        setIsLLMEnabled(result.success);
+        setLlmStatus(result.success ? "connected" : "unavailable");
+
+        if (result.success) {
+          console.log(
+            "✅ LLM service connected - Enhanced chat responses enabled",
+          );
+        } else {
+          console.warn(
+            "⚠️ LLM service unavailable - Using fallback responses:",
+            result.message,
+          );
+        }
+      } catch (error) {
+        console.error("LLM availability check failed:", error);
+        setIsLLMEnabled(false);
+        setLlmStatus("error");
+      }
+    };
+
+    checkLLMAvailability();
+  }, []);
 
   const analyzeCRMData = (query: string): ChatbotAnalysis => {
     const lowercaseQuery = query.toLowerCase();
@@ -109,7 +142,18 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("lead") ||
       lowercaseQuery.includes("top lead")
     ) {
-      const topLeads = leads.sort((a, b) => b.score - a.score).slice(0, 5);
+      // Extract specific number if requested (e.g., "top 3 leads", "give me 5 leads")
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : 5;
+      const leadCount = Math.max(1, Math.min(requestedCount, 20)); // Between 1 and 20 leads
+
+      const topLeads = leads
+        .sort((a, b) => b.score - a.score)
+        .slice(0, leadCount);
 
       const thisWeekLeads = leads.filter((lead) => {
         // Since we don't have exact creation dates, we'll use status for this week
@@ -154,24 +198,46 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("closing") ||
       lowercaseQuery.includes("pipeline")
     ) {
-      const upcomingDeals = deals
-        .filter((deal) => {
-          const closingDate = new Date(deal.closingDate);
-          return (
-            closingDate >= now &&
-            closingDate <= nextWeek &&
-            !["Order Won", "Order Lost"].includes(deal.stage)
-          );
-        })
-        .sort(
-          (a, b) =>
-            new Date(a.closingDate).getTime() -
-            new Date(b.closingDate).getTime(),
-        );
+      // Extract specific number if requested (e.g., "top 3 active deals", "5 best deals")
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : 5;
+      const dealCount = Math.max(1, Math.min(requestedCount, 20)); // Between 1 and 20 deals
 
       const activeDeals = deals.filter(
         (deal) => !["Order Won", "Order Lost"].includes(deal.stage),
       );
+
+      // Determine if user wants closing deals vs active deals
+      const wantsClosingDeals =
+        lowercaseQuery.includes("closing") ||
+        lowercaseQuery.includes("soon") ||
+        lowercaseQuery.includes("this week");
+
+      let relevantDeals;
+      if (wantsClosingDeals) {
+        // Filter for deals closing soon
+        relevantDeals = activeDeals
+          .filter((deal) => {
+            const closingDate = new Date(deal.closingDate);
+            return closingDate >= now && closingDate <= nextWeek;
+          })
+          .sort(
+            (a, b) =>
+              new Date(a.closingDate).getTime() -
+              new Date(b.closingDate).getTime(),
+          )
+          .slice(0, dealCount);
+      } else {
+        // Show top active deals by value
+        relevantDeals = activeDeals
+          .sort((a, b) => b.dealValue - a.dealValue)
+          .slice(0, dealCount);
+      }
+
       const totalPipelineValue = activeDeals.reduce(
         (sum, deal) => sum + deal.dealValue,
         0,
@@ -183,7 +249,8 @@ I'm here to help you stay on top of your sales game! 🚀`,
       );
 
       return {
-        upcomingDeals,
+        upcomingDeals: wantsClosingDeals ? relevantDeals : [],
+        activeDeals: wantsClosingDeals ? [] : relevantDeals,
         metrics: {
           activeDeals: activeDeals.length,
           totalPipelineValue,
@@ -231,7 +298,50 @@ I'm here to help you stay on top of your sales game! 🚀`,
     };
   };
 
-  const generateResponse = (query: string): string => {
+  // Enhanced response generation with LLM integration
+  const generateLLMResponse = async (query: string): Promise<string> => {
+    try {
+      // Prepare CRM data for LLM context
+      const crmData = llmChatAPI.prepareCRMData({
+        leads,
+        accounts,
+        contacts,
+        deals,
+      });
+
+      // Prepare conversation history
+      const conversationHistory =
+        llmChatAPI.formatConversationHistory(messages);
+
+      // Send query to LLM service
+      const response = await llmChatAPI.sendChatQuery({
+        query,
+        crmData,
+        conversationHistory,
+        user: {
+          displayName: user?.displayName,
+          email: user?.email,
+          role: user?.role,
+        },
+      });
+
+      if (response.success && response.data) {
+        return response.data.message;
+      } else {
+        console.warn(
+          "LLM response failed, falling back to rule-based response:",
+          response.error,
+        );
+        return generateFallbackResponse(query);
+      }
+    } catch (error) {
+      console.error("LLM generation error:", error);
+      return generateFallbackResponse(query);
+    }
+  };
+
+  // Original rule-based response as fallback
+  const generateFallbackResponse = (query: string): string => {
     const analysis = analyzeCRMData(query);
     const lowercaseQuery = query.toLowerCase();
 
@@ -305,7 +415,17 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("lead") ||
       lowercaseQuery.includes("top lead")
     ) {
-      let response = "Here are your top leads by score:\n\n";
+      // Extract the requested count for the response header
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : null;
+
+      let response = requestedCount
+        ? `Here are your top ${requestedCount} leads by score:\n\n`
+        : "Here are your top leads by score:\n\n";
 
       if (analysis.topLeads && analysis.topLeads.length > 0) {
         analysis.topLeads.forEach((lead, index) => {
@@ -363,7 +483,38 @@ I'm here to help you stay on top of your sales game! 🚀`,
     ) {
       let response = "";
 
-      if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
+      // Extract the requested count for the response header
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : null;
+
+      // Handle active deals requests
+      if (analysis.activeDeals && analysis.activeDeals.length > 0) {
+        const countText = requestedCount ? ` ${requestedCount}` : "";
+        response += `💼 **Top${countText} Active Deals:**\n\n`;
+
+        analysis.activeDeals.forEach((deal, index) => {
+          response += `${index + 1}. **${deal.dealName}**\n`;
+          response += `   🏢 Account: ${deal.associatedAccount}\n`;
+          response += `   💰 Value: $${deal.dealValue.toLocaleString()}\n`;
+          response += `   📅 Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
+          response += `   📈 Probability: ${deal.probability}%\n`;
+          response += `   🔄 Stage: ${deal.stage}\n`;
+          response += `   ➡️ Next Step: ${deal.nextStep}\n\n`;
+        });
+
+        const highValueDeals = analysis.activeDeals.filter(
+          (d) => d.dealValue > 50000,
+        );
+        if (highValueDeals.length > 0) {
+          response += `**High Value Opportunity:** ${highValueDeals[0].dealName} ($${highValueDeals[0].dealValue.toLocaleString()}) - prioritize this deal!\n\n`;
+        }
+      }
+      // Handle closing deals requests
+      else if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
         response += "💼 **Deals Closing This Week:**\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
           const urgencyIcon =
@@ -377,22 +528,32 @@ I'm here to help you stay on top of your sales game! 🚀`,
           response += `   ➡️ Next Step: ${deal.nextStep}\n\n`;
         });
 
-        // Add recommendations based on deal analysis
         const highProbDeals = analysis.upcomingDeals.filter(
           (d) => d.probability > 75,
         );
         if (highProbDeals.length > 0) {
-          response += `🎯 **Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
+          response += `**Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
-        response += "📋 No deals are closing this week.\n\n";
-        response +=
-          "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+        const isActiveDealsRequest =
+          lowercaseQuery.includes("active") ||
+          (!lowercaseQuery.includes("closing") &&
+            !lowercaseQuery.includes("soon"));
+
+        if (isActiveDealsRequest) {
+          response += "No active deals found.\n\n";
+          response +=
+            "**Suggestion:** Create new opportunities or convert leads to deals.\n\n";
+        } else {
+          response += "No deals are closing this week.\n\n";
+          response +=
+            "**Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+        }
       }
 
       if (analysis.metrics) {
-        response += `📊 **Pipeline Summary:**\n`;
+        response += `**Pipeline Summary:**\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Pipeline Value: $${analysis.metrics.totalPipelineValue.toLocaleString()}\n`;
         response += `• Won Deals: ${analysis.metrics.wonDeals}\n`;
@@ -404,7 +565,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
           (analysis.metrics.wonDeals /
             (analysis.metrics.wonDeals + analysis.metrics.activeDeals)) *
           100;
-        response += `🏆 **Win Rate:** ${Math.round(winRate)}%`;
+        response += `**Win Rate:** ${Math.round(winRate)}%`;
       }
 
       return response;
@@ -456,13 +617,13 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("about me") ||
       lowercaseQuery.includes("my info")
     ) {
-      let response = `👤 **Your Profile Information:**\n\n`;
+      let response = `**Your Profile Information:**\n\n`;
       response += `• Name: ${user?.displayName || "Not set"}\n`;
       response += `• Email: ${user?.email || "Not set"}\n`;
       response += `• Role: ${user?.role || "User"}\n`;
       response += `• Account Type: ${user?.role === "admin" ? "Administrator" : "CRM User"}\n\n`;
 
-      response += `📊 **Your CRM Activity:**\n`;
+      response += `**Your CRM Activity:**\n`;
       response += `• Managing ${leads.length} leads\n`;
       response += `• Overseeing ${accounts.length} accounts\n`;
       response += `• Tracking ${deals.length} deals\n`;
@@ -516,7 +677,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
       return `🤖 **I can help you with:**
 
 🎯 **Lead Management:** "Top leads this week", "New leads", "Lead status"
-🏢 **Account Insights:** "Best accounts", "Account summary", "Customer analysis"
+�� **Account Insights:** "Best accounts", "Account summary", "Customer analysis"
 💼 **Deal Tracking:** "Closing deals", "Pipeline status", "Deal performance"
 👥 **Contact Info:** "Recent contacts", "Find contact [name]"
 📊 **Analytics:** "Performance metrics", "Revenue analysis", "My statistics"
@@ -647,39 +808,74 @@ What would you like to know more about?`;
   const getSuggestedActions = (query: string): string[] => {
     const lowercaseQuery = query.toLowerCase();
 
+    // Recommendation-specific actions
+    if (
+      lowercaseQuery.includes("recommend") ||
+      lowercaseQuery.includes("advice") ||
+      lowercaseQuery.includes("what should i") ||
+      lowercaseQuery.includes("prioritize")
+    ) {
+      return [
+        "What to focus on today",
+        "Deal strategy tips",
+        "Lead priorities",
+      ];
+    }
+
     if (lowercaseQuery.includes("lead")) {
-      return ["Account summary", "Pipeline status", "My performance"];
+      return [
+        "Get lead recommendations",
+        "Pipeline status",
+        "What should I prioritize?",
+      ];
     }
 
     if (lowercaseQuery.includes("deal") || lowercaseQuery.includes("closing")) {
-      return ["Top leads this week", "Account summary", "Revenue analysis"];
+      return [
+        "Deal strategy advice",
+        "What deals need attention?",
+        "Revenue analysis",
+      ];
     }
 
     if (lowercaseQuery.includes("account")) {
-      return ["Contact summary", "Deals closing soon", "Lead status"];
+      return [
+        "Account strategy tips",
+        "Deals closing soon",
+        "Give me recommendations",
+      ];
     }
 
     if (
       lowercaseQuery.includes("performance") ||
       lowercaseQuery.includes("analytics")
     ) {
-      return ["Top leads this week", "Deals closing soon", "Account summary"];
+      return [
+        "What should I improve?",
+        "Give me recommendations",
+        "Action priorities",
+      ];
     }
 
     if (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) {
-      return ["Dashboard summary", "My performance", "Account summary"];
+      return ["Dashboard summary", "My performance", "Get recommendations"];
     }
 
-    // Default suggestions
-    return ["My performance", "Deals closing soon", "Top leads this week"];
+    // Default suggestions include recommendations
+    return [
+      "Give me recommendations",
+      "What should I prioritize?",
+      "Top 3 leads",
+    ];
   };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
+    const userQuery = inputValue;
     const userMessage: Message = {
       id: `user-${Date.now()}-${++messageCounterRef.current}`,
-      content: inputValue,
+      content: userQuery,
       sender: "user",
       timestamp: new Date(),
     };
@@ -688,10 +884,13 @@ What would you like to know more about?`;
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate typing delay
-    setTimeout(() => {
-      const botResponse = generateResponse(inputValue);
-      const suggestedActions = getSuggestedActions(inputValue);
+    try {
+      // Try LLM response first if enabled, otherwise use fallback
+      const botResponse = isLLMEnabled
+        ? await generateLLMResponse(userQuery)
+        : generateFallbackResponse(userQuery);
+
+      const suggestedActions = getSuggestedActions(userQuery);
       const botMessage: Message = {
         id: `bot-${Date.now()}-${++messageCounterRef.current}`,
         content: botResponse,
@@ -702,7 +901,19 @@ What would you like to know more about?`;
 
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
-    }, 1000);
+    } catch (error) {
+      console.error("Error generating response:", error);
+      const errorMessage: Message = {
+        id: `bot-${Date.now()}-${++messageCounterRef.current}`,
+        content:
+          "I apologize, but I'm having trouble processing your request right now. Please try again.",
+        sender: "bot",
+        timestamp: new Date(),
+        quickActions: ["Try again", "Help", "Contact support"],
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      setIsTyping(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -736,7 +947,23 @@ What would you like to know more about?`;
             <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
               <Bot className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <CardTitle className="text-lg">CRM Assistant</CardTitle>
+            <div>
+              <CardTitle className="text-lg">CRM Assistant</CardTitle>
+              <div className="flex items-center space-x-1">
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    llmStatus === "connected"
+                      ? "bg-green-500"
+                      : llmStatus === "checking"
+                        ? "bg-yellow-500"
+                        : "bg-gray-400"
+                  }`}
+                />
+                <span className="text-xs text-gray-500">
+                  {isLLMEnabled ? "AI Enhanced" : "Standard Mode"}
+                </span>
+              </div>
+            </div>
           </div>
           <div className="flex items-center space-x-1">
             <Button
@@ -850,8 +1077,10 @@ What would you like to know more about?`;
                                 setMessages((prev) => [...prev, userMessage]);
                                 setIsTyping(true);
 
-                                setTimeout(() => {
-                                  const botResponse = generateResponse(action);
+                                setTimeout(async () => {
+                                  const botResponse = isLLMEnabled
+                                    ? await generateLLMResponse(action)
+                                    : generateFallbackResponse(action);
                                   const suggestedActions =
                                     getSuggestedActions(action);
                                   const botMessage: Message = {
