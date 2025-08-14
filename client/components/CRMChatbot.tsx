@@ -186,24 +186,37 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("closing") ||
       lowercaseQuery.includes("pipeline")
     ) {
-      const upcomingDeals = deals
-        .filter((deal) => {
-          const closingDate = new Date(deal.closingDate);
-          return (
-            closingDate >= now &&
-            closingDate <= nextWeek &&
-            !["Order Won", "Order Lost"].includes(deal.stage)
-          );
-        })
-        .sort(
-          (a, b) =>
-            new Date(a.closingDate).getTime() -
-            new Date(b.closingDate).getTime(),
-        );
+      // Extract specific number if requested (e.g., "top 3 active deals", "5 best deals")
+      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const dealCount = Math.max(1, Math.min(requestedCount, 20)); // Between 1 and 20 deals
 
       const activeDeals = deals.filter(
         (deal) => !["Order Won", "Order Lost"].includes(deal.stage),
       );
+
+      // Determine if user wants closing deals vs active deals
+      const wantsClosingDeals = lowercaseQuery.includes("closing") ||
+                               lowercaseQuery.includes("soon") ||
+                               lowercaseQuery.includes("this week");
+
+      let relevantDeals;
+      if (wantsClosingDeals) {
+        // Filter for deals closing soon
+        relevantDeals = activeDeals
+          .filter((deal) => {
+            const closingDate = new Date(deal.closingDate);
+            return closingDate >= now && closingDate <= nextWeek;
+          })
+          .sort((a, b) => new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime())
+          .slice(0, dealCount);
+      } else {
+        // Show top active deals by value
+        relevantDeals = activeDeals
+          .sort((a, b) => b.dealValue - a.dealValue)
+          .slice(0, dealCount);
+      }
+
       const totalPipelineValue = activeDeals.reduce(
         (sum, deal) => sum + deal.dealValue,
         0,
@@ -215,7 +228,8 @@ I'm here to help you stay on top of your sales game! 🚀`,
       );
 
       return {
-        upcomingDeals,
+        upcomingDeals: wantsClosingDeals ? relevantDeals : [],
+        activeDeals: wantsClosingDeals ? [] : relevantDeals,
         metrics: {
           activeDeals: activeDeals.length,
           totalPipelineValue,
