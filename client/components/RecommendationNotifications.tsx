@@ -509,7 +509,7 @@ export function RecommendationNotifications() {
                     return (
                       <div key={rec.id}>
                         <div
-                          className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${getPriorityColor(rec.priority)}`}
+                          className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${getPriorityColor(rec.priority, rec.type)}`}
                           onClick={rec.action?.onClick}
                         >
                           <div className="flex items-start space-x-3">
