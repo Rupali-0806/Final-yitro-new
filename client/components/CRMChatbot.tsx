@@ -77,10 +77,10 @@ I can analyze your sales data and provide tailored advice about your:
       sender: "bot",
       timestamp: new Date(),
       quickActions: [
-        "Top leads this week",
+        "Give me recommendations",
+        "What should I prioritize?",
+        "Top 3 leads",
         "Deals closing soon",
-        "My performance",
-        "Account summary",
       ],
     },
   ]);
