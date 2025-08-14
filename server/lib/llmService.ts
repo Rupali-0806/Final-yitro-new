@@ -342,16 +342,16 @@ Respond naturally to user queries about their CRM data, sales performance, and p
           .sort((a, b) => b.dealValue - a.dealValue)
           .slice(0, requestedCount);
 
-        let response = `💼 **Top ${requestedCount} Active Deals:**\n\n`;
+        let response = `**Top ${requestedCount} Active Deals:**\n\n`;
 
         topDeals.forEach((deal, index) => {
           response += `${index + 1}. **${deal.dealName}**\n`;
-          response += `   💰 Value: $${deal.dealValue.toLocaleString()} | 🔄 Stage: ${deal.stage}\n`;
-          response += `   📅 Closes: ${new Date(deal.closingDate).toLocaleDateString()} | 📈 ${deal.probability}% likely\n\n`;
+          response += `   Value: $${deal.dealValue.toLocaleString()} | Stage: ${deal.stage}\n`;
+          response += `   Closes: ${new Date(deal.closingDate).toLocaleDateString()} | ${deal.probability}% likely\n\n`;
         });
 
         const totalValue = topDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
-        response += `💎 **Total Value**: $${totalValue.toLocaleString()}`;
+        response += `**Total Value**: $${totalValue.toLocaleString()}`;
 
         return {
           message: response + recommendations,
