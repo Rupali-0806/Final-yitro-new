@@ -736,7 +736,7 @@ What would you like to know more about?`;
                                   const botResponse = generateResponse(action);
                                   const suggestedActions = getSuggestedActions(action);
                                   const botMessage: Message = {
-                                    id: `bot-${Date.now()}`,
+                                    id: `bot-${Date.now()}-${++messageCounterRef.current}`,
                                     content: botResponse,
                                     sender: "bot",
                                     timestamp: new Date(),
