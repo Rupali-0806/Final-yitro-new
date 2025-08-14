@@ -516,7 +516,10 @@ export function CRMAccounts() {
                 <TableRow key={account.id}>
                   <TableCell>
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-gray-100">
+                      <div
+                        className="font-medium text-blue-600 hover:text-blue-800 cursor-pointer dark:text-blue-400 dark:hover:text-blue-300"
+                        onClick={() => navigate(`/client/${account.id}`)}
+                      >
                         {account.name}
                       </div>
                       <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
