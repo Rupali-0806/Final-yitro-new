@@ -80,6 +80,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [conversationContext, setConversationContext] = useState<string[]>([]);
+  const messageCounterRef = useRef<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
