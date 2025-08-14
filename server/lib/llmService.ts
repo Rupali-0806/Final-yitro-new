@@ -89,13 +89,18 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     }
 
     if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) {
+      // Extract number if specified (e.g., "top 3 active deals", "5 best deals")
+      const numberMatch = lowerQuery.match(/(?:top|best|first)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const dealCount = Math.min(requestedCount, 10); // Cap at 10 for context efficiency
+
       const activeDeals = deals
         .filter(deal => !['Order Won', 'Order Lost'].includes(deal.stage))
-        .sort((a, b) => new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime())
-        .slice(0, 5)
+        .sort((a, b) => b.dealValue - a.dealValue) // Sort by value for "top" deals
+        .slice(0, dealCount)
         .map(deal => `- ${deal.dealName}: $${deal.dealValue.toLocaleString()}, Stage: ${deal.stage}, Closes: ${new Date(deal.closingDate).toLocaleDateString()}`)
         .join('\n');
-      contextData += `\nActive Deals:\n${activeDeals}\n`;
+      contextData += `\nTop ${dealCount} Active Deals (as requested):\n${activeDeals}\n`;
     }
 
     if (lowerQuery.includes('account') || lowerQuery.includes('customer')) {
