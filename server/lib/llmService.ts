@@ -165,9 +165,36 @@ Respond naturally to user queries about their CRM data, sales performance, and p
 
     // Simple keyword-based fallback responses
     if (lowerQuery.includes('lead')) {
+      // Extract specific number if requested
+      const numberMatch = lowerQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+
+      if (requestedCount) {
+        const topLeads = leads
+          .sort((a, b) => b.score - a.score)
+          .slice(0, requestedCount);
+
+        let response = `🎯 **Top ${requestedCount} Leads:**\n\n`;
+
+        if (topLeads.length > 0) {
+          topLeads.forEach((lead, index) => {
+            response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
+            response += `   📊 Score: ${lead.score}/100 | 💰 Value: ${lead.value} | 🔥 Status: ${lead.status}\n\n`;
+          });
+        } else {
+          response += `No leads available to show.`;
+        }
+
+        return {
+          message: response,
+          intent: 'lead_inquiry',
+          quickActions: ['Lead details', 'Contact info', 'Next steps']
+        };
+      }
+
       const newLeads = leads.filter(l => l.status === 'New').length;
       const qualifiedLeads = leads.filter(l => l.status === 'Qualified').length;
-      
+
       return {
         message: `📊 **Lead Summary**\n\nYou have ${leads.length} total leads:\n- ${newLeads} new leads\n- ${qualifiedLeads} qualified leads\n\nWould you like me to show you the top performing leads or help you prioritize your outreach?`,
         intent: 'lead_inquiry',
