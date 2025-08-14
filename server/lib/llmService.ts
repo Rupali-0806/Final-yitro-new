@@ -302,12 +302,12 @@ Respond naturally to user queries about their CRM data, sales performance, and p
           .sort((a, b) => b.score - a.score)
           .slice(0, requestedCount);
 
-        let response = `🎯 **Top ${requestedCount} Leads:**\n\n`;
+        let response = `**Top ${requestedCount} Leads:**\n\n`;
 
         if (topLeads.length > 0) {
           topLeads.forEach((lead, index) => {
             response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
-            response += `   📊 Score: ${lead.score}/100 | 💰 Value: ${lead.value} | 🔥 Status: ${lead.status}\n\n`;
+            response += `   Score: ${lead.score}/100 | Value: ${lead.value} | Status: ${lead.status}\n\n`;
           });
         } else {
           response += `No leads available to show.`;
