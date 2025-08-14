@@ -195,6 +195,19 @@ I'm here to help you stay on top of your sales game! 🚀`,
     const analysis = analyzeCRMData(query);
     const lowercaseQuery = query.toLowerCase();
 
+    // Handle search queries first
+    const searchQuery = ChatbotSearchEngine.extractSearchQuery(query);
+    if (searchQuery) {
+      const searchResults = ChatbotSearchEngine.performGlobalSearch(
+        searchQuery,
+        leads,
+        accounts,
+        contacts,
+        deals
+      );
+      return ChatbotSearchEngine.formatSearchResults(searchResults);
+    }
+
     // Handle specific lead inquiries
     if (lowercaseQuery.includes("lead") && (lowercaseQuery.includes("week") || lowercaseQuery.includes("this week"))) {
       const topWeeklyLeads = leads
