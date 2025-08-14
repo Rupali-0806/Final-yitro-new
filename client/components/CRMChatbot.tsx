@@ -182,6 +182,34 @@ export function CRMChatbot() {
     const analysis = analyzeCRMData(query);
     const lowercaseQuery = query.toLowerCase();
 
+    // Handle specific lead inquiries
+    if (lowercaseQuery.includes("lead") && (lowercaseQuery.includes("week") || lowercaseQuery.includes("this week"))) {
+      const topWeeklyLeads = leads
+        .filter(lead => lead.status === "New" || lead.status === "Qualified")
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3);
+
+      let response = "🎯 **Top Leads This Week:**\n\n";
+
+      if (topWeeklyLeads.length > 0) {
+        topWeeklyLeads.forEach((lead, index) => {
+          response += `${index + 1}. **${lead.name}** from ${lead.company}\n`;
+          response += `   📊 Lead Score: ${lead.score}/100\n`;
+          response += `   💰 Potential Value: ${lead.value}\n`;
+          response += `   📞 Contact: ${lead.phone}\n`;
+          response += `   ✉️ Email: ${lead.email}\n`;
+          response += `   🔥 Status: ${lead.status}\n\n`;
+        });
+
+        response += "💡 **Recommendation:** Focus on the highest scoring leads first. ";
+        response += `${topWeeklyLeads[0]?.name} has the highest score (${topWeeklyLeads[0]?.score}) and should be your priority!`;
+      } else {
+        response += "No new leads this week. Consider increasing marketing efforts or lead generation activities.";
+      }
+
+      return response;
+    }
+
     if (lowercaseQuery.includes("lead") || lowercaseQuery.includes("top lead")) {
       let response = "Here are your top leads by score:\n\n";
       
