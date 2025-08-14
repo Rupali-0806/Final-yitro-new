@@ -479,7 +479,7 @@ I'm here to help you stay on top of your sales game!`,
         .filter((deal) => !["Order Won", "Order Lost"].includes(deal.stage))
         .reduce((sum, deal) => sum + deal.dealValue, 0);
 
-      response += `**Your Performance:**\n`;
+      response += `<b>Your Performance:</b>\n`;
       response += `• Active Deals: ${activeDealsCount}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
       response += `• Closed Deals: ${deals.filter((d) => d.stage === "Order Won").length}\n`;
