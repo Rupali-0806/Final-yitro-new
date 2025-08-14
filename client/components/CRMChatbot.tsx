@@ -465,8 +465,7 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
         response += `💼 **Top${countText} Active Deals:**\n\n`;
 
         analysis.activeDeals.forEach((deal, index) => {
-          const valueIcon = deal.dealValue > 50000 ? "💎" : deal.dealValue > 20000 ? "💰" : "💵";
-          response += `${valueIcon} ${index + 1}. **${deal.dealName}**\n`;
+          response += `${index + 1}. **${deal.dealName}**\n`;
           response += `   🏢 Account: ${deal.associatedAccount}\n`;
           response += `   💰 Value: $${deal.dealValue.toLocaleString()}\n`;
           response += `   📅 Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
