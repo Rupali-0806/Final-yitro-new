@@ -291,7 +291,7 @@ I'm here to help you stay on top of your sales game!`,
         });
 
         response +=
-          "**Recommendation:** Focus on the highest scoring leads first. ";
+          "<b>Recommendation:</b> Focus on the highest scoring leads first. ";
         response += `${topWeeklyLeads[0]?.name} has the highest score (${topWeeklyLeads[0]?.score}) and should be your priority!`;
       } else {
         response +=
