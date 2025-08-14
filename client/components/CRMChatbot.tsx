@@ -517,7 +517,7 @@ I'm here to help you stay on top of your sales game!`,
     }
 
     if (lowercaseQuery.includes("help") || lowercaseQuery === "?") {
-      return `**I can help you with:**
+      return `<b>I can help you with:</b>
 
 **Lead Management:** "Top leads this week", "New leads", "Lead status"
 **Account Insights:** "Best accounts", "Account summary", "Customer analysis"
