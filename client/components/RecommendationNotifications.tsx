@@ -74,6 +74,32 @@ export function RecommendationNotifications() {
     const tomorrow = addDays(now, 1);
     const nextWeek = addDays(now, 7);
 
+    // Generate AI recommendations first for active deals
+    const aiRecommendations = aiRecommendationService.generateRecommendations(deals);
+    aiRecommendations.slice(0, 5).forEach((aiRec) => {
+      const deal = deals.find(d => d.id === aiRec.dealId);
+      if (deal) {
+        newRecommendations.push({
+          id: aiRec.id,
+          type: "ai-recommendation",
+          title: `AI: ${aiRec.action}`,
+          description: `${aiRec.reason} (Confidence: ${Math.round(aiRec.confidence * 100)}%)`,
+          priority: aiRec.priority,
+          dueDate: now,
+          relatedEntity: {
+            type: "deal",
+            id: deal.id.toString(),
+            name: deal.dealName,
+          },
+          action: {
+            label: getAIActionLabel(aiRec.actionType),
+            onClick: () => handleAIAction(aiRec, deal),
+          },
+          aiRecommendation: aiRec,
+        });
+      }
+    });
+
     // 1. High-priority leads that need immediate follow-up
     leads
       .filter((lead) => lead.status === "New" && lead.score >= 80)
