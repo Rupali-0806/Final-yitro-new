@@ -279,6 +279,18 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     // Generate personalized recommendations for all responses
     const recommendations = this.generatePersonalizedRecommendations(crmContext);
 
+    // Handle specific recommendation requests
+    if (lowerQuery.includes('recommend') || lowerQuery.includes('advice') ||
+        lowerQuery.includes('what should i') || lowerQuery.includes('what to do') ||
+        lowerQuery.includes('help me prioritize') || lowerQuery.includes('suggestions')) {
+
+      return {
+        message: `🎯 **Personalized CRM Recommendations**\n\nBased on your current data analysis:${recommendations}\n\n💬 **Next Steps:** Ask me about specific areas you'd like to focus on!`,
+        intent: 'recommendation_request',
+        quickActions: ['Lead priorities', 'Deal strategy', 'Account planning']
+      };
+    }
+
     // Simple keyword-based fallback responses
     if (lowerQuery.includes('lead')) {
       // Extract specific number if requested
