@@ -466,7 +466,7 @@ I'm here to help you stay on top of your sales game!`,
       response += `• Role: ${user?.role || "User"}\n`;
       response += `• Account Type: ${user?.role === "admin" ? "Administrator" : "CRM User"}\n\n`;
 
-      response += `**Your CRM Activity:**\n`;
+      response += `<b>Your CRM Activity:</b>\n`;
       response += `• Managing ${leads.length} leads\n`;
       response += `• Overseeing ${accounts.length} accounts\n`;
       response += `• Tracking ${deals.length} deals\n`;
