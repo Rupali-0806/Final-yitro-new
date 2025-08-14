@@ -674,11 +674,13 @@ What would you like to know more about?`;
 
                                 setTimeout(() => {
                                   const botResponse = generateResponse(action);
+                                  const suggestedActions = getSuggestedActions(action);
                                   const botMessage: Message = {
                                     id: `bot-${Date.now()}`,
                                     content: botResponse,
                                     sender: "bot",
                                     timestamp: new Date(),
+                                    quickActions: suggestedActions,
                                   };
                                   setMessages(prev => [...prev, botMessage]);
                                   setIsTyping(false);
