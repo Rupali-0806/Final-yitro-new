@@ -1,0 +1,273 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../dev.db"
+}
+
+model Contact {
+  id                String   @id @default(cuid())
+  firstName         String
+  lastName          String
+  title             String?
+  associatedAccount String?
+  emailAddress      String?
+  deskPhone         String?
+  mobilePhone       String?
+  city              String?
+  state             String?
+  country           String?
+  timeZone          String?
+  source            ContactSource?
+  owner             String?
+  status            ContactStatus?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdBy         String
+  updatedBy         String
+
+  // Relations
+  account     Account?      @relation(fields: [associatedAccount], references: [id])
+  activities  ActivityLog[] @relation("ContactActivities")
+  deals       ActiveDeal[]  @relation("ContactDeals")
+
+  @@map("contacts")
+}
+
+model Account {
+  id                String        @id @default(cuid())
+  accountName       String
+  accountRating     AccountRating?
+  accountOwner      String?
+  status            AccountStatus?
+  industry          String?
+  revenue           String?
+  numberOfEmployees String?
+  addressLine1      String?
+  addressLine2      String?
+  city              String?
+  state             String?
+  country           String?
+  zipPostCode       String?
+  timeZone          String?
+  boardNumber       String?
+  website           String?
+  geo               Geography?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  createdBy         String
+  updatedBy         String
+
+  // Relations
+  contacts   Contact[]     @relation
+  activities ActivityLog[] @relation("AccountActivities")
+  deals      ActiveDeal[]  @relation("AccountDeals")
+
+  @@map("accounts")
+}
+
+model ActivityLog {
+  id                   String              @id @default(cuid())
+  activityType         ActivityType
+  associatedContact    String?
+  associatedAccount    String?
+  dateTime             DateTime
+  followUpSchedule     String?
+  summary              String?
+  outcomeDisposition   OutcomeDisposition?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  createdBy            String
+  updatedBy            String
+
+  // Relations
+  contact Contact? @relation("ContactActivities", fields: [associatedContact], references: [id])
+  account Account? @relation("AccountActivities", fields: [associatedAccount], references: [id])
+
+  @@map("activity_logs")
+}
+
+model ActiveDeal {
+  id                String      @id @default(cuid())
+  dealOwner         String?
+  dealName          String
+  businessLine      BusinessLine?
+  associatedAccount String?
+  associatedContact String?
+  closingDate       DateTime?
+  probability       String?
+  dealValue         String?
+  approvedBy        String?
+  description       String?
+  nextStep          String?
+  geo               Geography?
+  entity            Entity?
+  stage             DealStage?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  createdBy         String
+  updatedBy         String
+
+  // Relations
+  account Account? @relation("AccountDeals", fields: [associatedAccount], references: [id])
+  contact Contact? @relation("ContactDeals", fields: [associatedContact], references: [id])
+
+  @@map("active_deals")
+}
+
+model Lead {
+  id         String      @id @default(cuid())
+  firstName  String
+  lastName   String
+  company    String
+  title      String?
+  phone      String?
+  email      String?
+  leadSource LeadSource?
+  status     LeadStatus?
+  rating     LeadRating?
+  owner      String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  createdBy  String
+  updatedBy  String
+
+  @@map("leads")
+}
+
+model UserProfile {
+  id               String      @id @default(cuid())
+  firstName        String
+  lastName         String
+  email            String      @unique
+  phone            String?
+  title            String?
+  department       String?
+  role             UserRole?   @default(USER)
+  profilePhoto     String?
+  timezone         String?
+  language         String?     @default("en")
+  emailNotifications  Boolean  @default(true)
+  smsNotifications    Boolean  @default(false)
+  pushNotifications   Boolean  @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("user_profiles")
+}
+
+// Enums
+enum ContactSource {
+  DATA_RESEARCH @map("Data Research")
+  REFERRAL      @map("Referral")
+  EVENT         @map("Event")
+}
+
+enum ContactStatus {
+  SUSPECT     @map("Suspect")
+  PROSPECT    @map("Prospect")
+  ACTIVE_DEAL @map("Active Deal")
+  DO_NOT_CALL @map("Do Not Call")
+}
+
+enum AccountRating {
+  PLATINUM @map("Platinum (Must Have)")
+  GOLD     @map("Gold (High Priority)")
+  SILVER   @map("Silver (Medium Priority)")
+  BRONZE   @map("Bronze (Low Priority)")
+}
+
+enum AccountStatus {
+  SUSPECT     @map("Suspect")
+  PROSPECT    @map("Prospect")
+  ACTIVE_DEAL @map("Active Deal")
+  DO_NOT_CALL @map("Do Not Call")
+}
+
+enum ActivityType {
+  CALL        @map("Call")
+  EMAIL       @map("Email")
+  LINKEDIN_MSG @map("LinkedIn Msg")
+  SMS         @map("SMS")
+  OTHER       @map("Other")
+}
+
+enum OutcomeDisposition {
+  VOICEMAIL            @map("Voicemail")
+  RNR                  @map("RNR")
+  MEETING_FIXED        @map("Meeting Fixed")
+  MEETING_COMPLETED    @map("Meeting Completed")
+  MEETING_RESCHEDULED  @map("Meeting Rescheduled")
+  NOT_INTERESTED       @map("Not Interested")
+  DO_NOT_CALL          @map("Do not Call")
+  CALLBACK_REQUESTED   @map("Callback requested")
+  EMAIL_SENT           @map("Email sent")
+  EMAIL_RECEIVED       @map("Email Received")
+}
+
+enum BusinessLine {
+  HUMAN_CAPITAL    @map("Human Capital")
+  MANAGED_SERVICES @map("Managed Services")
+  GCC              @map("GCC")
+  AUTOMATION       @map("Automation")
+  SUPPORT          @map("Support")
+  PRODUCT          @map("Product")
+  SOLUTION         @map("Solution")
+  RCM              @map("RCM")
+}
+
+enum Geography {
+  AMERICAS    @map("Americas")
+  INDIA       @map("India")
+  PHILIPPINES @map("Philippines")
+  EMEA        @map("EMEA")
+  ANZ         @map("ANZ")
+}
+
+enum Entity {
+  YITRO_GLOBAL @map("Yitro Global")
+  YITRO_TECH   @map("Yitro Tech")
+}
+
+enum DealStage {
+  OPPORTUNITY_IDENTIFIED @map("Opportunity Identified")
+  PROPOSAL_SUBMITTED     @map("Proposal Submitted")
+  NEGOTIATING            @map("Negotiating")
+  CLOSING                @map("Closing")
+  ORDER_WON              @map("Order Won")
+  ORDER_LOST             @map("Order Lost")
+}
+
+enum LeadSource {
+  WEBSITE    @map("Website")
+  REFERRAL   @map("Referral")
+  TRADE_SHOW @map("Trade Show")
+  COLD_CALL  @map("Cold Call")
+  EMAIL      @map("Email")
+  PARTNER    @map("Partner")
+}
+
+enum LeadStatus {
+  NEW         @map("New")
+  WORKING     @map("Working")
+  QUALIFIED   @map("Qualified")
+  UNQUALIFIED @map("Unqualified")
+}
+
+enum LeadRating {
+  HOT  @map("Hot")
+  WARM @map("Warm")
+  COLD @map("Cold")
+}
+
+enum UserRole {
+  ADMIN         @map("Admin")
+  SALES_MANAGER @map("Sales Manager")
+  SALES_REP     @map("Sales Rep")
+  USER          @map("User")
+}
