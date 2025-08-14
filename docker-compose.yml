@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  # Frontend Development Server
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: frontend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./client:/app/client
+      - ./shared:/app/shared
+      - ./tailwind.config.ts:/app/tailwind.config.ts
+      - ./vite.config.ts:/app/vite.config.ts
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      - backend
+
+  # Backend API Server
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: backend
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app/server
+      - ./shared:/app/shared
+      - ./prisma:/app/prisma
+      - node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - db
+
+  # Database (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=crm_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Production Build (for testing)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@db:5432/crm_dev}
+    depends_on:
+      - db
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+  node_modules:

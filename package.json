@@ -12,16 +12,26 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:server": "tsx watch server/index.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
     "start": "node start.js",
     "start:dev": "node dist/server/node-build.mjs",
     "start:production": "NODE_ENV=production node start.js",
+    "docker:dev": "docker-compose up frontend backend db",
+    "docker:prod": "docker-compose --profile production up app db",
+    "docker:build": "docker build -t crm-app .",
     "test": "vitest --run",
+    "test:watch": "vitest",
     "test-config": "tsx server/scripts/test-config.ts",
     "format.fix": "prettier --write .",
-    "typecheck": "tsc"
+    "format:check": "prettier --check .",
+    "typecheck": "tsc",
+    "typecheck:server": "tsc --project server/tsconfig.json",
+    "migrate": "npx prisma migrate dev",
+    "migrate:prod": "npx prisma migrate deploy",
+    "db:seed": "tsx server/db/setup-test-accounts.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
