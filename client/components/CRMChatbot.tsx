@@ -537,11 +537,13 @@ What would you like to know more about?`;
     // Simulate typing delay
     setTimeout(() => {
       const botResponse = generateResponse(inputValue);
+      const suggestedActions = getSuggestedActions(inputValue);
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
         content: botResponse,
         sender: "bot",
         timestamp: new Date(),
+        quickActions: suggestedActions,
       };
 
       setMessages(prev => [...prev, botMessage]);
