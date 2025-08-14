@@ -153,54 +153,54 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     const prospects = accounts.filter(a => a.type === 'Prospect');
     const inactiveAccounts = accounts.filter(a => a.activeDeals === 0);
 
-    recommendations += '\n🎯 **WHAT TO DO (Priority Actions):**\n';
+    recommendations += '\n**WHAT TO DO (Priority Actions):**\n';
 
     // High-priority recommendations
     if (urgentDeals.length > 0) {
-      recommendations += `- 🔥 URGENT: ${urgentDeals.length} deals closing this week - focus on: ${urgentDeals[0].dealName}\n`;
+      recommendations += `- URGENT: ${urgentDeals.length} deals closing this week - focus on: ${urgentDeals[0].dealName}\n`;
     }
 
     if (highScoreLeads.length > 0) {
-      recommendations += `- ⭐ Contact your ${highScoreLeads.length} high-score leads (80+ score) immediately\n`;
+      recommendations += `- Contact your ${highScoreLeads.length} high-score leads (80+ score) immediately\n`;
     }
 
     if (highValueDeals.length > 0) {
-      recommendations += `- 💎 Prioritize ${highValueDeals.length} high-value deals (>$50k) for maximum ROI\n`;
+      recommendations += `- Prioritize ${highValueDeals.length} high-value deals (>$50k) for maximum ROI\n`;
     }
 
     if (newLeads.length > 5) {
-      recommendations += `- 📞 Qualify your ${newLeads.length} new leads within 24-48 hours\n`;
+      recommendations += `- Qualify your ${newLeads.length} new leads within 24-48 hours\n`;
     }
 
     if (qualifiedLeads.length > 0) {
-      recommendations += `- 🎯 Convert ${qualifiedLeads.length} qualified leads to opportunities\n`;
+      recommendations += `- Convert ${qualifiedLeads.length} qualified leads to opportunities\n`;
     }
 
     if (inactiveAccounts.length > 0 && inactiveAccounts.length < accounts.length * 0.5) {
-      recommendations += `- 🔄 Re-engage ${Math.min(3, inactiveAccounts.length)} inactive accounts with new opportunities\n`;
+      recommendations += `- Re-engage ${Math.min(3, inactiveAccounts.length)} inactive accounts with new opportunities\n`;
     }
 
-    recommendations += '\n❌ **WHAT NOT TO DO (Avoid These):**\n';
+    recommendations += '\n**WHAT NOT TO DO (Avoid These):**\n';
 
     // Warning recommendations
     if (lowScoreLeads.length > leads.length * 0.3) {
-      recommendations += `- 🚫 Don't waste time on ${lowScoreLeads.length} low-score leads (<30) - focus on qualification first\n`;
+      recommendations += `- Don't waste time on ${lowScoreLeads.length} low-score leads (<30) - focus on qualification first\n`;
     }
 
     if (stallingDeals.length > 0) {
-      recommendations += `- ⚠️ Don't ignore ${stallingDeals.length} stalling deals - they need immediate attention\n`;
+      recommendations += `- Don't ignore ${stallingDeals.length} stalling deals - they need immediate attention\n`;
     }
 
     if (lowProbabilityDeals.length > 0) {
-      recommendations += `- 📉 Don't over-invest in ${lowProbabilityDeals.length} low-probability deals (<30%) - reassess or disqualify\n`;
+      recommendations += `- Don't over-invest in ${lowProbabilityDeals.length} low-probability deals (<30%) - reassess or disqualify\n`;
     }
 
     if (workingLeads.length > qualifiedLeads.length * 2) {
-      recommendations += `- 🔄 Don't let leads stagnate in "Working" status - move them forward or back to qualification\n`;
+      recommendations += `- Don't let leads stagnate in "Working" status - move them forward or back to qualification\n`;
     }
 
     if (prospects.length > customers.length * 3) {
-      recommendations += `- 📊 Don't chase too many prospects - focus on converting existing qualified ones first\n`;
+      recommendations += `- Don't chase too many prospects - focus on converting existing qualified ones first\n`;
     }
 
     // Performance insights
@@ -208,17 +208,17 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     const avgDealValue = activeDeals.length > 0 ? totalPipelineValue / activeDeals.length : 0;
     const conversionRate = deals.filter(d => d.stage === 'Order Won').length / Math.max(deals.length, 1) * 100;
 
-    recommendations += '\n💡 **PERFORMANCE INSIGHTS:**\n';
+    recommendations += '\n**PERFORMANCE INSIGHTS:**\n';
     recommendations += `- Pipeline Value: $${totalPipelineValue.toLocaleString()}\n`;
     recommendations += `- Average Deal Size: $${Math.round(avgDealValue).toLocaleString()}\n`;
     recommendations += `- Conversion Rate: ${Math.round(conversionRate)}%\n`;
 
     if (conversionRate < 15) {
-      recommendations += `- ⚡ Focus on improving qualification process (conversion rate is low)\n`;
+      recommendations += `- Focus on improving qualification process (conversion rate is low)\n`;
     }
 
     if (avgDealValue < 25000) {
-      recommendations += `- 💰 Consider targeting higher-value opportunities\n`;
+      recommendations += `- Consider targeting higher-value opportunities\n`;
     }
 
     return recommendations;
