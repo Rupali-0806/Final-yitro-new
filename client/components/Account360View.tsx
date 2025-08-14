@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarInitials } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarInitials } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Building2,
   Users,
@@ -23,11 +29,11 @@ import {
   ChevronRight,
   Plus,
   Filter,
-  Edit3
-} from 'lucide-react';
-import { api } from '@/services/demoApi';
-import { Account, Contact, ActiveDeal, ActivityLog } from '@shared/models';
-import { format } from 'date-fns';
+  Edit3,
+} from "lucide-react";
+import { api } from "@/services/demoApi";
+import { Account, Contact, ActiveDeal, ActivityLog } from "@shared/models";
+import { format } from "date-fns";
 
 interface Account360ViewProps {
   accountId: string;
@@ -41,15 +47,19 @@ interface RelatedData {
   activities: ActivityLog[];
 }
 
-export default function Account360View({ accountId, onBack, onEdit }: Account360ViewProps) {
+export default function Account360View({
+  accountId,
+  onBack,
+  onEdit,
+}: Account360ViewProps) {
   const [account, setAccount] = useState<Account | null>(null);
   const [relatedData, setRelatedData] = useState<RelatedData>({
     contacts: [],
     deals: [],
-    activities: []
+    activities: [],
   });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     loadAccountData();
@@ -65,29 +75,42 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
       }
 
       // Load related data in parallel
-      const [contactsResponse, dealsResponse, activitiesResponse] = await Promise.all([
-        api.contacts.getAll(),
-        api.deals.getAll(),
-        api.activities.getAll()
-      ]);
+      const [contactsResponse, dealsResponse, activitiesResponse] =
+        await Promise.all([
+          api.contacts.getAll(),
+          api.deals.getAll(),
+          api.activities.getAll(),
+        ]);
 
       // Filter related data by account ID
-      const relatedContacts = contactsResponse.success ? 
-        contactsResponse.data.filter(contact => contact.associatedAccount === accountId) : [];
-      
-      const relatedDeals = dealsResponse.success ? 
-        dealsResponse.data.filter(deal => deal.associatedAccount === accountId) : [];
-      
-      const relatedActivities = activitiesResponse.success ? 
-        activitiesResponse.data.filter(activity => activity.associatedAccount === accountId) : [];
+      const relatedContacts = contactsResponse.success
+        ? contactsResponse.data.filter(
+            (contact) => contact.associatedAccount === accountId,
+          )
+        : [];
+
+      const relatedDeals = dealsResponse.success
+        ? dealsResponse.data.filter(
+            (deal) => deal.associatedAccount === accountId,
+          )
+        : [];
+
+      const relatedActivities = activitiesResponse.success
+        ? activitiesResponse.data.filter(
+            (activity) => activity.associatedAccount === accountId,
+          )
+        : [];
 
       setRelatedData({
         contacts: relatedContacts,
         deals: relatedDeals,
-        activities: relatedActivities.sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())
+        activities: relatedActivities.sort(
+          (a, b) =>
+            new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime(),
+        ),
       });
     } catch (error) {
-      console.error('Error loading account data:', error);
+      console.error("Error loading account data:", error);
     } finally {
       setLoading(false);
     }
@@ -95,23 +118,25 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
 
   const getAccountHealthScore = () => {
     let score = 50; // Base score
-    
-    if (account?.accountRating === 'Platinum (Must Have)') score += 25;
-    else if (account?.accountRating === 'Gold (High Priority)') score += 15;
-    else if (account?.accountRating === 'Silver (Medium Priority)') score += 5;
-    
-    if (account?.status === 'Active Deal') score += 20;
-    else if (account?.status === 'Prospect') score += 10;
-    
+
+    if (account?.accountRating === "Platinum (Must Have)") score += 25;
+    else if (account?.accountRating === "Gold (High Priority)") score += 15;
+    else if (account?.accountRating === "Silver (Medium Priority)") score += 5;
+
+    if (account?.status === "Active Deal") score += 20;
+    else if (account?.status === "Prospect") score += 10;
+
     if (relatedData.deals.length > 0) score += 15;
     if (relatedData.activities.length > 2) score += 10;
-    
+
     return Math.min(score, 100);
   };
 
   const getTotalDealValue = () => {
     return relatedData.deals.reduce((total, deal) => {
-      const value = parseFloat(deal.dealValue?.replace(/[^0-9.-]+/g, '') || '0');
+      const value = parseFloat(
+        deal.dealValue?.replace(/[^0-9.-]+/g, "") || "0",
+      );
       return total + value;
     }, 0);
   };
@@ -159,14 +184,20 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <Badge 
-              variant={account.status === 'Active Deal' ? 'default' : 'secondary'}
+            <Badge
+              variant={
+                account.status === "Active Deal" ? "default" : "secondary"
+              }
               className="text-sm"
             >
               {account.status}
             </Badge>
-            <Badge 
-              variant={account.accountRating?.includes('Platinum') ? 'default' : 'outline'}
+            <Badge
+              variant={
+                account.accountRating?.includes("Platinum")
+                  ? "default"
+                  : "outline"
+              }
               className="text-sm"
             >
               {account.accountRating}
@@ -187,7 +218,9 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Health Score</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Health Score
+                  </p>
                   <p className="text-2xl font-bold">{healthScore}%</p>
                 </div>
               </div>
@@ -202,8 +235,12 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Deal Value</p>
-                  <p className="text-2xl font-bold">${totalDealValue.toLocaleString()}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Deal Value
+                  </p>
+                  <p className="text-2xl font-bold">
+                    ${totalDealValue.toLocaleString()}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -216,8 +253,12 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Contacts</p>
-                  <p className="text-2xl font-bold">{relatedData.contacts.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Contacts
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {relatedData.contacts.length}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -230,8 +271,12 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   <Activity className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Activities</p>
-                  <p className="text-2xl font-bold">{relatedData.activities.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Activities
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {relatedData.activities.length}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -239,12 +284,22 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
         </div>
 
         {/* Tabbed Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="contacts">Contacts ({relatedData.contacts.length})</TabsTrigger>
-            <TabsTrigger value="deals">Deals ({relatedData.deals.length})</TabsTrigger>
-            <TabsTrigger value="activities">Activities ({relatedData.activities.length})</TabsTrigger>
+            <TabsTrigger value="contacts">
+              Contacts ({relatedData.contacts.length})
+            </TabsTrigger>
+            <TabsTrigger value="deals">
+              Deals ({relatedData.deals.length})
+            </TabsTrigger>
+            <TabsTrigger value="activities">
+              Activities ({relatedData.activities.length})
+            </TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
           </TabsList>
 
@@ -261,31 +316,53 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Owner</p>
-                      <p className="font-medium">{account.accountOwner || 'Not assigned'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Owner
+                      </p>
+                      <p className="font-medium">
+                        {account.accountOwner || "Not assigned"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Industry</p>
-                      <p className="font-medium">{account.industry || 'Not specified'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Industry
+                      </p>
+                      <p className="font-medium">
+                        {account.industry || "Not specified"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Revenue</p>
-                      <p className="font-medium">{account.revenue || 'Not specified'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Revenue
+                      </p>
+                      <p className="font-medium">
+                        {account.revenue || "Not specified"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Employees</p>
-                      <p className="font-medium">{account.numberOfEmployees || 'Not specified'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Employees
+                      </p>
+                      <p className="font-medium">
+                        {account.numberOfEmployees || "Not specified"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Geography</p>
-                      <p className="font-medium">{account.geo || 'Not specified'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Geography
+                      </p>
+                      <p className="font-medium">
+                        {account.geo || "Not specified"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Website</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Website
+                      </p>
                       {account.website ? (
-                        <a 
-                          href={account.website} 
-                          target="_blank" 
+                        <a
+                          href={account.website}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="font-medium text-blue-600 hover:underline flex items-center"
                         >
@@ -297,7 +374,7 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                       )}
                     </div>
                   </div>
-                  
+
                   {(account.addressLine1 || account.city) && (
                     <>
                       <Separator />
@@ -307,10 +384,16 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                           Address
                         </p>
                         <div className="text-sm">
-                          {account.addressLine1 && <p>{account.addressLine1}</p>}
-                          {account.addressLine2 && <p>{account.addressLine2}</p>}
+                          {account.addressLine1 && (
+                            <p>{account.addressLine1}</p>
+                          )}
+                          {account.addressLine2 && (
+                            <p>{account.addressLine2}</p>
+                          )}
                           <p>
-                            {[account.city, account.state, account.zipPostCode].filter(Boolean).join(', ')}
+                            {[account.city, account.state, account.zipPostCode]
+                              .filter(Boolean)
+                              .join(", ")}
                           </p>
                           {account.country && <p>{account.country}</p>}
                         </div>
@@ -337,20 +420,36 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   <ScrollArea className="h-[300px]">
                     <div className="space-y-3">
                       {getRecentActivities().map((activity) => (
-                        <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                        <div
+                          key={activity.id}
+                          className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                        >
                           <div className="p-1 bg-blue-100 dark:bg-blue-900 rounded">
-                            {activity.activityType === 'Call' && <Phone className="w-3 h-3 text-blue-600" />}
-                            {activity.activityType === 'Email' && <Mail className="w-3 h-3 text-blue-600" />}
-                            {activity.activityType === 'LinkedIn Msg' && <Activity className="w-3 h-3 text-blue-600" />}
-                            {!['Call', 'Email', 'LinkedIn Msg'].includes(activity.activityType) && <Activity className="w-3 h-3 text-blue-600" />}
+                            {activity.activityType === "Call" && (
+                              <Phone className="w-3 h-3 text-blue-600" />
+                            )}
+                            {activity.activityType === "Email" && (
+                              <Mail className="w-3 h-3 text-blue-600" />
+                            )}
+                            {activity.activityType === "LinkedIn Msg" && (
+                              <Activity className="w-3 h-3 text-blue-600" />
+                            )}
+                            {!["Call", "Email", "LinkedIn Msg"].includes(
+                              activity.activityType,
+                            ) && <Activity className="w-3 h-3 text-blue-600" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium">{activity.activityType}</p>
+                            <p className="text-sm font-medium">
+                              {activity.activityType}
+                            </p>
                             <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                              {activity.summary || 'No summary provided'}
+                              {activity.summary || "No summary provided"}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
-                              {format(new Date(activity.dateTime), 'MMM d, h:mm a')}
+                              {format(
+                                new Date(activity.dateTime),
+                                "MMM d, h:mm a",
+                              )}
                             </p>
                           </div>
                         </div>
@@ -381,7 +480,7 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                 </Button>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {relatedData.contacts.map((contact) => (
                 <Card key={contact.id}>
@@ -389,7 +488,8 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                     <div className="flex items-start space-x-3">
                       <Avatar>
                         <AvatarFallback>
-                          {contact.firstName?.[0]}{contact.lastName?.[0]}
+                          {contact.firstName?.[0]}
+                          {contact.lastName?.[0]}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
@@ -397,13 +497,15 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                           {contact.firstName} {contact.lastName}
                         </h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                          {contact.title || 'No title'}
+                          {contact.title || "No title"}
                         </p>
                         <div className="mt-2 space-y-1">
                           {contact.emailAddress && (
                             <div className="flex items-center text-xs text-gray-500">
                               <Mail className="w-3 h-3 mr-1" />
-                              <span className="truncate">{contact.emailAddress}</span>
+                              <span className="truncate">
+                                {contact.emailAddress}
+                              </span>
                             </div>
                           )}
                           {contact.deskPhone && (
@@ -421,7 +523,7 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   </CardContent>
                 </Card>
               ))}
-              
+
               {relatedData.contacts.length === 0 && (
                 <div className="col-span-full">
                   <Card>
@@ -431,7 +533,8 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                         No contacts found
                       </h3>
                       <p className="text-gray-600 dark:text-gray-400 mb-4">
-                        Start building relationships by adding contacts to this account.
+                        Start building relationships by adding contacts to this
+                        account.
                       </p>
                       <Button>
                         <Plus className="w-4 h-4 mr-2" />
@@ -446,7 +549,9 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
 
           <TabsContent value="deals" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Active Deals & Opportunities</h3>
+              <h3 className="text-lg font-semibold">
+                Active Deals & Opportunities
+              </h3>
               <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm">
                   <Filter className="w-4 h-4 mr-2" />
@@ -458,7 +563,7 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                 </Button>
               </div>
             </div>
-            
+
             <div className="space-y-4">
               {relatedData.deals.map((deal) => (
                 <Card key={deal.id}>
@@ -467,28 +572,51 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                       <div className="flex-1">
                         <div className="flex items-center space-x-3">
                           <h4 className="font-medium">{deal.dealName}</h4>
-                          <Badge variant={deal.stage === 'Order Won' ? 'default' : 'outline'}>
+                          <Badge
+                            variant={
+                              deal.stage === "Order Won" ? "default" : "outline"
+                            }
+                          >
                             {deal.stage}
                           </Badge>
                         </div>
                         <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                           <div>
-                            <p className="text-gray-600 dark:text-gray-400">Value</p>
-                            <p className="font-medium">{deal.dealValue || 'Not specified'}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600 dark:text-gray-400">Owner</p>
-                            <p className="font-medium">{deal.dealOwner || 'Unassigned'}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600 dark:text-gray-400">Closing Date</p>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              Value
+                            </p>
                             <p className="font-medium">
-                              {deal.closingDate ? format(new Date(deal.closingDate), 'MMM d, yyyy') : 'TBD'}
+                              {deal.dealValue || "Not specified"}
                             </p>
                           </div>
                           <div>
-                            <p className="text-gray-600 dark:text-gray-400">Probability</p>
-                            <p className="font-medium">{deal.probability || 'Not set'}</p>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              Owner
+                            </p>
+                            <p className="font-medium">
+                              {deal.dealOwner || "Unassigned"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              Closing Date
+                            </p>
+                            <p className="font-medium">
+                              {deal.closingDate
+                                ? format(
+                                    new Date(deal.closingDate),
+                                    "MMM d, yyyy",
+                                  )
+                                : "TBD"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400">
+                              Probability
+                            </p>
+                            <p className="font-medium">
+                              {deal.probability || "Not set"}
+                            </p>
                           </div>
                         </div>
                         {deal.description && (
@@ -506,7 +634,7 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   </CardContent>
                 </Card>
               ))}
-              
+
               {relatedData.deals.length === 0 && (
                 <Card>
                   <CardContent className="p-8 text-center">
@@ -515,7 +643,8 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                       No deals found
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Create your first opportunity to start tracking potential revenue.
+                      Create your first opportunity to start tracking potential
+                      revenue.
                     </p>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
@@ -541,19 +670,30 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                 </Button>
               </div>
             </div>
-            
+
             <Card>
               <CardContent className="p-4">
                 <ScrollArea className="h-[500px]">
                   <div className="space-y-4">
                     {relatedData.activities.map((activity, index) => (
-                      <div key={activity.id} className="flex items-start space-x-4">
+                      <div
+                        key={activity.id}
+                        className="flex items-start space-x-4"
+                      >
                         <div className="flex flex-col items-center">
                           <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-                            {activity.activityType === 'Call' && <Phone className="w-4 h-4 text-blue-600" />}
-                            {activity.activityType === 'Email' && <Mail className="w-4 h-4 text-blue-600" />}
-                            {activity.activityType === 'LinkedIn Msg' && <Activity className="w-4 h-4 text-blue-600" />}
-                            {!['Call', 'Email', 'LinkedIn Msg'].includes(activity.activityType) && <Activity className="w-4 h-4 text-blue-600" />}
+                            {activity.activityType === "Call" && (
+                              <Phone className="w-4 h-4 text-blue-600" />
+                            )}
+                            {activity.activityType === "Email" && (
+                              <Mail className="w-4 h-4 text-blue-600" />
+                            )}
+                            {activity.activityType === "LinkedIn Msg" && (
+                              <Activity className="w-4 h-4 text-blue-600" />
+                            )}
+                            {!["Call", "Email", "LinkedIn Msg"].includes(
+                              activity.activityType,
+                            ) && <Activity className="w-4 h-4 text-blue-600" />}
                           </div>
                           {index < relatedData.activities.length - 1 && (
                             <div className="w-px h-8 bg-gray-200 dark:bg-gray-700 mt-2" />
@@ -561,9 +701,14 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                         </div>
                         <div className="flex-1 pb-4">
                           <div className="flex items-center justify-between">
-                            <h4 className="font-medium">{activity.activityType}</h4>
+                            <h4 className="font-medium">
+                              {activity.activityType}
+                            </h4>
                             <time className="text-sm text-gray-500">
-                              {format(new Date(activity.dateTime), 'MMM d, yyyy h:mm a')}
+                              {format(
+                                new Date(activity.dateTime),
+                                "MMM d, yyyy h:mm a",
+                              )}
                             </time>
                           </div>
                           {activity.summary && (
@@ -585,7 +730,7 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                         </div>
                       </div>
                     ))}
-                    
+
                     {relatedData.activities.length === 0 && (
                       <div className="text-center py-8">
                         <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -593,7 +738,8 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                           No activities recorded
                         </h3>
                         <p className="text-gray-600 dark:text-gray-400 mb-4">
-                          Start logging interactions to build a comprehensive timeline.
+                          Start logging interactions to build a comprehensive
+                          timeline.
                         </p>
                         <Button>
                           <Plus className="w-4 h-4 mr-2" />
@@ -620,20 +766,44 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Engagement Level</span>
-                      <Badge variant={relatedData.activities.length > 5 ? 'default' : 'secondary'}>
-                        {relatedData.activities.length > 5 ? 'High' : relatedData.activities.length > 2 ? 'Medium' : 'Low'}
+                      <Badge
+                        variant={
+                          relatedData.activities.length > 5
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {relatedData.activities.length > 5
+                          ? "High"
+                          : relatedData.activities.length > 2
+                            ? "Medium"
+                            : "Low"}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Deal Pipeline</span>
-                      <Badge variant={relatedData.deals.length > 0 ? 'default' : 'secondary'}>
-                        {relatedData.deals.length > 0 ? 'Active' : 'No Deals'}
+                      <Badge
+                        variant={
+                          relatedData.deals.length > 0 ? "default" : "secondary"
+                        }
+                      >
+                        {relatedData.deals.length > 0 ? "Active" : "No Deals"}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Contact Coverage</span>
-                      <Badge variant={relatedData.contacts.length > 2 ? 'default' : 'secondary'}>
-                        {relatedData.contacts.length > 2 ? 'Good' : relatedData.contacts.length > 0 ? 'Limited' : 'None'}
+                      <Badge
+                        variant={
+                          relatedData.contacts.length > 2
+                            ? "default"
+                            : "secondary"
+                        }
+                      >
+                        {relatedData.contacts.length > 2
+                          ? "Good"
+                          : relatedData.contacts.length > 0
+                            ? "Limited"
+                            : "None"}
                       </Badge>
                     </div>
                   </div>
@@ -670,13 +840,15 @@ export default function Account360View({ accountId, onBack, onEdit }: Account360
                         </p>
                       </div>
                     )}
-                    {relatedData.contacts.length > 0 && relatedData.activities.length > 2 && relatedData.deals.length > 0 && (
-                      <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                        <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                          ✅ Account is well-managed with good engagement
-                        </p>
-                      </div>
-                    )}
+                    {relatedData.contacts.length > 0 &&
+                      relatedData.activities.length > 2 &&
+                      relatedData.deals.length > 0 && (
+                        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                          <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                            ✅ Account is well-managed with good engagement
+                          </p>
+                        </div>
+                      )}
                   </div>
                 </CardContent>
               </Card>

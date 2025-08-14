@@ -367,7 +367,11 @@ I'm here to help you stay on top of your sales game!`,
         response += "**Deals Closing This Week:**\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
           const urgencyLabel =
-            deal.probability > 75 ? "HIGH PRIORITY" : deal.probability > 50 ? "MEDIUM PRIORITY" : "LOW PRIORITY";
+            deal.probability > 75
+              ? "HIGH PRIORITY"
+              : deal.probability > 50
+                ? "MEDIUM PRIORITY"
+                : "LOW PRIORITY";
           response += `${urgencyLabel} ${index + 1}. **${deal.dealName}**\n`;
           response += `   Account: ${deal.associatedAccount}\n`;
           response += `   Value: $${deal.dealValue.toLocaleString()}\n`;

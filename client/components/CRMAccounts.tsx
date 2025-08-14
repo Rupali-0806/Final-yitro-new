@@ -225,10 +225,7 @@ export function CRMAccounts() {
   // Show account detail edit view if account is selected for editing
   if (editAccountId) {
     return (
-      <AccountDetail
-        accountId={editAccountId}
-        onBack={handleBackToList}
-      />
+      <AccountDetail accountId={editAccountId} onBack={handleBackToList} />
     );
   }
 
