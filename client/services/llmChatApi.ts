@@ -6,7 +6,7 @@ interface LLMChatRequest {
     contacts: any[];
     deals: any[];
   };
-  conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>;
+  conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
   user?: {
     displayName?: string;
     email?: string;
@@ -28,17 +28,17 @@ export class LLMChatAPI {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_URL || '/api';
+    this.baseURL = import.meta.env.VITE_API_URL || "/api";
   }
 
   async sendChatQuery(request: LLMChatRequest): Promise<LLMChatResponse> {
     try {
       const response = await fetch(`${this.baseURL}/llm/chat`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify(request),
       });
 
@@ -49,10 +49,11 @@ export class LLMChatAPI {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('LLM Chat API Error:', error);
+      console.error("LLM Chat API Error:", error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to send chat query'
+        error:
+          error instanceof Error ? error.message : "Failed to send chat query",
       };
     }
   }
@@ -60,8 +61,8 @@ export class LLMChatAPI {
   async testLLMConnection(): Promise<{ success: boolean; message: string }> {
     try {
       const response = await fetch(`${this.baseURL}/llm/test-connection`, {
-        method: 'GET',
-        credentials: 'include',
+        method: "GET",
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -70,16 +71,19 @@ export class LLMChatAPI {
 
       return await response.json();
     } catch (error) {
-      console.error('LLM Connection Test Error:', error);
+      console.error("LLM Connection Test Error:", error);
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Failed to test LLM connection'
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to test LLM connection",
       };
     }
   }
 
   // Helper method to prepare CRM data for the API
-  prepareCRMData(crmContext: any): LLMChatRequest['crmData'] {
+  prepareCRMData(crmContext: any): LLMChatRequest["crmData"] {
     return {
       leads: crmContext.leads || [],
       accounts: crmContext.accounts || [],
@@ -89,13 +93,16 @@ export class LLMChatAPI {
   }
 
   // Helper method to format conversation history
-  formatConversationHistory(messages: any[]): Array<{role: 'user' | 'assistant', content: string}> {
+  formatConversationHistory(
+    messages: any[],
+  ): Array<{ role: "user" | "assistant"; content: string }> {
     return messages
-      .filter(msg => msg.sender === 'user' || msg.sender === 'bot')
+      .filter((msg) => msg.sender === "user" || msg.sender === "bot")
       .slice(-10) // Keep last 10 messages for context
-      .map(msg => ({
-        role: msg.sender === 'user' ? 'user' as const : 'assistant' as const,
-        content: msg.content
+      .map((msg) => ({
+        role:
+          msg.sender === "user" ? ("user" as const) : ("assistant" as const),
+        content: msg.content,
       }));
   }
 }

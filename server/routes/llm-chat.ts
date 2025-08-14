@@ -1,6 +1,6 @@
-import { Router, RequestHandler } from 'express';
-import { llmService } from '../lib/llmService';
-import { requireAuth } from '../lib/neonAuth';
+import { Router, RequestHandler } from "express";
+import { llmService } from "../lib/llmService";
+import { requireAuth } from "../lib/neonAuth";
 
 const router = Router();
 
@@ -12,7 +12,7 @@ interface ChatRequest {
     contacts: any[];
     deals: any[];
   };
-  conversationHistory?: Array<{role: 'user' | 'assistant', content: string}>;
+  conversationHistory?: Array<{ role: "user" | "assistant"; content: string }>;
   user?: {
     displayName?: string;
     email?: string;
@@ -31,21 +31,24 @@ interface ChatResponse {
 }
 
 // Chat endpoint with LLM integration
-const handleChatQuery: RequestHandler<{}, ChatResponse, ChatRequest> = async (req, res) => {
+const handleChatQuery: RequestHandler<{}, ChatResponse, ChatRequest> = async (
+  req,
+  res,
+) => {
   try {
     const { query, crmData, conversationHistory = [], user } = req.body;
 
     if (!query) {
       return res.status(400).json({
         success: false,
-        error: 'Query is required'
+        error: "Query is required",
       });
     }
 
     if (!crmData) {
       return res.status(400).json({
         success: false,
-        error: 'CRM data is required for context'
+        error: "CRM data is required for context",
       });
     }
 
@@ -57,14 +60,14 @@ const handleChatQuery: RequestHandler<{}, ChatResponse, ChatRequest> = async (re
       accounts: crmData.accounts || [],
       contacts: crmData.contacts || [],
       deals: crmData.deals || [],
-      user: user || {}
+      user: user || {},
     };
 
     // Generate response using LLM service
     const response = await llmService.generateResponse(
       query,
       crmContext,
-      conversationHistory
+      conversationHistory,
     );
 
     console.log(`✅ LLM response generated successfully`);
@@ -74,15 +77,14 @@ const handleChatQuery: RequestHandler<{}, ChatResponse, ChatRequest> = async (re
       data: {
         message: response.message,
         intent: response.intent,
-        quickActions: response.quickActions
-      }
+        quickActions: response.quickActions,
+      },
     });
-
   } catch (error: any) {
-    console.error('LLM Chat Error:', error);
+    console.error("LLM Chat Error:", error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Failed to process chat query'
+      error: error.message || "Failed to process chat query",
     });
   }
 };
@@ -91,21 +93,21 @@ const handleChatQuery: RequestHandler<{}, ChatResponse, ChatRequest> = async (re
 const testLLMConnection: RequestHandler = async (req, res) => {
   try {
     const result = await llmService.testConnection();
-    
+
     res.json({
       success: result.success,
-      message: result.message
+      message: result.message,
     });
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      error: error.message || 'Failed to test LLM connection'
+      error: error.message || "Failed to test LLM connection",
     });
   }
 };
 
 // Routes
-router.post('/chat', handleChatQuery);
-router.get('/test-connection', testLLMConnection);
+router.post("/chat", handleChatQuery);
+router.get("/test-connection", testLLMConnection);
 
 export default router;

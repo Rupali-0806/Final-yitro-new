@@ -1,7 +1,11 @@
-import OpenAI from 'openai';
-import { 
-  Contact, Account, ActivityLog, ActiveDeal, Lead 
-} from '@shared/models';
+import OpenAI from "openai";
+import {
+  Contact,
+  Account,
+  ActivityLog,
+  ActiveDeal,
+  Lead,
+} from "@shared/models";
 
 interface CRMContext {
   leads: Lead[];
@@ -28,26 +32,28 @@ export class LLMService {
 
   constructor() {
     this.isConfigured = Boolean(process.env.OPENAI_API_KEY);
-    
+
     if (this.isConfigured) {
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       });
     } else {
-      console.warn('⚠️  OpenAI API key not configured. LLM features will be limited.');
+      console.warn(
+        "⚠️  OpenAI API key not configured. LLM features will be limited.",
+      );
     }
   }
 
   private createSystemPrompt(crmContext: CRMContext): string {
     const { leads, accounts, contacts, deals, user } = crmContext;
-    
-    return `You are an intelligent CRM assistant for ${user?.displayName || 'the user'}. You have access to their CRM data and should provide helpful, actionable insights.
+
+    return `You are an intelligent CRM assistant for ${user?.displayName || "the user"}. You have access to their CRM data and should provide helpful, actionable insights.
 
 Current CRM Data Overview:
-- Leads: ${leads.length} total (${leads.filter(l => l.status === 'New').length} new, ${leads.filter(l => l.status === 'Qualified').length} qualified)
-- Accounts: ${accounts.length} total (${accounts.filter(a => a.type === 'Customer').length} customers, ${accounts.filter(a => a.type === 'Prospect').length} prospects)
+- Leads: ${leads.length} total (${leads.filter((l) => l.status === "New").length} new, ${leads.filter((l) => l.status === "Qualified").length} qualified)
+- Accounts: ${accounts.length} total (${accounts.filter((a) => a.type === "Customer").length} customers, ${accounts.filter((a) => a.type === "Prospect").length} prospects)
 - Contacts: ${contacts.length} total
-- Deals: ${deals.length} total (${deals.filter(d => !['Order Won', 'Order Lost'].includes(d.stage)).length} active)
+- Deals: ${deals.length} total (${deals.filter((d) => !["Order Won", "Order Lost"].includes(d.stage)).length} active)
 
 Guidelines:
 1. Always be helpful, professional, and action-oriented
@@ -64,60 +70,78 @@ Guidelines:
 12. **PRIORITIZE ACTIONS**: Help them focus on the most impactful activities
 
 User Context:
-- Name: ${user?.displayName || 'User'}
-- Role: ${user?.role || 'Sales Professional'}
+- Name: ${user?.displayName || "User"}
+- Role: ${user?.role || "Sales Professional"}
 
 Respond naturally to user queries about their CRM data, sales performance, and provide actionable insights.`;
   }
 
   private createUserContext(query: string, crmContext: CRMContext): string {
     const { leads, accounts, contacts, deals } = crmContext;
-    
+
     // Provide relevant data based on query keywords
-    let contextData = '';
+    let contextData = "";
     const lowerQuery = query.toLowerCase();
 
-    if (lowerQuery.includes('lead')) {
+    if (lowerQuery.includes("lead")) {
       // Extract number if specified (e.g., "top 3 leads", "5 best leads")
-      const numberMatch = lowerQuery.match(/(?:top|best|first)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const numberMatch = lowerQuery.match(
+        /(?:top|best|first)\s*(\d+)|(\d+)\s*(?:top|best|leads)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : 5;
       const leadCount = Math.min(requestedCount, 10); // Cap at 10 for context efficiency
 
       const topLeads = leads
         .sort((a, b) => b.score - a.score)
         .slice(0, leadCount)
-        .map(lead => `- ${lead.name} (${lead.company}): Score ${lead.score}, Value ${lead.value}, Status: ${lead.status}`)
-        .join('\n');
+        .map(
+          (lead) =>
+            `- ${lead.name} (${lead.company}): Score ${lead.score}, Value ${lead.value}, Status: ${lead.status}`,
+        )
+        .join("\n");
       contextData += `\nTop ${leadCount} Leads (as requested):\n${topLeads}\n`;
     }
 
-    if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) {
+    if (lowerQuery.includes("deal") || lowerQuery.includes("pipeline")) {
       // Extract number if specified (e.g., "top 3 active deals", "5 best deals")
-      const numberMatch = lowerQuery.match(/(?:top|best|first)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const numberMatch = lowerQuery.match(
+        /(?:top|best|first)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : 5;
       const dealCount = Math.min(requestedCount, 10); // Cap at 10 for context efficiency
 
       const activeDeals = deals
-        .filter(deal => !['Order Won', 'Order Lost'].includes(deal.stage))
+        .filter((deal) => !["Order Won", "Order Lost"].includes(deal.stage))
         .sort((a, b) => b.dealValue - a.dealValue) // Sort by value for "top" deals
         .slice(0, dealCount)
-        .map(deal => `- ${deal.dealName}: $${deal.dealValue.toLocaleString()}, Stage: ${deal.stage}, Closes: ${new Date(deal.closingDate).toLocaleDateString()}`)
-        .join('\n');
+        .map(
+          (deal) =>
+            `- ${deal.dealName}: $${deal.dealValue.toLocaleString()}, Stage: ${deal.stage}, Closes: ${new Date(deal.closingDate).toLocaleDateString()}`,
+        )
+        .join("\n");
       contextData += `\nTop ${dealCount} Active Deals (as requested):\n${activeDeals}\n`;
     }
 
-    if (lowerQuery.includes('account') || lowerQuery.includes('customer')) {
+    if (lowerQuery.includes("account") || lowerQuery.includes("customer")) {
       const topAccounts = accounts
-        .filter(account => account.type === 'Customer')
+        .filter((account) => account.type === "Customer")
         .sort((a, b) => b.activeDeals - a.activeDeals)
         .slice(0, 5)
-        .map(account => `- ${account.name}: ${account.industry}, Revenue: ${account.revenue}, Active Deals: ${account.activeDeals}`)
-        .join('\n');
+        .map(
+          (account) =>
+            `- ${account.name}: ${account.industry}, Revenue: ${account.revenue}, Active Deals: ${account.activeDeals}`,
+        )
+        .join("\n");
       contextData += `\nTop Accounts:\n${topAccounts}\n`;
     }
 
     // Add personalized recommendations based on CRM data analysis
-    const recommendations = this.generatePersonalizedRecommendations(crmContext);
+    const recommendations =
+      this.generatePersonalizedRecommendations(crmContext);
     contextData += `\n${recommendations}`;
 
     return `User Query: "${query}"${contextData}`;
@@ -126,34 +150,40 @@ Respond naturally to user queries about their CRM data, sales performance, and p
   private generatePersonalizedRecommendations(crmContext: CRMContext): string {
     const { leads, accounts, contacts, deals } = crmContext;
 
-    let recommendations = '\n📋 **PERSONALIZED INSIGHTS FOR YOUR RESPONSE:**\n';
+    let recommendations = "\n📋 **PERSONALIZED INSIGHTS FOR YOUR RESPONSE:**\n";
 
     // Analyze leads performance
-    const newLeads = leads.filter(l => l.status === 'New');
-    const qualifiedLeads = leads.filter(l => l.status === 'Qualified');
-    const workingLeads = leads.filter(l => l.status === 'Working');
-    const lowScoreLeads = leads.filter(l => l.score < 30);
-    const highScoreLeads = leads.filter(l => l.score >= 80);
+    const newLeads = leads.filter((l) => l.status === "New");
+    const qualifiedLeads = leads.filter((l) => l.status === "Qualified");
+    const workingLeads = leads.filter((l) => l.status === "Working");
+    const lowScoreLeads = leads.filter((l) => l.score < 30);
+    const highScoreLeads = leads.filter((l) => l.score >= 80);
 
     // Analyze deals performance
-    const activeDeals = deals.filter(d => !['Order Won', 'Order Lost'].includes(d.stage));
-    const highValueDeals = activeDeals.filter(d => d.dealValue > 50000);
-    const lowProbabilityDeals = activeDeals.filter(d => d.probability < 30);
-    const stallingDeals = activeDeals.filter(d => {
-      const daysSinceUpdate = (Date.now() - new Date(d.lastActivity || d.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+    const activeDeals = deals.filter(
+      (d) => !["Order Won", "Order Lost"].includes(d.stage),
+    );
+    const highValueDeals = activeDeals.filter((d) => d.dealValue > 50000);
+    const lowProbabilityDeals = activeDeals.filter((d) => d.probability < 30);
+    const stallingDeals = activeDeals.filter((d) => {
+      const daysSinceUpdate =
+        (Date.now() - new Date(d.lastActivity || d.createdAt).getTime()) /
+        (1000 * 60 * 60 * 24);
       return daysSinceUpdate > 14;
     });
-    const urgentDeals = activeDeals.filter(d => {
-      const daysToClose = (new Date(d.closingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    const urgentDeals = activeDeals.filter((d) => {
+      const daysToClose =
+        (new Date(d.closingDate).getTime() - Date.now()) /
+        (1000 * 60 * 60 * 24);
       return daysToClose <= 7 && daysToClose > 0;
     });
 
     // Analyze accounts
-    const customers = accounts.filter(a => a.type === 'Customer');
-    const prospects = accounts.filter(a => a.type === 'Prospect');
-    const inactiveAccounts = accounts.filter(a => a.activeDeals === 0);
+    const customers = accounts.filter((a) => a.type === "Customer");
+    const prospects = accounts.filter((a) => a.type === "Prospect");
+    const inactiveAccounts = accounts.filter((a) => a.activeDeals === 0);
 
-    recommendations += '\n**WHAT TO DO (Priority Actions):**\n';
+    recommendations += "\n**WHAT TO DO (Priority Actions):**\n";
 
     // High-priority recommendations
     if (urgentDeals.length > 0) {
@@ -176,11 +206,14 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       recommendations += `- Convert ${qualifiedLeads.length} qualified leads to opportunities\n`;
     }
 
-    if (inactiveAccounts.length > 0 && inactiveAccounts.length < accounts.length * 0.5) {
+    if (
+      inactiveAccounts.length > 0 &&
+      inactiveAccounts.length < accounts.length * 0.5
+    ) {
       recommendations += `- Re-engage ${Math.min(3, inactiveAccounts.length)} inactive accounts with new opportunities\n`;
     }
 
-    recommendations += '\n**WHAT NOT TO DO (Avoid These):**\n';
+    recommendations += "\n**WHAT NOT TO DO (Avoid These):**\n";
 
     // Warning recommendations
     if (lowScoreLeads.length > leads.length * 0.3) {
@@ -204,11 +237,18 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     }
 
     // Performance insights
-    const totalPipelineValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
-    const avgDealValue = activeDeals.length > 0 ? totalPipelineValue / activeDeals.length : 0;
-    const conversionRate = deals.filter(d => d.stage === 'Order Won').length / Math.max(deals.length, 1) * 100;
+    const totalPipelineValue = activeDeals.reduce(
+      (sum, deal) => sum + deal.dealValue,
+      0,
+    );
+    const avgDealValue =
+      activeDeals.length > 0 ? totalPipelineValue / activeDeals.length : 0;
+    const conversionRate =
+      (deals.filter((d) => d.stage === "Order Won").length /
+        Math.max(deals.length, 1)) *
+      100;
 
-    recommendations += '\n**PERFORMANCE INSIGHTS:**\n';
+    recommendations += "\n**PERFORMANCE INSIGHTS:**\n";
     recommendations += `- Pipeline Value: $${totalPipelineValue.toLocaleString()}\n`;
     recommendations += `- Average Deal Size: $${Math.round(avgDealValue).toLocaleString()}\n`;
     recommendations += `- Conversion Rate: ${Math.round(conversionRate)}%\n`;
@@ -225,11 +265,13 @@ Respond naturally to user queries about their CRM data, sales performance, and p
   }
 
   async generateResponse(
-    query: string, 
-    crmContext: CRMContext, 
-    conversationHistory: Array<{role: 'user' | 'assistant', content: string}> = []
+    query: string,
+    crmContext: CRMContext,
+    conversationHistory: Array<{
+      role: "user" | "assistant";
+      content: string;
+    }> = [],
   ): Promise<LLMResponse> {
-    
     // Fallback if OpenAI is not configured
     if (!this.isConfigured) {
       return this.generateFallbackResponse(query, crmContext);
@@ -240,13 +282,13 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       const userContext = this.createUserContext(query, crmContext);
 
       const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        { role: 'system', content: systemPrompt },
+        { role: "system", content: systemPrompt },
         ...conversationHistory.slice(-6), // Keep last 6 messages for context
-        { role: 'user', content: userContext }
+        { role: "user", content: userContext },
       ];
 
       const completion = await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: "gpt-3.5-turbo",
         messages,
         max_tokens: 800,
         temperature: 0.7,
@@ -254,7 +296,9 @@ Respond naturally to user queries about their CRM data, sales performance, and p
         frequency_penalty: 0.1,
       });
 
-      const responseContent = completion.choices[0]?.message?.content || 'I apologize, but I couldn\'t generate a response at this time.';
+      const responseContent =
+        completion.choices[0]?.message?.content ||
+        "I apologize, but I couldn't generate a response at this time.";
 
       // Extract intent and suggest quick actions
       const intent = this.extractIntent(query);
@@ -263,39 +307,50 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       return {
         message: responseContent,
         intent,
-        quickActions
+        quickActions,
       };
-
     } catch (error) {
-      console.error('LLM Service Error:', error);
+      console.error("LLM Service Error:", error);
       return this.generateFallbackResponse(query, crmContext);
     }
   }
 
-  private generateFallbackResponse(query: string, crmContext: CRMContext): LLMResponse {
+  private generateFallbackResponse(
+    query: string,
+    crmContext: CRMContext,
+  ): LLMResponse {
     const lowerQuery = query.toLowerCase();
     const { leads, accounts, contacts, deals } = crmContext;
 
     // Generate personalized recommendations for all responses
-    const recommendations = this.generatePersonalizedRecommendations(crmContext);
+    const recommendations =
+      this.generatePersonalizedRecommendations(crmContext);
 
     // Handle specific recommendation requests
-    if (lowerQuery.includes('recommend') || lowerQuery.includes('advice') ||
-        lowerQuery.includes('what should i') || lowerQuery.includes('what to do') ||
-        lowerQuery.includes('help me prioritize') || lowerQuery.includes('suggestions')) {
-
+    if (
+      lowerQuery.includes("recommend") ||
+      lowerQuery.includes("advice") ||
+      lowerQuery.includes("what should i") ||
+      lowerQuery.includes("what to do") ||
+      lowerQuery.includes("help me prioritize") ||
+      lowerQuery.includes("suggestions")
+    ) {
       return {
         message: `**Personalized CRM Recommendations**\n\nBased on your current data analysis:${recommendations}\n\n**Next Steps:** Ask me about specific areas you'd like to focus on!`,
-        intent: 'recommendation_request',
-        quickActions: ['Lead priorities', 'Deal strategy', 'Account planning']
+        intent: "recommendation_request",
+        quickActions: ["Lead priorities", "Deal strategy", "Account planning"],
       };
     }
 
     // Simple keyword-based fallback responses
-    if (lowerQuery.includes('lead')) {
+    if (lowerQuery.includes("lead")) {
       // Extract specific number if requested
-      const numberMatch = lowerQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+      const numberMatch = lowerQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : null;
 
       if (requestedCount) {
         const topLeads = leads
@@ -315,27 +370,39 @@ Respond naturally to user queries about their CRM data, sales performance, and p
 
         return {
           message: response + recommendations,
-          intent: 'lead_inquiry',
-          quickActions: ['Lead details', 'Contact info', 'Next steps']
+          intent: "lead_inquiry",
+          quickActions: ["Lead details", "Contact info", "Next steps"],
         };
       }
 
-      const newLeads = leads.filter(l => l.status === 'New').length;
-      const qualifiedLeads = leads.filter(l => l.status === 'Qualified').length;
+      const newLeads = leads.filter((l) => l.status === "New").length;
+      const qualifiedLeads = leads.filter(
+        (l) => l.status === "Qualified",
+      ).length;
 
       return {
         message: `**Lead Summary**\n\nYou have ${leads.length} total leads:\n- ${newLeads} new leads\n- ${qualifiedLeads} qualified leads\n\nWould you like me to show you the top performing leads or help you prioritize your outreach?${recommendations}`,
-        intent: 'lead_inquiry',
-        quickActions: ['Show top leads', 'Lead priorities', 'This week\'s leads']
+        intent: "lead_inquiry",
+        quickActions: [
+          "Show top leads",
+          "Lead priorities",
+          "This week's leads",
+        ],
       };
     }
 
-    if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) {
+    if (lowerQuery.includes("deal") || lowerQuery.includes("pipeline")) {
       // Extract specific number if requested
-      const numberMatch = lowerQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+      const numberMatch = lowerQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : null;
 
-      const activeDeals = deals.filter(d => !['Order Won', 'Order Lost'].includes(d.stage));
+      const activeDeals = deals.filter(
+        (d) => !["Order Won", "Order Lost"].includes(d.stage),
+      );
 
       if (requestedCount && activeDeals.length > 0) {
         const topDeals = activeDeals
@@ -350,66 +417,101 @@ Respond naturally to user queries about their CRM data, sales performance, and p
           response += `   Closes: ${new Date(deal.closingDate).toLocaleDateString()} | ${deal.probability}% likely\n\n`;
         });
 
-        const totalValue = topDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
+        const totalValue = topDeals.reduce(
+          (sum, deal) => sum + deal.dealValue,
+          0,
+        );
         response += `**Total Value**: $${totalValue.toLocaleString()}`;
 
         return {
           message: response + recommendations,
-          intent: 'deal_inquiry',
-          quickActions: ['Deal details', 'Next steps', 'Pipeline analysis']
+          intent: "deal_inquiry",
+          quickActions: ["Deal details", "Next steps", "Pipeline analysis"],
         };
       }
 
-      const totalValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
+      const totalValue = activeDeals.reduce(
+        (sum, deal) => sum + deal.dealValue,
+        0,
+      );
 
       return {
         message: `**Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?${recommendations}`,
-        intent: 'deal_inquiry',
-        quickActions: ['Top active deals', 'Deals closing soon', 'High value deals']
+        intent: "deal_inquiry",
+        quickActions: [
+          "Top active deals",
+          "Deals closing soon",
+          "High value deals",
+        ],
       };
     }
 
-    if (lowerQuery.includes('account') || lowerQuery.includes('customer')) {
-      const customers = accounts.filter(a => a.type === 'Customer').length;
-      const prospects = accounts.filter(a => a.type === 'Prospect').length;
-      
+    if (lowerQuery.includes("account") || lowerQuery.includes("customer")) {
+      const customers = accounts.filter((a) => a.type === "Customer").length;
+      const prospects = accounts.filter((a) => a.type === "Prospect").length;
+
       return {
         message: `**Account Overview**\n\nYou're managing ${accounts.length} total accounts:\n- ${customers} customers\n- ${prospects} prospects\n\nWhat would you like to know about your accounts?${recommendations}`,
-        intent: 'account_inquiry',
-        quickActions: ['Top customers', 'New prospects', 'Account health']
+        intent: "account_inquiry",
+        quickActions: ["Top customers", "New prospects", "Account health"],
       };
     }
 
     // General response
     return {
       message: `I understand you're asking about "${query}". I can help you with leads, deals, accounts, and contacts. Try asking me something like:\n\n• "Show me my top leads"\n• "What deals are closing soon?"\n• "Account performance summary"\n• "Contact activity this week"${recommendations}`,
-      intent: 'general_inquiry',
-      quickActions: ['Top leads', 'Deals closing soon', 'Account summary', 'Recent activity']
+      intent: "general_inquiry",
+      quickActions: [
+        "Top leads",
+        "Deals closing soon",
+        "Account summary",
+        "Recent activity",
+      ],
     };
   }
 
   private extractIntent(query: string): string {
     const lowerQuery = query.toLowerCase();
-    
-    if (lowerQuery.includes('lead')) return 'lead_inquiry';
-    if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) return 'deal_inquiry';
-    if (lowerQuery.includes('account') || lowerQuery.includes('customer')) return 'account_inquiry';
-    if (lowerQuery.includes('contact')) return 'contact_inquiry';
-    if (lowerQuery.includes('performance') || lowerQuery.includes('metric')) return 'performance_inquiry';
-    if (lowerQuery.includes('help') || lowerQuery.includes('how')) return 'help_request';
-    
-    return 'general_inquiry';
+
+    if (lowerQuery.includes("lead")) return "lead_inquiry";
+    if (lowerQuery.includes("deal") || lowerQuery.includes("pipeline"))
+      return "deal_inquiry";
+    if (lowerQuery.includes("account") || lowerQuery.includes("customer"))
+      return "account_inquiry";
+    if (lowerQuery.includes("contact")) return "contact_inquiry";
+    if (lowerQuery.includes("performance") || lowerQuery.includes("metric"))
+      return "performance_inquiry";
+    if (lowerQuery.includes("help") || lowerQuery.includes("how"))
+      return "help_request";
+
+    return "general_inquiry";
   }
 
   private generateQuickActions(query: string, intent: string): string[] {
     const baseActions: Record<string, string[]> = {
-      lead_inquiry: ['Show top leads', 'New leads this week', 'Lead priorities'],
-      deal_inquiry: ['Pipeline analysis', 'Deals closing soon', 'Won/lost deals'],
-      account_inquiry: ['Top customers', 'Account health', 'New opportunities'],
-      contact_inquiry: ['Recent contacts', 'Contact activity', 'Follow-ups needed'],
-      performance_inquiry: ['Monthly metrics', 'Goal progress', 'Team comparison'],
-      help_request: ['Getting started', 'Common questions', 'Feature tour'],
-      general_inquiry: ['Top leads', 'Pipeline status', 'Account summary']
+      lead_inquiry: [
+        "Show top leads",
+        "New leads this week",
+        "Lead priorities",
+      ],
+      deal_inquiry: [
+        "Pipeline analysis",
+        "Deals closing soon",
+        "Won/lost deals",
+      ],
+      account_inquiry: ["Top customers", "Account health", "New opportunities"],
+      contact_inquiry: [
+        "Recent contacts",
+        "Contact activity",
+        "Follow-ups needed",
+      ],
+      performance_inquiry: [
+        "Monthly metrics",
+        "Goal progress",
+        "Team comparison",
+      ],
+      help_request: ["Getting started", "Common questions", "Feature tour"],
+      general_inquiry: ["Top leads", "Pipeline status", "Account summary"],
     };
 
     return baseActions[intent] || baseActions.general_inquiry;
@@ -420,25 +522,26 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     if (!this.isConfigured) {
       return {
         success: false,
-        message: 'OpenAI API key not configured. Set OPENAI_API_KEY environment variable.'
+        message:
+          "OpenAI API key not configured. Set OPENAI_API_KEY environment variable.",
       };
     }
 
     try {
       await this.openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: 'Test connection' }],
-        max_tokens: 10
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: "Test connection" }],
+        max_tokens: 10,
       });
 
       return {
         success: true,
-        message: 'LLM service connected successfully'
+        message: "LLM service connected successfully",
       };
     } catch (error: any) {
       return {
         success: false,
-        message: `LLM connection failed: ${error.message}`
+        message: `LLM connection failed: ${error.message}`,
       };
     }
   }

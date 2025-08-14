@@ -7,6 +7,7 @@ Your CRM chatbot now supports enhanced AI responses using Large Language Models 
 ### 1. Get an API Key
 
 #### Option A: OpenAI (Recommended)
+
 1. Visit [OpenAI Platform](https://platform.openai.com/api-keys)
 2. Create an account or sign in
 3. Navigate to "API Keys" section
@@ -14,6 +15,7 @@ Your CRM chatbot now supports enhanced AI responses using Large Language Models 
 5. Copy your API key (starts with `sk-`)
 
 #### Option B: Anthropic Claude (Alternative)
+
 1. Visit [Anthropic Console](https://console.anthropic.com/)
 2. Create an account or sign in
 3. Generate an API key
@@ -24,6 +26,7 @@ Your CRM chatbot now supports enhanced AI responses using Large Language Models 
 Add your API key to your environment:
 
 **For local development:**
+
 ```bash
 # Create a .env file in your project root
 echo "OPENAI_API_KEY=your-api-key-here" >> .env
@@ -31,13 +34,15 @@ echo "OPENAI_API_KEY=your-api-key-here" >> .env
 
 **For production deployment:**
 Set the environment variable in your hosting platform:
+
 - **Vercel**: Project Settings → Environment Variables
-- **Netlify**: Site Settings → Environment Variables  
+- **Netlify**: Site Settings → Environment Variables
 - **Railway/Render**: Environment tab
 
 ### 3. Restart Your Application
 
 After adding the API key, restart your development server:
+
 ```bash
 npm run dev
 ```
@@ -55,10 +60,12 @@ With LLM integration, your chatbot can now:
 ## 💡 Example Conversations
 
 ### Before LLM (Keyword-based):
+
 **User**: "leads"  
 **Bot**: Shows generic lead list
 
 ### After LLM (Natural Language):
+
 **User**: "I'm struggling to prioritize my leads this week. Can you help me figure out which ones I should focus on first?"  
 **Bot**: Analyzes your actual lead data, considers scores, values, and status to provide personalized prioritization advice with specific recommendations.
 
@@ -66,19 +73,21 @@ With LLM integration, your chatbot can now:
 
 ### Environment Variables
 
-| Variable | Required | Description | Example |
-|----------|----------|-------------|---------|
-| `OPENAI_API_KEY` | Optional | OpenAI API key for GPT models | `sk-...` |
-| `ANTHROPIC_API_KEY` | Optional | Anthropic API key for Claude | `sk-ant-...` |
+| Variable            | Required | Description                   | Example      |
+| ------------------- | -------- | ----------------------------- | ------------ |
+| `OPENAI_API_KEY`    | Optional | OpenAI API key for GPT models | `sk-...`     |
+| `ANTHROPIC_API_KEY` | Optional | Anthropic API key for Claude  | `sk-ant-...` |
 
 ### Fallback Behavior
 
 If no API key is configured:
+
 - ✅ Chatbot continues to work with rule-based responses
 - ⚠️ Limited to keyword matching
 - 📝 Status indicator shows "Standard Mode"
 
 If API key is configured:
+
 - 🤖 Enhanced AI responses enabled
 - 🧠 Natural language processing
 - 📊 Context-aware analysis
@@ -87,11 +96,13 @@ If API key is configured:
 ## 💰 Cost Considerations
 
 ### OpenAI Pricing (GPT-3.5-turbo)
+
 - **Input**: ~$0.0005 per 1K tokens
 - **Output**: ~$0.0015 per 1K tokens
 - **Typical chat response**: $0.001 - $0.005 per interaction
 
 ### Tips to Minimize Costs
+
 1. **Start Small**: Test with a few users first
 2. **Monitor Usage**: Check OpenAI dashboard regularly
 3. **Set Limits**: Configure billing alerts
@@ -108,17 +119,20 @@ If API key is configured:
 ## 🚨 Troubleshooting
 
 ### Chatbot shows "Standard Mode"
+
 - ✅ Check if `OPENAI_API_KEY` is set correctly
 - ✅ Verify API key format (starts with `sk-`)
 - ✅ Restart your application after adding the key
 - ✅ Check browser console for error messages
 
 ### API errors or failed responses
+
 - ✅ Verify your OpenAI account has available credits
 - ✅ Check API key permissions and usage limits
 - ✅ Monitor OpenAI status page for service issues
 
 ### High API costs
+
 - ✅ Review conversation length (affects token usage)
 - ✅ Set up billing alerts in OpenAI dashboard
 - ✅ Consider using GPT-3.5 instead of GPT-4 for cost optimization
@@ -126,6 +140,7 @@ If API key is configured:
 ## 📞 Support
 
 If you need help with LLM integration:
+
 1. Check the browser console for error messages
 2. Verify your API key configuration
 3. Test the connection using the admin panel

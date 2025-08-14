@@ -88,7 +88,7 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
   const [isTyping, setIsTyping] = useState(false);
   const [conversationContext, setConversationContext] = useState<string[]>([]);
   const [isLLMEnabled, setIsLLMEnabled] = useState<boolean | null>(null);
-  const [llmStatus, setLlmStatus] = useState<string>('checking');
+  const [llmStatus, setLlmStatus] = useState<string>("checking");
   const messageCounterRef = useRef<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -104,20 +104,25 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
   useEffect(() => {
     const checkLLMAvailability = async () => {
       try {
-        setLlmStatus('checking');
+        setLlmStatus("checking");
         const result = await llmChatAPI.testLLMConnection();
         setIsLLMEnabled(result.success);
-        setLlmStatus(result.success ? 'connected' : 'unavailable');
+        setLlmStatus(result.success ? "connected" : "unavailable");
 
         if (result.success) {
-          console.log('✅ LLM service connected - Enhanced chat responses enabled');
+          console.log(
+            "✅ LLM service connected - Enhanced chat responses enabled",
+          );
         } else {
-          console.warn('⚠️ LLM service unavailable - Using fallback responses:', result.message);
+          console.warn(
+            "⚠️ LLM service unavailable - Using fallback responses:",
+            result.message,
+          );
         }
       } catch (error) {
-        console.error('LLM availability check failed:', error);
+        console.error("LLM availability check failed:", error);
         setIsLLMEnabled(false);
-        setLlmStatus('error');
+        setLlmStatus("error");
       }
     };
 
@@ -138,11 +143,17 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
       lowercaseQuery.includes("top lead")
     ) {
       // Extract specific number if requested (e.g., "top 3 leads", "give me 5 leads")
-      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : 5;
       const leadCount = Math.max(1, Math.min(requestedCount, 20)); // Between 1 and 20 leads
 
-      const topLeads = leads.sort((a, b) => b.score - a.score).slice(0, leadCount);
+      const topLeads = leads
+        .sort((a, b) => b.score - a.score)
+        .slice(0, leadCount);
 
       const thisWeekLeads = leads.filter((lead) => {
         // Since we don't have exact creation dates, we'll use status for this week
@@ -188,8 +199,12 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
       lowercaseQuery.includes("pipeline")
     ) {
       // Extract specific number if requested (e.g., "top 3 active deals", "5 best deals")
-      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : 5;
       const dealCount = Math.max(1, Math.min(requestedCount, 20)); // Between 1 and 20 deals
 
       const activeDeals = deals.filter(
@@ -197,9 +212,10 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
       );
 
       // Determine if user wants closing deals vs active deals
-      const wantsClosingDeals = lowercaseQuery.includes("closing") ||
-                               lowercaseQuery.includes("soon") ||
-                               lowercaseQuery.includes("this week");
+      const wantsClosingDeals =
+        lowercaseQuery.includes("closing") ||
+        lowercaseQuery.includes("soon") ||
+        lowercaseQuery.includes("this week");
 
       let relevantDeals;
       if (wantsClosingDeals) {
@@ -209,7 +225,11 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
             const closingDate = new Date(deal.closingDate);
             return closingDate >= now && closingDate <= nextWeek;
           })
-          .sort((a, b) => new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime())
+          .sort(
+            (a, b) =>
+              new Date(a.closingDate).getTime() -
+              new Date(b.closingDate).getTime(),
+          )
           .slice(0, dealCount);
       } else {
         // Show top active deals by value
@@ -286,11 +306,12 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
         leads,
         accounts,
         contacts,
-        deals
+        deals,
       });
 
       // Prepare conversation history
-      const conversationHistory = llmChatAPI.formatConversationHistory(messages);
+      const conversationHistory =
+        llmChatAPI.formatConversationHistory(messages);
 
       // Send query to LLM service
       const response = await llmChatAPI.sendChatQuery({
@@ -300,18 +321,21 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
         user: {
           displayName: user?.displayName,
           email: user?.email,
-          role: user?.role
-        }
+          role: user?.role,
+        },
       });
 
       if (response.success && response.data) {
         return response.data.message;
       } else {
-        console.warn('LLM response failed, falling back to rule-based response:', response.error);
+        console.warn(
+          "LLM response failed, falling back to rule-based response:",
+          response.error,
+        );
         return generateFallbackResponse(query);
       }
     } catch (error) {
-      console.error('LLM generation error:', error);
+      console.error("LLM generation error:", error);
       return generateFallbackResponse(query);
     }
   };
@@ -392,8 +416,12 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
       lowercaseQuery.includes("top lead")
     ) {
       // Extract the requested count for the response header
-      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : null;
 
       let response = requestedCount
         ? `Here are your top ${requestedCount} leads by score:\n\n`
@@ -456,8 +484,12 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
       let response = "";
 
       // Extract the requested count for the response header
-      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
-      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+      const numberMatch = lowercaseQuery.match(
+        /(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/,
+      );
+      const requestedCount = numberMatch
+        ? parseInt(numberMatch[1] || numberMatch[2])
+        : null;
 
       // Handle active deals requests
       if (analysis.activeDeals && analysis.activeDeals.length > 0) {
@@ -474,7 +506,9 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
           response += `   ➡️ Next Step: ${deal.nextStep}\n\n`;
         });
 
-        const highValueDeals = analysis.activeDeals.filter(d => d.dealValue > 50000);
+        const highValueDeals = analysis.activeDeals.filter(
+          (d) => d.dealValue > 50000,
+        );
         if (highValueDeals.length > 0) {
           response += `**High Value Opportunity:** ${highValueDeals[0].dealName} ($${highValueDeals[0].dealValue.toLocaleString()}) - prioritize this deal!\n\n`;
         }
@@ -502,15 +536,19 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
-        const isActiveDealsRequest = lowercaseQuery.includes("active") ||
-                                   (!lowercaseQuery.includes("closing") && !lowercaseQuery.includes("soon"));
+        const isActiveDealsRequest =
+          lowercaseQuery.includes("active") ||
+          (!lowercaseQuery.includes("closing") &&
+            !lowercaseQuery.includes("soon"));
 
         if (isActiveDealsRequest) {
           response += "No active deals found.\n\n";
-          response += "**Suggestion:** Create new opportunities or convert leads to deals.\n\n";
+          response +=
+            "**Suggestion:** Create new opportunities or convert leads to deals.\n\n";
         } else {
           response += "No deals are closing this week.\n\n";
-          response += "**Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+          response +=
+            "**Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
         }
       }
 
@@ -771,28 +809,52 @@ What would you like to know more about?`;
     const lowercaseQuery = query.toLowerCase();
 
     // Recommendation-specific actions
-    if (lowercaseQuery.includes("recommend") || lowercaseQuery.includes("advice") ||
-        lowercaseQuery.includes("what should i") || lowercaseQuery.includes("prioritize")) {
-      return ["What to focus on today", "Deal strategy tips", "Lead priorities"];
+    if (
+      lowercaseQuery.includes("recommend") ||
+      lowercaseQuery.includes("advice") ||
+      lowercaseQuery.includes("what should i") ||
+      lowercaseQuery.includes("prioritize")
+    ) {
+      return [
+        "What to focus on today",
+        "Deal strategy tips",
+        "Lead priorities",
+      ];
     }
 
     if (lowercaseQuery.includes("lead")) {
-      return ["Get lead recommendations", "Pipeline status", "What should I prioritize?"];
+      return [
+        "Get lead recommendations",
+        "Pipeline status",
+        "What should I prioritize?",
+      ];
     }
 
     if (lowercaseQuery.includes("deal") || lowercaseQuery.includes("closing")) {
-      return ["Deal strategy advice", "What deals need attention?", "Revenue analysis"];
+      return [
+        "Deal strategy advice",
+        "What deals need attention?",
+        "Revenue analysis",
+      ];
     }
 
     if (lowercaseQuery.includes("account")) {
-      return ["Account strategy tips", "Deals closing soon", "Give me recommendations"];
+      return [
+        "Account strategy tips",
+        "Deals closing soon",
+        "Give me recommendations",
+      ];
     }
 
     if (
       lowercaseQuery.includes("performance") ||
       lowercaseQuery.includes("analytics")
     ) {
-      return ["What should I improve?", "Give me recommendations", "Action priorities"];
+      return [
+        "What should I improve?",
+        "Give me recommendations",
+        "Action priorities",
+      ];
     }
 
     if (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) {
@@ -800,7 +862,11 @@ What would you like to know more about?`;
     }
 
     // Default suggestions include recommendations
-    return ["Give me recommendations", "What should I prioritize?", "Top 3 leads"];
+    return [
+      "Give me recommendations",
+      "What should I prioritize?",
+      "Top 3 leads",
+    ];
   };
 
   const handleSendMessage = async () => {
@@ -820,9 +886,9 @@ What would you like to know more about?`;
 
     try {
       // Try LLM response first if enabled, otherwise use fallback
-      const botResponse = isLLMEnabled ?
-        await generateLLMResponse(userQuery) :
-        generateFallbackResponse(userQuery);
+      const botResponse = isLLMEnabled
+        ? await generateLLMResponse(userQuery)
+        : generateFallbackResponse(userQuery);
 
       const suggestedActions = getSuggestedActions(userQuery);
       const botMessage: Message = {
@@ -836,10 +902,11 @@ What would you like to know more about?`;
       setMessages((prev) => [...prev, botMessage]);
       setIsTyping(false);
     } catch (error) {
-      console.error('Error generating response:', error);
+      console.error("Error generating response:", error);
       const errorMessage: Message = {
         id: `bot-${Date.now()}-${++messageCounterRef.current}`,
-        content: "I apologize, but I'm having trouble processing your request right now. Please try again.",
+        content:
+          "I apologize, but I'm having trouble processing your request right now. Please try again.",
         sender: "bot",
         timestamp: new Date(),
         quickActions: ["Try again", "Help", "Contact support"],
@@ -883,12 +950,17 @@ What would you like to know more about?`;
             <div>
               <CardTitle className="text-lg">CRM Assistant</CardTitle>
               <div className="flex items-center space-x-1">
-                <div className={`w-2 h-2 rounded-full ${
-                  llmStatus === 'connected' ? 'bg-green-500' :
-                  llmStatus === 'checking' ? 'bg-yellow-500' : 'bg-gray-400'
-                }`} />
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    llmStatus === "connected"
+                      ? "bg-green-500"
+                      : llmStatus === "checking"
+                        ? "bg-yellow-500"
+                        : "bg-gray-400"
+                  }`}
+                />
                 <span className="text-xs text-gray-500">
-                  {isLLMEnabled ? 'AI Enhanced' : 'Standard Mode'}
+                  {isLLMEnabled ? "AI Enhanced" : "Standard Mode"}
                 </span>
               </div>
             </div>
@@ -1006,9 +1078,9 @@ What would you like to know more about?`;
                                 setIsTyping(true);
 
                                 setTimeout(async () => {
-                                  const botResponse = isLLMEnabled ?
-                                    await generateLLMResponse(action) :
-                                    generateFallbackResponse(action);
+                                  const botResponse = isLLMEnabled
+                                    ? await generateLLMResponse(action)
+                                    : generateFallbackResponse(action);
                                   const suggestedActions =
                                     getSuggestedActions(action);
                                   const botMessage: Message = {
