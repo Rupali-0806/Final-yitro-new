@@ -74,12 +74,17 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     const lowerQuery = query.toLowerCase();
 
     if (lowerQuery.includes('lead')) {
+      // Extract number if specified (e.g., "top 3 leads", "5 best leads")
+      const numberMatch = lowerQuery.match(/(?:top|best|first)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : 5;
+      const leadCount = Math.min(requestedCount, 10); // Cap at 10 for context efficiency
+
       const topLeads = leads
         .sort((a, b) => b.score - a.score)
-        .slice(0, 5)
+        .slice(0, leadCount)
         .map(lead => `- ${lead.name} (${lead.company}): Score ${lead.score}, Value ${lead.value}, Status: ${lead.status}`)
         .join('\n');
-      contextData += `\nTop Leads:\n${topLeads}\n`;
+      contextData += `\nTop ${leadCount} Leads (as requested):\n${topLeads}\n`;
     }
 
     if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) {
@@ -174,7 +179,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       const totalValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
       
       return {
-        message: `💼 **Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?`,
+        message: `���� **Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?`,
         intent: 'deal_inquiry',
         quickActions: ['Deals closing soon', 'Pipeline analysis', 'High value deals']
       };
