@@ -441,7 +441,7 @@ I'm here to help you stay on top of your sales game!`,
       let response = "Here's your CRM overview:\n\n";
 
       if (analysis.metrics) {
-        response += `**Quick Stats:**\n`;
+        response += `<b>Quick Stats:</b>\n`;
         response += `• Total Leads: ${analysis.metrics.totalLeads}\n`;
         response += `• Total Accounts: ${analysis.metrics.totalAccounts}\n`;
         response += `• Total Contacts: ${analysis.metrics.totalContacts}\n`;
