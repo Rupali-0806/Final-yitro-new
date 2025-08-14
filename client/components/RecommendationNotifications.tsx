@@ -40,7 +40,8 @@ interface Recommendation {
     | "follow-up"
     | "deadline"
     | "opportunity"
-    | "urgent";
+    | "urgent"
+    | "ai-recommendation";
   title: string;
   description: string;
   priority: "high" | "medium" | "low";
@@ -54,6 +55,7 @@ interface Recommendation {
     label: string;
     onClick: () => void;
   };
+  aiRecommendation?: AIRecommendation;
 }
 
 export function RecommendationNotifications() {
