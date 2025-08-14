@@ -390,7 +390,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
     }
 
     // Handle specific search queries
-    if (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) {
+    if ((lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) && !searchQuery) {
       let response = "🔍 **Search Help:**\n\n";
       response += "I can help you find specific information. Try asking:\n\n";
       response += "• \"Find contact John Smith\"\n";
@@ -400,6 +400,29 @@ I'm here to help you stay on top of your sales game! 🚀`,
       response += "What specifically are you looking for?";
 
       return response;
+    }
+
+    // Handle greetings and casual conversation
+    if (lowercaseQuery.includes("hello") || lowercaseQuery.includes("hi") || lowercaseQuery.includes("hey")) {
+      return `👋 Hi there! I'm your CRM assistant. I've got all your latest data ready. What would you like to know about your sales pipeline today?`;
+    }
+
+    if (lowercaseQuery.includes("thank") || lowercaseQuery.includes("thanks")) {
+      return `😊 You're welcome! I'm always here to help with your CRM data. Is there anything else you'd like to know?`;
+    }
+
+    if (lowercaseQuery.includes("help") || lowercaseQuery === "?") {
+      return `🤖 **I can help you with:**
+
+🎯 **Lead Management:** "Top leads this week", "New leads", "Lead status"
+🏢 **Account Insights:** "Best accounts", "Account summary", "Customer analysis"
+💼 **Deal Tracking:** "Closing deals", "Pipeline status", "Deal performance"
+👥 **Contact Info:** "Recent contacts", "Find contact [name]"
+📊 **Analytics:** "Performance metrics", "Revenue analysis", "My statistics"
+🔍 **Search:** "Find [anything]", "Search for [company/person]"
+👤 **Profile:** "My profile", "My performance", "Account info"
+
+Just ask me naturally - I understand context! 🚀`;
     }
 
     // Handle performance and analytics queries
