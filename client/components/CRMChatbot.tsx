@@ -72,6 +72,7 @@ I can help you analyze your sales data, track performance, and provide insights 
 I'm here to help you stay on top of your sales game! 🚀`,
       sender: "bot",
       timestamp: new Date(),
+      quickActions: ["Top leads this week", "Deals closing soon", "My performance", "Account summary"],
     },
   ]);
   const [inputValue, setInputValue] = useState("");
@@ -419,7 +420,7 @@ I'm here to help you stay on top of your sales game! 🚀`,
     // Default response
     return `I understand you're asking about "${query}". I can help you with information about:
 
-��� **Leads** - "Show me top leads this week" or "lead status"
+🎯 **Leads** - "Show me top leads this week" or "lead status"
 🏢 **Accounts** - "Show me best accounts" or "account summary"
 💼 **Deals** - "What deals are closing?" or "pipeline status"
 👥 **Contacts** - "Contact summary" or "recent contacts"
