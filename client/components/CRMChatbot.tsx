@@ -771,31 +771,37 @@ What would you like to know more about?`;
   const getSuggestedActions = (query: string): string[] => {
     const lowercaseQuery = query.toLowerCase();
 
+    // Recommendation-specific actions
+    if (lowercaseQuery.includes("recommend") || lowercaseQuery.includes("advice") ||
+        lowercaseQuery.includes("what should i") || lowercaseQuery.includes("prioritize")) {
+      return ["What to focus on today", "Deal strategy tips", "Lead priorities"];
+    }
+
     if (lowercaseQuery.includes("lead")) {
-      return ["Account summary", "Pipeline status", "My performance"];
+      return ["Get lead recommendations", "Pipeline status", "What should I prioritize?"];
     }
 
     if (lowercaseQuery.includes("deal") || lowercaseQuery.includes("closing")) {
-      return ["Top leads this week", "Account summary", "Revenue analysis"];
+      return ["Deal strategy advice", "What deals need attention?", "Revenue analysis"];
     }
 
     if (lowercaseQuery.includes("account")) {
-      return ["Contact summary", "Deals closing soon", "Lead status"];
+      return ["Account strategy tips", "Deals closing soon", "Give me recommendations"];
     }
 
     if (
       lowercaseQuery.includes("performance") ||
       lowercaseQuery.includes("analytics")
     ) {
-      return ["Top leads this week", "Deals closing soon", "Account summary"];
+      return ["What should I improve?", "Give me recommendations", "Action priorities"];
     }
 
     if (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) {
-      return ["Dashboard summary", "My performance", "Account summary"];
+      return ["Dashboard summary", "My performance", "Get recommendations"];
     }
 
-    // Default suggestions
-    return ["My performance", "Deals closing soon", "Top leads this week"];
+    // Default suggestions include recommendations
+    return ["Give me recommendations", "What should I prioritize?", "Top 3 leads"];
   };
 
   const handleSendMessage = async () => {
