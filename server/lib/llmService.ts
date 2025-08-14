@@ -363,7 +363,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       const totalValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
 
       return {
-        message: `💼 **Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?${recommendations}`,
+        message: `**Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?${recommendations}`,
         intent: 'deal_inquiry',
         quickActions: ['Top active deals', 'Deals closing soon', 'High value deals']
       };
