@@ -577,7 +577,7 @@ Just ask me naturally - I understand context!`;
       );
 
       let response = "<b>Performance Analytics:</b>\n\n";
-      response += `**Revenue Metrics:**\n`;
+      response += `<b>Revenue Metrics:</b>\n`;
       response += `• Total Revenue: $${totalRevenue.toLocaleString()}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
       response += `• Average Deal Size: $${Math.round(avgDealSize).toLocaleString()}\n`;
