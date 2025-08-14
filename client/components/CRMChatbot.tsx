@@ -396,7 +396,7 @@ I'm here to help you stay on top of your sales game!`,
       }
 
       if (analysis.metrics) {
-        response += `**Pipeline Summary:**\n`;
+        response += `<b>Pipeline Summary:</b>\n`;
         response += `• Active Deals: ${analysis.metrics.activeDeals}\n`;
         response += `• Pipeline Value: $${analysis.metrics.totalPipelineValue.toLocaleString()}\n`;
         response += `• Won Deals: ${analysis.metrics.wonDeals}\n`;
