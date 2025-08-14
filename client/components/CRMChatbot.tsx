@@ -567,7 +567,7 @@ What would you like to know more about?`;
     if (!inputValue.trim()) return;
 
     const userMessage: Message = {
-      id: `user-${Date.now()}`,
+      id: `user-${Date.now()}-${++messageCounterRef.current}`,
       content: inputValue,
       sender: "user",
       timestamp: new Date(),
