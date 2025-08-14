@@ -64,7 +64,7 @@ I can help you analyze your sales data, track performance, and provide insights 
 <b>Deals</b> (${deals.length} total)
 <b>Contacts</b> (${contacts.length} total)
 
-**Try asking me:**
+<b>Try asking me:</b>
 • "Show me top leads this week"
 • "What deals are closing soon?"
 • "My performance analytics"
