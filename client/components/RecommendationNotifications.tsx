@@ -491,7 +491,7 @@ export function RecommendationNotifications() {
               <ScrollArea className="h-80">
                 <div className="p-2 space-y-2">
                   {recommendations.map((rec, index) => {
-                    const Icon = getIcon(rec.type);
+                    const Icon = getIcon(rec.type, rec.aiRecommendation);
                     return (
                       <div key={rec.id}>
                         <div
