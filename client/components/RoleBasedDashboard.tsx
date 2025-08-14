@@ -76,6 +76,9 @@ function AdminDashboard() {
         {/* Admin User Management */}
         <AdminUserManagement />
       </div>
+
+      {/* CRM Chatbot for Admins */}
+      <CRMChatbot />
     </div>
   );
 }
