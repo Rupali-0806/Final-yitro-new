@@ -346,7 +346,7 @@ I'm here to help you stay on top of your sales game!`,
       }
 
       if (analysis.metrics) {
-        response += `**Account Summary:**\n`;
+        response += `<b>Account Summary:</b>\n`;
         response += `• Total Accounts: ${analysis.metrics.totalAccounts}\n`;
         response += `• Customers: ${analysis.metrics.customers}\n`;
         response += `• Prospects: ${analysis.metrics.prospects}\n`;
