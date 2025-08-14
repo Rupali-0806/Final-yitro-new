@@ -310,7 +310,7 @@ I'm here to help you stay on top of your sales game!`,
       if (analysis.topLeads && analysis.topLeads.length > 0) {
         analysis.topLeads.forEach((lead, index) => {
           response += `${index + 1}. <b>${lead.name}</b> from ${lead.company}\n`;
-          response += `   • Score: ${lead.score}/100\n`;
+          response += `   �� Score: ${lead.score}/100\n`;
           response += `   • Value: ${lead.value}\n`;
           response += `   • Status: ${lead.status}\n`;
           response += `   • Last Activity: ${lead.lastActivity}\n\n`;
@@ -628,7 +628,7 @@ Just ask me naturally - I understand context!`;
         recommendations.forEach((rec) => (response += `• ${rec}\n`));
       } else {
         response +=
-          "**Great job!** Your pipeline looks healthy and well-balanced!";
+          "<b>Great job!</b> Your pipeline looks healthy and well-balanced!";
       }
 
       return response;
