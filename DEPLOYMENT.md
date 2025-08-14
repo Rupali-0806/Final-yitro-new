@@ -16,7 +16,7 @@ This is a full-stack CRM application with clearly separated frontend and backend
 
 ## Quick Start
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Docker Compose 
 
 ```bash
 # Development environment
