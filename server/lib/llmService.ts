@@ -1,0 +1,258 @@
+import OpenAI from 'openai';
+import { 
+  Contact, Account, ActivityLog, ActiveDeal, Lead 
+} from '@shared/models';
+
+interface CRMContext {
+  leads: Lead[];
+  accounts: Account[];
+  contacts: Contact[];
+  deals: ActiveDeal[];
+  user?: {
+    displayName?: string;
+    email?: string;
+    role?: string;
+  };
+}
+
+interface LLMResponse {
+  message: string;
+  intent?: string;
+  data?: any;
+  quickActions?: string[];
+}
+
+export class LLMService {
+  private openai: OpenAI;
+  private isConfigured: boolean;
+
+  constructor() {
+    this.isConfigured = Boolean(process.env.OPENAI_API_KEY);
+    
+    if (this.isConfigured) {
+      this.openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+    } else {
+      console.warn('⚠️  OpenAI API key not configured. LLM features will be limited.');
+    }
+  }
+
+  private createSystemPrompt(crmContext: CRMContext): string {
+    const { leads, accounts, contacts, deals, user } = crmContext;
+    
+    return `You are an intelligent CRM assistant for ${user?.displayName || 'the user'}. You have access to their CRM data and should provide helpful, actionable insights.
+
+Current CRM Data Overview:
+- Leads: ${leads.length} total (${leads.filter(l => l.status === 'New').length} new, ${leads.filter(l => l.status === 'Qualified').length} qualified)
+- Accounts: ${accounts.length} total (${accounts.filter(a => a.type === 'Customer').length} customers, ${accounts.filter(a => a.type === 'Prospect').length} prospects)
+- Contacts: ${contacts.length} total
+- Deals: ${deals.length} total (${deals.filter(d => !['Order Won', 'Order Lost'].includes(d.stage)).length} active)
+
+Guidelines:
+1. Always be helpful, professional, and action-oriented
+2. Provide specific data when available rather than general statements
+3. Suggest concrete next steps when appropriate
+4. Use emojis sparingly but effectively
+5. Format responses in markdown for better readability
+6. If asked about specific records, reference the actual data
+7. Offer relevant quick actions for follow-up questions
+8. Focus on insights that drive sales performance
+
+User Context:
+- Name: ${user?.displayName || 'User'}
+- Role: ${user?.role || 'Sales Professional'}
+
+Respond naturally to user queries about their CRM data, sales performance, and provide actionable insights.`;
+  }
+
+  private createUserContext(query: string, crmContext: CRMContext): string {
+    const { leads, accounts, contacts, deals } = crmContext;
+    
+    // Provide relevant data based on query keywords
+    let contextData = '';
+    const lowerQuery = query.toLowerCase();
+
+    if (lowerQuery.includes('lead')) {
+      const topLeads = leads
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5)
+        .map(lead => `- ${lead.name} (${lead.company}): Score ${lead.score}, Value ${lead.value}, Status: ${lead.status}`)
+        .join('\n');
+      contextData += `\nTop Leads:\n${topLeads}\n`;
+    }
+
+    if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) {
+      const activeDeals = deals
+        .filter(deal => !['Order Won', 'Order Lost'].includes(deal.stage))
+        .sort((a, b) => new Date(a.closingDate).getTime() - new Date(b.closingDate).getTime())
+        .slice(0, 5)
+        .map(deal => `- ${deal.dealName}: $${deal.dealValue.toLocaleString()}, Stage: ${deal.stage}, Closes: ${new Date(deal.closingDate).toLocaleDateString()}`)
+        .join('\n');
+      contextData += `\nActive Deals:\n${activeDeals}\n`;
+    }
+
+    if (lowerQuery.includes('account') || lowerQuery.includes('customer')) {
+      const topAccounts = accounts
+        .filter(account => account.type === 'Customer')
+        .sort((a, b) => b.activeDeals - a.activeDeals)
+        .slice(0, 5)
+        .map(account => `- ${account.name}: ${account.industry}, Revenue: ${account.revenue}, Active Deals: ${account.activeDeals}`)
+        .join('\n');
+      contextData += `\nTop Accounts:\n${topAccounts}\n`;
+    }
+
+    return `User Query: "${query}"${contextData}`;
+  }
+
+  async generateResponse(
+    query: string, 
+    crmContext: CRMContext, 
+    conversationHistory: Array<{role: 'user' | 'assistant', content: string}> = []
+  ): Promise<LLMResponse> {
+    
+    // Fallback if OpenAI is not configured
+    if (!this.isConfigured) {
+      return this.generateFallbackResponse(query, crmContext);
+    }
+
+    try {
+      const systemPrompt = this.createSystemPrompt(crmContext);
+      const userContext = this.createUserContext(query, crmContext);
+
+      const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory.slice(-6), // Keep last 6 messages for context
+        { role: 'user', content: userContext }
+      ];
+
+      const completion = await this.openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages,
+        max_tokens: 800,
+        temperature: 0.7,
+        presence_penalty: 0.1,
+        frequency_penalty: 0.1,
+      });
+
+      const responseContent = completion.choices[0]?.message?.content || 'I apologize, but I couldn\'t generate a response at this time.';
+
+      // Extract intent and suggest quick actions
+      const intent = this.extractIntent(query);
+      const quickActions = this.generateQuickActions(query, intent);
+
+      return {
+        message: responseContent,
+        intent,
+        quickActions
+      };
+
+    } catch (error) {
+      console.error('LLM Service Error:', error);
+      return this.generateFallbackResponse(query, crmContext);
+    }
+  }
+
+  private generateFallbackResponse(query: string, crmContext: CRMContext): LLMResponse {
+    const lowerQuery = query.toLowerCase();
+    const { leads, accounts, contacts, deals } = crmContext;
+
+    // Simple keyword-based fallback responses
+    if (lowerQuery.includes('lead')) {
+      const newLeads = leads.filter(l => l.status === 'New').length;
+      const qualifiedLeads = leads.filter(l => l.status === 'Qualified').length;
+      
+      return {
+        message: `📊 **Lead Summary**\n\nYou have ${leads.length} total leads:\n- ${newLeads} new leads\n- ${qualifiedLeads} qualified leads\n\nWould you like me to show you the top performing leads or help you prioritize your outreach?`,
+        intent: 'lead_inquiry',
+        quickActions: ['Show top leads', 'Lead priorities', 'This week\'s leads']
+      };
+    }
+
+    if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) {
+      const activeDeals = deals.filter(d => !['Order Won', 'Order Lost'].includes(d.stage));
+      const totalValue = activeDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
+      
+      return {
+        message: `💼 **Pipeline Overview**\n\nYou have ${activeDeals.length} active deals worth $${totalValue.toLocaleString()} total.\n\nWould you like to see deals closing soon or need help prioritizing your pipeline?`,
+        intent: 'deal_inquiry',
+        quickActions: ['Deals closing soon', 'Pipeline analysis', 'High value deals']
+      };
+    }
+
+    if (lowerQuery.includes('account') || lowerQuery.includes('customer')) {
+      const customers = accounts.filter(a => a.type === 'Customer').length;
+      const prospects = accounts.filter(a => a.type === 'Prospect').length;
+      
+      return {
+        message: `🏢 **Account Overview**\n\nYou're managing ${accounts.length} total accounts:\n- ${customers} customers\n- ${prospects} prospects\n\nWhat would you like to know about your accounts?`,
+        intent: 'account_inquiry',
+        quickActions: ['Top customers', 'New prospects', 'Account health']
+      };
+    }
+
+    // General response
+    return {
+      message: `I understand you're asking about "${query}". I can help you with leads, deals, accounts, and contacts. Try asking me something like:\n\n• "Show me my top leads"\n• "What deals are closing soon?"\n• "Account performance summary"\n• "Contact activity this week"`,
+      intent: 'general_inquiry',
+      quickActions: ['Top leads', 'Deals closing soon', 'Account summary', 'Recent activity']
+    };
+  }
+
+  private extractIntent(query: string): string {
+    const lowerQuery = query.toLowerCase();
+    
+    if (lowerQuery.includes('lead')) return 'lead_inquiry';
+    if (lowerQuery.includes('deal') || lowerQuery.includes('pipeline')) return 'deal_inquiry';
+    if (lowerQuery.includes('account') || lowerQuery.includes('customer')) return 'account_inquiry';
+    if (lowerQuery.includes('contact')) return 'contact_inquiry';
+    if (lowerQuery.includes('performance') || lowerQuery.includes('metric')) return 'performance_inquiry';
+    if (lowerQuery.includes('help') || lowerQuery.includes('how')) return 'help_request';
+    
+    return 'general_inquiry';
+  }
+
+  private generateQuickActions(query: string, intent: string): string[] {
+    const baseActions: Record<string, string[]> = {
+      lead_inquiry: ['Show top leads', 'New leads this week', 'Lead priorities'],
+      deal_inquiry: ['Pipeline analysis', 'Deals closing soon', 'Won/lost deals'],
+      account_inquiry: ['Top customers', 'Account health', 'New opportunities'],
+      contact_inquiry: ['Recent contacts', 'Contact activity', 'Follow-ups needed'],
+      performance_inquiry: ['Monthly metrics', 'Goal progress', 'Team comparison'],
+      help_request: ['Getting started', 'Common questions', 'Feature tour'],
+      general_inquiry: ['Top leads', 'Pipeline status', 'Account summary']
+    };
+
+    return baseActions[intent] || baseActions.general_inquiry;
+  }
+
+  // Test if the service is properly configured
+  async testConnection(): Promise<{ success: boolean; message: string }> {
+    if (!this.isConfigured) {
+      return {
+        success: false,
+        message: 'OpenAI API key not configured. Set OPENAI_API_KEY environment variable.'
+      };
+    }
+
+    try {
+      await this.openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: 'Test connection' }],
+        max_tokens: 10
+      });
+
+      return {
+        success: true,
+        message: 'LLM service connected successfully'
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: `LLM connection failed: ${error.message}`
+      };
+    }
+  }
+}
+
+export const llmService = new LLMService();
