@@ -576,7 +576,7 @@ Just ask me naturally - I understand context!`;
         0,
       );
 
-      let response = "**Performance Analytics:**\n\n";
+      let response = "<b>Performance Analytics:</b>\n\n";
       response += `**Revenue Metrics:**\n`;
       response += `• Total Revenue: $${totalRevenue.toLocaleString()}\n`;
       response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
