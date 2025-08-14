@@ -324,7 +324,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       const qualifiedLeads = leads.filter(l => l.status === 'Qualified').length;
 
       return {
-        message: `📊 **Lead Summary**\n\nYou have ${leads.length} total leads:\n- ${newLeads} new leads\n- ${qualifiedLeads} qualified leads\n\nWould you like me to show you the top performing leads or help you prioritize your outreach?${recommendations}`,
+        message: `**Lead Summary**\n\nYou have ${leads.length} total leads:\n- ${newLeads} new leads\n- ${qualifiedLeads} qualified leads\n\nWould you like me to show you the top performing leads or help you prioritize your outreach?${recommendations}`,
         intent: 'lead_inquiry',
         quickActions: ['Show top leads', 'Lead priorities', 'This week\'s leads']
       };
