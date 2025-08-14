@@ -30,7 +30,10 @@ import {
 } from "lucide-react";
 import { useCRM } from "../contexts/CRMContext";
 import { format, isToday, isTomorrow, addDays, parseISO } from "date-fns";
-import { aiRecommendationService, AIRecommendation } from "../services/aiRecommendationService";
+import {
+  aiRecommendationService,
+  AIRecommendation,
+} from "../services/aiRecommendationService";
 
 interface Recommendation {
   id: string;
@@ -75,9 +78,10 @@ export function RecommendationNotifications() {
     const nextWeek = addDays(now, 7);
 
     // Generate AI recommendations first for active deals
-    const aiRecommendations = aiRecommendationService.generateRecommendations(deals);
+    const aiRecommendations =
+      aiRecommendationService.generateRecommendations(deals);
     aiRecommendations.slice(0, 5).forEach((aiRec) => {
-      const deal = deals.find(d => d.id === aiRec.dealId);
+      const deal = deals.find((d) => d.id === aiRec.dealId);
       if (deal) {
         newRecommendations.push({
           id: aiRec.id,
@@ -121,8 +125,8 @@ export function RecommendationNotifications() {
             onClick: () => {
               if (lead.phone) {
                 // Try to open the phone dialer on mobile devices
-                const phoneNumber = lead.phone.replace(/[^\d]/g, '');
-                window.open(`tel:${phoneNumber}`, '_self');
+                const phoneNumber = lead.phone.replace(/[^\d]/g, "");
+                window.open(`tel:${phoneNumber}`, "_self");
               } else {
                 alert(`No phone number available for ${lead.name}`);
               }
@@ -193,8 +197,8 @@ export function RecommendationNotifications() {
             label: "Schedule Call",
             onClick: () => {
               if (lead.phone) {
-                const phoneNumber = lead.phone.replace(/[^\d]/g, '');
-                window.open(`tel:${phoneNumber}`, '_self');
+                const phoneNumber = lead.phone.replace(/[^\d]/g, "");
+                window.open(`tel:${phoneNumber}`, "_self");
               } else {
                 alert(`No phone number available for ${lead.name}`);
               }
@@ -319,17 +323,28 @@ export function RecommendationNotifications() {
     setUnreadCount(newRecommendations.length);
   };
 
-  const getIcon = (type: Recommendation["type"], aiRecommendation?: AIRecommendation) => {
+  const getIcon = (
+    type: Recommendation["type"],
+    aiRecommendation?: AIRecommendation,
+  ) => {
     if (type === "ai-recommendation" && aiRecommendation) {
       switch (aiRecommendation.actionType) {
-        case 'call': return Phone;
-        case 'email': return Mail;
-        case 'meeting': return Calendar;
-        case 'proposal': return FileText;
-        case 'case-study': return Presentation;
-        case 'discount': return Percent;
-        case 'wait': return Eye;
-        default: return Bot;
+        case "call":
+          return Phone;
+        case "email":
+          return Mail;
+        case "meeting":
+          return Calendar;
+        case "proposal":
+          return FileText;
+        case "case-study":
+          return Presentation;
+        case "discount":
+          return Percent;
+        case "wait":
+          return Eye;
+        default:
+          return Bot;
       }
     }
 
@@ -353,7 +368,10 @@ export function RecommendationNotifications() {
     }
   };
 
-  const getPriorityColor = (priority: Recommendation["priority"], type?: Recommendation["type"]) => {
+  const getPriorityColor = (
+    priority: Recommendation["priority"],
+    type?: Recommendation["type"],
+  ) => {
     // Special styling for AI recommendations
     if (type === "ai-recommendation") {
       switch (priority) {
@@ -386,16 +404,26 @@ export function RecommendationNotifications() {
     return format(date, "MMM d");
   };
 
-  const getAIActionLabel = (actionType: AIRecommendation['actionType']): string => {
+  const getAIActionLabel = (
+    actionType: AIRecommendation["actionType"],
+  ): string => {
     switch (actionType) {
-      case 'call': return 'Call Now';
-      case 'email': return 'Send Email';
-      case 'meeting': return 'Schedule Meeting';
-      case 'proposal': return 'Send Proposal';
-      case 'case-study': return 'Share Case Study';
-      case 'discount': return 'Offer Discount';
-      case 'wait': return 'Monitor';
-      default: return 'Take Action';
+      case "call":
+        return "Call Now";
+      case "email":
+        return "Send Email";
+      case "meeting":
+        return "Schedule Meeting";
+      case "proposal":
+        return "Send Proposal";
+      case "case-study":
+        return "Share Case Study";
+      case "discount":
+        return "Offer Discount";
+      case "wait":
+        return "Monitor";
+      default:
+        return "Take Action";
     }
   };
 
@@ -404,51 +432,65 @@ export function RecommendationNotifications() {
     setIsOpen(false);
 
     // Trigger navigation to active deals tab
-    const navigateEvent = new CustomEvent('navigateToTab', {
-      detail: { tab: 'active-deals', highlightDeal: deal.id }
+    const navigateEvent = new CustomEvent("navigateToTab", {
+      detail: { tab: "active-deals", highlightDeal: deal.id },
     });
     window.dispatchEvent(navigateEvent);
 
     switch (aiRec.actionType) {
-      case 'call':
+      case "call":
         // Open phone dialer if mobile, otherwise show call instruction
         if (deal.associatedContact) {
           // Try to find contact phone or use a placeholder
-          const phoneNumber = '555-0123'; // In real app, get from contact data
+          const phoneNumber = "555-0123"; // In real app, get from contact data
           if (navigator.userAgent.match(/iPhone|iPad|iPod|Android/i)) {
-            window.open(`tel:${phoneNumber}`, '_self');
+            window.open(`tel:${phoneNumber}`, "_self");
           } else {
-            alert(`Call ${deal.associatedContact} at ${phoneNumber} regarding ${deal.dealName}`);
+            alert(
+              `Call ${deal.associatedContact} at ${phoneNumber} regarding ${deal.dealName}`,
+            );
           }
         } else {
           alert(`Contact information needed for ${deal.dealName}`);
         }
         break;
-      case 'email':
+      case "email":
         // Open email client with pre-filled content
         const subject = encodeURIComponent(`Follow-up on ${deal.dealName}`);
-        const body = encodeURIComponent(`Hi,\n\nI wanted to follow up on our discussion regarding ${deal.dealName}.\n\nBest regards`);
-        window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+        const body = encodeURIComponent(
+          `Hi,\n\nI wanted to follow up on our discussion regarding ${deal.dealName}.\n\nBest regards`,
+        );
+        window.open(`mailto:?subject=${subject}&body=${body}`, "_blank");
         break;
-      case 'meeting':
+      case "meeting":
         // Show meeting scheduling dialog or redirect to calendar
-        alert(`Schedule a meeting/demo for ${deal.dealName}. Consider using your calendar app to set up the meeting.`);
+        alert(
+          `Schedule a meeting/demo for ${deal.dealName}. Consider using your calendar app to set up the meeting.`,
+        );
         break;
-      case 'proposal':
+      case "proposal":
         // Show proposal action guidance
-        alert(`Prepare and send proposal for ${deal.dealName}. Value: $${deal.dealValue?.toLocaleString()}, Stage: ${deal.stage}`);
+        alert(
+          `Prepare and send proposal for ${deal.dealName}. Value: $${deal.dealValue?.toLocaleString()}, Stage: ${deal.stage}`,
+        );
         break;
-      case 'case-study':
+      case "case-study":
         // Open case study guidance
-        alert(`Share relevant case studies with ${deal.associatedContact} for ${deal.dealName}. Focus on similar industry successes.`);
+        alert(
+          `Share relevant case studies with ${deal.associatedContact} for ${deal.dealName}. Focus on similar industry successes.`,
+        );
         break;
-      case 'discount':
+      case "discount":
         // Show pricing discussion guidance
-        alert(`Consider offering pricing incentives for ${deal.dealName}. Current value: $${deal.dealValue?.toLocaleString()}`);
+        alert(
+          `Consider offering pricing incentives for ${deal.dealName}. Current value: $${deal.dealValue?.toLocaleString()}`,
+        );
         break;
-      case 'wait':
+      case "wait":
         // Show monitoring guidance
-        alert(`Continue monitoring ${deal.dealName}. Deal appears to be progressing well on its own.`);
+        alert(
+          `Continue monitoring ${deal.dealName}. Deal appears to be progressing well on its own.`,
+        );
         break;
       default:
         alert(`Take action on ${deal.dealName} as recommended by AI analysis.`);

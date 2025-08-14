@@ -84,12 +84,22 @@ export function CRMDashboard({ onSettingsClick }: CRMDashboardProps) {
         // If highlighting a specific deal, do it after tab switch
         if (event.detail.highlightDeal) {
           setTimeout(() => {
-            const dealRow = document.querySelector(`[data-deal-id="${event.detail.highlightDeal}"]`);
+            const dealRow = document.querySelector(
+              `[data-deal-id="${event.detail.highlightDeal}"]`,
+            );
             if (dealRow) {
-              dealRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              dealRow.classList.add('bg-yellow-100', 'dark:bg-yellow-900/50', 'animate-pulse');
+              dealRow.scrollIntoView({ behavior: "smooth", block: "center" });
+              dealRow.classList.add(
+                "bg-yellow-100",
+                "dark:bg-yellow-900/50",
+                "animate-pulse",
+              );
               setTimeout(() => {
-                dealRow.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/50', 'animate-pulse');
+                dealRow.classList.remove(
+                  "bg-yellow-100",
+                  "dark:bg-yellow-900/50",
+                  "animate-pulse",
+                );
               }, 3000);
             }
           }, 500);
@@ -97,9 +107,12 @@ export function CRMDashboard({ onSettingsClick }: CRMDashboardProps) {
       }
     };
 
-    window.addEventListener('navigateToTab', handleNavigation as EventListener);
+    window.addEventListener("navigateToTab", handleNavigation as EventListener);
     return () => {
-      window.removeEventListener('navigateToTab', handleNavigation as EventListener);
+      window.removeEventListener(
+        "navigateToTab",
+        handleNavigation as EventListener,
+      );
     };
   }, []);
 
