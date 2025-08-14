@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useCRM } from "../contexts/CRMContext";
 import { useAuth } from "./RealAuthProvider";
 import { ChatbotSearchEngine } from "./ChatbotSearchHelpers";
+import { llmChatAPI } from "../services/llmChatApi";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -85,6 +86,8 @@ I'm here to help you stay on top of your sales game! 🚀`,
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [conversationContext, setConversationContext] = useState<string[]>([]);
+  const [isLLMEnabled, setIsLLMEnabled] = useState<boolean | null>(null);
+  const [llmStatus, setLlmStatus] = useState<string>('checking');
   const messageCounterRef = useRef<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
