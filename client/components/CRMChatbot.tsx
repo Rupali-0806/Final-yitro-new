@@ -519,15 +519,15 @@ I'm here to help you stay on top of your sales game!`,
     if (lowercaseQuery.includes("help") || lowercaseQuery === "?") {
       return `<b>I can help you with:</b>
 
-**Lead Management:** "Top leads this week", "New leads", "Lead status"
-**Account Insights:** "Best accounts", "Account summary", "Customer analysis"
-**Deal Tracking:** "Closing deals", "Pipeline status", "Deal performance"
-**Contact Info:** "Recent contacts", "Find contact [name]"
-**Analytics:** "Performance metrics", "Revenue analysis", "My statistics"
-**Search:** "Find [anything]", "Search for [company/person]"
-**Profile:** "My profile", "My performance", "Account info"
+<b>Lead Management:</b> "Top leads this week", "New leads", "Lead status"
+<b>Account Insights:</b> "Best accounts", "Account summary", "Customer analysis"
+<b>Deal Tracking:</b> "Closing deals", "Pipeline status", "Deal performance"
+<b>Contact Info:</b> "Recent contacts", "Find contact [name]"
+<b>Analytics:</b> "Performance metrics", "Revenue analysis", "My statistics"
+<b>Search:</b> "Find [anything]", "Search for [company/person]"
+<b>Profile:</b> "My profile", "My performance", "Account info"
 
-**Pro Tips:**
+<b>Pro Tips:</b>
 • I remember our conversation context
 • Try "tell me more" for deeper insights
 • Use "clear" to reset our conversation
