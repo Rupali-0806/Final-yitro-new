@@ -234,7 +234,46 @@ I'm here to help you stay on top of your sales game! 🚀`,
     };
   };
 
-  const generateResponse = (query: string): string => {
+  // Enhanced response generation with LLM integration
+  const generateLLMResponse = async (query: string): Promise<string> => {
+    try {
+      // Prepare CRM data for LLM context
+      const crmData = llmChatAPI.prepareCRMData({
+        leads,
+        accounts,
+        contacts,
+        deals
+      });
+
+      // Prepare conversation history
+      const conversationHistory = llmChatAPI.formatConversationHistory(messages);
+
+      // Send query to LLM service
+      const response = await llmChatAPI.sendChatQuery({
+        query,
+        crmData,
+        conversationHistory,
+        user: {
+          displayName: user?.displayName,
+          email: user?.email,
+          role: user?.role
+        }
+      });
+
+      if (response.success && response.data) {
+        return response.data.message;
+      } else {
+        console.warn('LLM response failed, falling back to rule-based response:', response.error);
+        return generateFallbackResponse(query);
+      }
+    } catch (error) {
+      console.error('LLM generation error:', error);
+      return generateFallbackResponse(query);
+    }
+  };
+
+  // Original rule-based response as fallback
+  const generateFallbackResponse = (query: string): string => {
     const analysis = analyzeCRMData(query);
     const lowercaseQuery = query.toLowerCase();
 
