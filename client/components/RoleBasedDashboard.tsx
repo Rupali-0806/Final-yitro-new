@@ -5,6 +5,7 @@ import { AdminMetrics } from "./AdminMetrics";
 import { AdminHeader } from "./AdminHeader";
 import { AdminSettings } from "./AdminSettings";
 import { CRMDashboard } from "./CRMDashboard";
+import { CRMChatbot } from "./CRMChatbot";
 import { useTheme } from "./ThemeProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
