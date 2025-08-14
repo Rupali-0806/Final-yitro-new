@@ -817,7 +817,18 @@ What would you like to know more about?`;
             <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
               <Bot className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <CardTitle className="text-lg">CRM Assistant</CardTitle>
+            <div>
+              <CardTitle className="text-lg">CRM Assistant</CardTitle>
+              <div className="flex items-center space-x-1">
+                <div className={`w-2 h-2 rounded-full ${
+                  llmStatus === 'connected' ? 'bg-green-500' :
+                  llmStatus === 'checking' ? 'bg-yellow-500' : 'bg-gray-400'
+                }`} />
+                <span className="text-xs text-gray-500">
+                  {isLLMEnabled ? 'AI Enhanced' : 'Standard Mode'}
+                </span>
+              </div>
+            </div>
           </div>
           <div className="flex items-center space-x-1">
             <Button
