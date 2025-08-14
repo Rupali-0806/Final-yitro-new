@@ -145,6 +145,21 @@ export function CRMAccounts() {
     }
   };
 
+  const handleView360 = (accountId: string) => {
+    console.log("Opening 360 view for account:", accountId);
+    setView360AccountId(accountId);
+  };
+
+  const handleEditDetail = (accountId: string) => {
+    console.log("Opening account detail edit for account:", accountId);
+    setEditAccountId(accountId);
+  };
+
+  const handleBackToList = () => {
+    setView360AccountId(null);
+    setEditAccountId(null);
+  };
+
   const resetForm = () => {
     setFormData({});
     setEditingAccount(null);
