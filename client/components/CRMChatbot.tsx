@@ -336,14 +336,85 @@ export function CRMChatbot() {
       return response;
     }
 
+    // Handle user profile queries
+    if (lowercaseQuery.includes("my profile") || lowercaseQuery.includes("about me") || lowercaseQuery.includes("my info")) {
+      let response = `👤 **Your Profile Information:**\n\n`;
+      response += `• Name: ${user?.displayName || "Not set"}\n`;
+      response += `• Email: ${user?.email || "Not set"}\n`;
+      response += `• Role: ${user?.role || "User"}\n`;
+      response += `• Account Type: ${user?.role === "admin" ? "Administrator" : "CRM User"}\n\n`;
+
+      response += `📊 **Your CRM Activity:**\n`;
+      response += `• Managing ${leads.length} leads\n`;
+      response += `• Overseeing ${accounts.length} accounts\n`;
+      response += `• Tracking ${deals.length} deals\n`;
+      response += `• Connected to ${contacts.length} contacts\n\n`;
+
+      const activeDealsCount = deals.filter(deal => !["Order Won", "Order Lost"].includes(deal.stage)).length;
+      const pipelineValue = deals
+        .filter(deal => !["Order Won", "Order Lost"].includes(deal.stage))
+        .reduce((sum, deal) => sum + deal.dealValue, 0);
+
+      response += `💼 **Your Performance:**\n`;
+      response += `• Active Deals: ${activeDealsCount}\n`;
+      response += `• Pipeline Value: $${pipelineValue.toLocaleString()}\n`;
+      response += `• Closed Deals: ${deals.filter(d => d.stage === "Order Won").length}\n`;
+
+      return response;
+    }
+
+    // Handle specific search queries
+    if (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) {
+      let response = "🔍 **Search Help:**\n\n";
+      response += "I can help you find specific information. Try asking:\n\n";
+      response += "• \"Find contact John Smith\"\n";
+      response += "• \"Search for TechCorp account\"\n";
+      response += "• \"Show me deals over $100k\"\n";
+      response += "• \"Find leads from StartupCorp\"\n\n";
+      response += "What specifically are you looking for?";
+
+      return response;
+    }
+
+    // Handle performance and analytics queries
+    if (lowercaseQuery.includes("performance") || lowercaseQuery.includes("analytics") || lowercaseQuery.includes("metrics")) {
+      const totalRevenue = deals.filter(d => d.stage === "Order Won").reduce((sum, d) => sum + d.dealValue, 0);
+      const avgDealSize = deals.length > 0 ? totalRevenue / deals.filter(d => d.stage === "Order Won").length : 0;
+      const conversionRate = (deals.filter(d => d.stage === "Order Won").length / leads.length) * 100;
+
+      let response = "📈 **Performance Analytics:**\n\n";
+      response += `💰 **Revenue Metrics:**\n`;
+      response += `• Total Revenue: $${totalRevenue.toLocaleString()}\n`;
+      response += `• Average Deal Size: $${Math.round(avgDealSize).toLocaleString()}\n`;
+      response += `• Lead-to-Deal Conversion: ${Math.round(conversionRate)}%\n\n`;
+
+      response += `📊 **Activity Summary:**\n`;
+      response += `• Leads in Pipeline: ${leads.length}\n`;
+      response += `• Active Accounts: ${accounts.filter(a => a.type === "Customer").length}\n`;
+      response += `• Deals in Progress: ${deals.filter(d => !["Order Won", "Order Lost"].includes(d.stage)).length}\n\n`;
+
+      // Add recommendations based on performance
+      if (conversionRate < 10) {
+        response += "💡 **Recommendation:** Your conversion rate could be improved. Focus on lead qualification and follow-up strategies.";
+      } else if (conversionRate > 20) {
+        response += "🎉 **Great job!** Your conversion rate is excellent. Keep up the good work!";
+      } else {
+        response += "👍 **Good performance!** Your metrics are solid. Consider increasing lead generation for growth.";
+      }
+
+      return response;
+    }
+
     // Default response
     return `I understand you're asking about "${query}". I can help you with information about:
 
-• **Leads** - "Show me top leads" or "lead status"
-• **Accounts** - "Show me best accounts" or "account summary" 
-• **Deals** - "What deals are closing?" or "pipeline status"
-• **Contacts** - "Contact summary" or "recent contacts"
-• **Overview** - "Dashboard summary" or "CRM overview"
+🎯 **Leads** - "Show me top leads this week" or "lead status"
+🏢 **Accounts** - "Show me best accounts" or "account summary"
+💼 **Deals** - "What deals are closing?" or "pipeline status"
+👥 **Contacts** - "Contact summary" or "recent contacts"
+📊 **Overview** - "Dashboard summary" or "CRM overview"
+👤 **Profile** - "My profile" or "my performance"
+📈 **Analytics** - "Show performance metrics" or "analytics"
 
 What would you like to know more about?`;
   };
