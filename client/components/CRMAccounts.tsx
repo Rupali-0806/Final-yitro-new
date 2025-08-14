@@ -59,6 +59,8 @@ export function CRMAccounts() {
   const [showNewAccountDialog, setShowNewAccountDialog] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [formData, setFormData] = useState<Partial<Account>>({});
+  const [view360AccountId, setView360AccountId] = useState<string | null>(null);
+  const [editAccountId, setEditAccountId] = useState<string | null>(null);
 
   useEffect(() => {
     const handleTriggerNewItem = (event: CustomEvent) => {
