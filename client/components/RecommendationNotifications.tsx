@@ -319,7 +319,20 @@ export function RecommendationNotifications() {
     setUnreadCount(newRecommendations.length);
   };
 
-  const getIcon = (type: Recommendation["type"]) => {
+  const getIcon = (type: Recommendation["type"], aiRecommendation?: AIRecommendation) => {
+    if (type === "ai-recommendation" && aiRecommendation) {
+      switch (aiRecommendation.actionType) {
+        case 'call': return Phone;
+        case 'email': return Mail;
+        case 'meeting': return Calendar;
+        case 'proposal': return FileText;
+        case 'case-study': return Presentation;
+        case 'discount': return Percent;
+        case 'wait': return Eye;
+        default: return Bot;
+      }
+    }
+
     switch (type) {
       case "call":
         return Phone;
@@ -333,6 +346,8 @@ export function RecommendationNotifications() {
         return TrendingUp;
       case "urgent":
         return AlertTriangle;
+      case "ai-recommendation":
+        return Bot;
       default:
         return Bell;
     }
