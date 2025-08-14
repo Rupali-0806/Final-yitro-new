@@ -460,7 +460,7 @@ I'm here to help you stay on top of your sales game!`,
       lowercaseQuery.includes("about me") ||
       lowercaseQuery.includes("my info")
     ) {
-      let response = `**Your Profile Information:**\n\n`;
+      let response = `<b>Your Profile Information:</b>\n\n`;
       response += `• Name: ${user?.displayName || "Not set"}\n`;
       response += `• Email: ${user?.email || "Not set"}\n`;
       response += `• Role: ${user?.role || "User"}\n`;
