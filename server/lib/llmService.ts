@@ -335,7 +335,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
         topDeals.forEach((deal, index) => {
           response += `${index + 1}. **${deal.dealName}**\n`;
           response += `   💰 Value: $${deal.dealValue.toLocaleString()} | 🔄 Stage: ${deal.stage}\n`;
-          response += `   ��� Closes: ${new Date(deal.closingDate).toLocaleDateString()} | 📈 ${deal.probability}% likely\n\n`;
+          response += `   📅 Closes: ${new Date(deal.closingDate).toLocaleDateString()} | 📈 ${deal.probability}% likely\n\n`;
         });
 
         const totalValue = topDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
@@ -362,7 +362,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
       const prospects = accounts.filter(a => a.type === 'Prospect').length;
       
       return {
-        message: `🏢 **Account Overview**\n\nYou're managing ${accounts.length} total accounts:\n- ${customers} customers\n- ${prospects} prospects\n\nWhat would you like to know about your accounts?`,
+        message: `🏢 **Account Overview**\n\nYou're managing ${accounts.length} total accounts:\n- ${customers} customers\n- ${prospects} prospects\n\nWhat would you like to know about your accounts?${recommendations}`,
         intent: 'account_inquiry',
         quickActions: ['Top customers', 'New prospects', 'Account health']
       };
@@ -370,7 +370,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
 
     // General response
     return {
-      message: `I understand you're asking about "${query}". I can help you with leads, deals, accounts, and contacts. Try asking me something like:\n\n• "Show me my top leads"\n• "What deals are closing soon?"\n• "Account performance summary"\n• "Contact activity this week"`,
+      message: `I understand you're asking about "${query}". I can help you with leads, deals, accounts, and contacts. Try asking me something like:\n\n• "Show me my top leads"\n• "What deals are closing soon?"\n• "Account performance summary"\n• "Contact activity this week"${recommendations}`,
       intent: 'general_inquiry',
       quickActions: ['Top leads', 'Deals closing soon', 'Account summary', 'Recent activity']
     };
