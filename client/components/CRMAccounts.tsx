@@ -211,6 +211,27 @@ export function CRMAccounts() {
     return matchesFilter;
   });
 
+  // Show 360 view if account is selected
+  if (view360AccountId) {
+    return (
+      <Account360View
+        accountId={view360AccountId}
+        onBack={handleBackToList}
+        onEdit={() => handleEditDetail(view360AccountId)}
+      />
+    );
+  }
+
+  // Show account detail edit view if account is selected for editing
+  if (editAccountId) {
+    return (
+      <AccountDetail
+        accountId={editAccountId}
+        onBack={handleBackToList}
+      />
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
