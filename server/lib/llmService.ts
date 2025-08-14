@@ -173,7 +173,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
     }
 
     if (qualifiedLeads.length > 0) {
-      recommendations += `- �� Convert ${qualifiedLeads.length} qualified leads to opportunities\n`;
+      recommendations += `- 🎯 Convert ${qualifiedLeads.length} qualified leads to opportunities\n`;
     }
 
     if (inactiveAccounts.length > 0 && inactiveAccounts.length < accounts.length * 0.5) {
@@ -302,7 +302,7 @@ Respond naturally to user queries about their CRM data, sales performance, and p
         }
 
         return {
-          message: response,
+          message: response + recommendations,
           intent: 'lead_inquiry',
           quickActions: ['Lead details', 'Contact info', 'Next steps']
         };
