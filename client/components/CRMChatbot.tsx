@@ -318,7 +318,7 @@ I'm here to help you stay on top of your sales game!`,
       }
 
       if (analysis.metrics) {
-        response += `**Lead Summary:**\n`;
+        response += `<b>Lead Summary:</b>\n`;
         response += `• Total Leads: ${analysis.metrics.totalLeads}\n`;
         response += `• New Leads: ${analysis.metrics.newLeads}\n`;
         response += `• Qualified Leads: ${analysis.metrics.qualifiedLeads}\n`;
