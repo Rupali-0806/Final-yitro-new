@@ -579,13 +579,13 @@ I provide specific "DO" and "DON'T" advice based on your actual data!`,
       lowercaseQuery.includes("about me") ||
       lowercaseQuery.includes("my info")
     ) {
-      let response = `👤 **Your Profile Information:**\n\n`;
+      let response = `**Your Profile Information:**\n\n`;
       response += `• Name: ${user?.displayName || "Not set"}\n`;
       response += `• Email: ${user?.email || "Not set"}\n`;
       response += `• Role: ${user?.role || "User"}\n`;
       response += `• Account Type: ${user?.role === "admin" ? "Administrator" : "CRM User"}\n\n`;
 
-      response += `📊 **Your CRM Activity:**\n`;
+      response += `**Your CRM Activity:**\n`;
       response += `• Managing ${leads.length} leads\n`;
       response += `• Overseeing ${accounts.length} accounts\n`;
       response += `• Tracking ${deals.length} deals\n`;
