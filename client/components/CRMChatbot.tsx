@@ -492,7 +492,7 @@ I'm here to help you stay on top of your sales game!`,
       (lowercaseQuery.includes("search") || lowercaseQuery.includes("find")) &&
       !searchQuery
     ) {
-      let response = "**Search Help:**\n\n";
+      let response = "<b>Search Help:</b>\n\n";
       response += "I can help you find specific information. Try asking:\n\n";
       response += '• "Find contact John Smith"\n';
       response += '• "Search for TechCorp account"\n';
