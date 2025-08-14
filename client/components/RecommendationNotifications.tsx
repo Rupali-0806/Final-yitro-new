@@ -84,7 +84,15 @@ export function RecommendationNotifications() {
           },
           action: {
             label: "Call Now",
-            onClick: () => console.log(`Calling ${lead.name}`),
+            onClick: () => {
+              if (lead.phone) {
+                // Try to open the phone dialer on mobile devices
+                const phoneNumber = lead.phone.replace(/[^\d]/g, '');
+                window.open(`tel:${phoneNumber}`, '_self');
+              } else {
+                alert(`No phone number available for ${lead.name}`);
+              }
+            },
           },
         });
       });
