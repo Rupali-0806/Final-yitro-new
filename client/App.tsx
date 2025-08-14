@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { CRMProvider } from "@/contexts/CRMContext";
 import CompanyLogin from "./pages/CompanyLogin";
 import Dashboard from "./pages/Dashboard";
+import ClientView from "./pages/ClientView";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
