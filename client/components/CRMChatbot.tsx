@@ -69,7 +69,7 @@ I can help you analyze your sales data, track performance, and provide insights 
 • "What deals are closing soon?"
 • "My performance analytics"
 • "Show my profile"
-• "Search for [company/contact]"
+��� "Search for [company/contact]"
 
 I'm here to help you stay on top of your sales game!`,
       sender: "bot",
@@ -336,7 +336,7 @@ I'm here to help you stay on top of your sales game!`,
 
       if (analysis.topAccounts && analysis.topAccounts.length > 0) {
         analysis.topAccounts.forEach((account, index) => {
-          response += `${index + 1}. **${account.name}**\n`;
+          response += `${index + 1}. <b>${account.name}</b>\n`;
           response += `   • Industry: ${account.industry}\n`;
           response += `   • Revenue: ${account.revenue}\n`;
           response += `   • Active Deals: ${account.activeDeals}\n`;
