@@ -31,6 +31,7 @@ const App = () => (
                 <Route path="/" element={<CompanyLogin />} />
                 <Route path="/login" element={<CompanyLogin />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/client/:accountId" element={<ClientView />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
