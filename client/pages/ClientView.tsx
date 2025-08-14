@@ -180,10 +180,10 @@ export default function ClientView() {
     }
   };
 
-  const totalDealValue = accountDeals.reduce((sum, deal) => sum + deal.dealValue, 0);
-  const activeDealCount = accountDeals.filter(deal => 
+  const totalDealValue = accountDeals?.reduce((sum, deal) => sum + deal.dealValue, 0) || 0;
+  const activeDealCount = accountDeals?.filter(deal =>
     !['Order Won', 'Order Lost'].includes(deal.stage)
-  ).length;
+  ).length || 0;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
