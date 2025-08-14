@@ -386,7 +386,7 @@ I'm here to help you stay on top of your sales game!`,
           (d) => d.probability > 75,
         );
         if (highProbDeals.length > 0) {
-          response += `**Action Required:** You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
+          response += `<b>Action Required:</b> You have ${highProbDeals.length} high-probability deal(s) closing soon. `;
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
