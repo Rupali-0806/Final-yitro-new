@@ -157,7 +157,14 @@ export function RecommendationNotifications() {
           },
           action: {
             label: "Schedule Call",
-            onClick: () => console.log(`Scheduling call with ${lead.name}`),
+            onClick: () => {
+              if (lead.phone) {
+                const phoneNumber = lead.phone.replace(/[^\d]/g, '');
+                window.open(`tel:${phoneNumber}`, '_self');
+              } else {
+                alert(`No phone number available for ${lead.name}`);
+              }
+            },
           },
         });
       });
