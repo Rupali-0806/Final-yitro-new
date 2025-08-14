@@ -455,7 +455,33 @@ I'm here to help you stay on top of your sales game! 🚀`,
     ) {
       let response = "";
 
-      if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
+      // Extract the requested count for the response header
+      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|active|deals)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+
+      // Handle active deals requests
+      if (analysis.activeDeals && analysis.activeDeals.length > 0) {
+        const countText = requestedCount ? ` ${requestedCount}` : "";
+        response += `💼 **Top${countText} Active Deals:**\n\n`;
+
+        analysis.activeDeals.forEach((deal, index) => {
+          const valueIcon = deal.dealValue > 50000 ? "💎" : deal.dealValue > 20000 ? "💰" : "💵";
+          response += `${valueIcon} ${index + 1}. **${deal.dealName}**\n`;
+          response += `   🏢 Account: ${deal.associatedAccount}\n`;
+          response += `   💰 Value: $${deal.dealValue.toLocaleString()}\n`;
+          response += `   📅 Closing: ${new Date(deal.closingDate).toLocaleDateString()}\n`;
+          response += `   📈 Probability: ${deal.probability}%\n`;
+          response += `   🔄 Stage: ${deal.stage}\n`;
+          response += `   ➡️ Next Step: ${deal.nextStep}\n\n`;
+        });
+
+        const highValueDeals = analysis.activeDeals.filter(d => d.dealValue > 50000);
+        if (highValueDeals.length > 0) {
+          response += `💎 **High Value Opportunity:** ${highValueDeals[0].dealName} ($${highValueDeals[0].dealValue.toLocaleString()}) - prioritize this deal!\n\n`;
+        }
+      }
+      // Handle closing deals requests
+      else if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
         response += "💼 **Deals Closing This Week:**\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
           const urgencyIcon =
@@ -469,7 +495,6 @@ I'm here to help you stay on top of your sales game! 🚀`,
           response += `   ➡️ Next Step: ${deal.nextStep}\n\n`;
         });
 
-        // Add recommendations based on deal analysis
         const highProbDeals = analysis.upcomingDeals.filter(
           (d) => d.probability > 75,
         );
@@ -478,9 +503,16 @@ I'm here to help you stay on top of your sales game! 🚀`,
           response += `Focus on "${highProbDeals[0].dealName}" - it's your most likely to close!\n\n`;
         }
       } else {
-        response += "📋 No deals are closing this week.\n\n";
-        response +=
-          "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+        const isActiveDealsRequest = lowercaseQuery.includes("active") ||
+                                   (!lowercaseQuery.includes("closing") && !lowercaseQuery.includes("soon"));
+
+        if (isActiveDealsRequest) {
+          response += "📋 No active deals found.\n\n";
+          response += "💡 **Suggestion:** Create new opportunities or convert leads to deals.\n\n";
+        } else {
+          response += "📋 No deals are closing this week.\n\n";
+          response += "💡 **Suggestion:** Focus on moving deals in your pipeline to the closing stage.\n\n";
+        }
       }
 
       if (analysis.metrics) {
