@@ -364,7 +364,7 @@ I'm here to help you stay on top of your sales game!`,
       let response = "";
 
       if (analysis.upcomingDeals && analysis.upcomingDeals.length > 0) {
-        response += "**Deals Closing This Week:**\n\n";
+        response += "<b>Deals Closing This Week:</b>\n\n";
         analysis.upcomingDeals.forEach((deal, index) => {
           const urgencyLabel =
             deal.probability > 75
