@@ -376,7 +376,13 @@ I'm here to help you stay on top of your sales game! 🚀`,
       lowercaseQuery.includes("lead") ||
       lowercaseQuery.includes("top lead")
     ) {
-      let response = "Here are your top leads by score:\n\n";
+      // Extract the requested count for the response header
+      const numberMatch = lowercaseQuery.match(/(?:top|give\s*me|show\s*me)\s*(\d+)|(\d+)\s*(?:top|best|leads)/);
+      const requestedCount = numberMatch ? parseInt(numberMatch[1] || numberMatch[2]) : null;
+
+      let response = requestedCount
+        ? `Here are your top ${requestedCount} leads by score:\n\n`
+        : "Here are your top leads by score:\n\n";
 
       if (analysis.topLeads && analysis.topLeads.length > 0) {
         analysis.topLeads.forEach((lead, index) => {
