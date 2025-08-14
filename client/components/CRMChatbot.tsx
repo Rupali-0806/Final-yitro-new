@@ -583,7 +583,7 @@ Just ask me naturally - I understand context!`;
       response += `• Average Deal Size: $${Math.round(avgDealSize).toLocaleString()}\n`;
       response += `• Lead-to-Deal Conversion: ${Math.round(conversionRate)}%\n\n`;
 
-      response += `**Activity Summary:**\n`;
+      response += `<b>Activity Summary:</b>\n`;
       response += `• Leads in Pipeline: ${leads.length}\n`;
       response += `• Active Accounts: ${accounts.filter((a) => a.type === "Customer").length}\n`;
       response += `• Deals in Progress: ${activeDeals.length}\n`;
