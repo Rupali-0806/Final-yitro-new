@@ -4,6 +4,7 @@ import { handleDemo } from "./routes/demo";
 import * as crmRoutes from "./routes/crm-prisma";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
+import llmChatRoutes from "./routes/llm-chat";
 import { initializeDatabase } from "./db/init-db";
 import { setupTestAccounts } from "./db/setup-test-accounts";
 
