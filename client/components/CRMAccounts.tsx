@@ -597,7 +597,22 @@ export function CRMAccounts() {
                     {account.lastActivity}
                   </TableCell>
                   <TableCell>
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          console.log(
+                            "360 View button clicked for account:",
+                            account,
+                          );
+                          handleView360(account.id.toString());
+                        }}
+                        className="text-blue-600"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        360 View
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
