@@ -22,11 +22,5 @@
     "enabled": true,
     "email": "admin@yitrobc.net"
   },
-  "services": [
-    "nodejs",
-    "postgresql",
-    "nginx",
-    "pm2",
-    "certbot"
-  ]
+  "services": ["nodejs", "postgresql", "nginx", "pm2", "certbot"]
 }
