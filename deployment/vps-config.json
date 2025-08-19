@@ -1,0 +1,32 @@
+{
+  "server": {
+    "host": "216.48.184.73",
+    "user": "root",
+    "domain": "dealhub.yitrobc.net",
+    "port": 22
+  },
+  "app": {
+    "name": "yitro-crm",
+    "port": 3000,
+    "directory": "/opt/yitro-crm",
+    "user": "yitro",
+    "logs": "/var/log/yitro-crm"
+  },
+  "database": {
+    "name": "yitro_crm_prod",
+    "user": "yitro_db_user",
+    "host": "localhost",
+    "port": 5432
+  },
+  "ssl": {
+    "enabled": true,
+    "email": "admin@yitrobc.net"
+  },
+  "services": [
+    "nodejs",
+    "postgresql",
+    "nginx",
+    "pm2",
+    "certbot"
+  ]
+}
