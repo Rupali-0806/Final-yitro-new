@@ -31,7 +31,9 @@
     "typecheck:server": "tsc --project server/tsconfig.json",
     "migrate": "npx prisma migrate dev",
     "migrate:prod": "npx prisma migrate deploy",
-    "db:seed": "tsx server/db/setup-test-accounts.ts"
+    "db:seed": "tsx server/db/setup-test-accounts.ts",
+    "deploy:vps": "cd deployment && ./deploy.sh main",
+    "setup:vps": "cd deployment && ./deploy.sh main --setup"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
