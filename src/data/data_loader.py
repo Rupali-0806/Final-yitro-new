@@ -10,22 +10,27 @@ from .preprocessor import MIMICPreprocessor
 logger = logging.getLogger(__name__)
 
 def load_and_preprocess_mimic_data(data_dir: str = "data/mimic", 
-                                  download_fresh: bool = False) -> Tuple[Dict, Dict, Dict, Dict]:
+                                  download_fresh: bool = False,
+                                  config_path: str = "config.yaml") -> Tuple[Dict, Dict, Dict, Dict]:
     """
     Main function to load and preprocess MIMIC-IV multimodal data.
     
     Args:
         data_dir: Directory to store/load data
         download_fresh: Whether to download fresh data or use existing
+        config_path: Path to configuration file
         
     Returns:
-        Tuple of (tabular_data, text_data, image_data, labels) dictionaries
+        Tuple of (train_data, test_data, label_classes, preprocessor)
     """
     logger.info("Starting MIMIC-IV data loading and preprocessing...")
     
     # Initialize components
-    downloader = MIMICDownloader(data_dir)
+    downloader = MIMICDownloader(data_dir, config_path)
     preprocessor = MIMICPreprocessor()
+    
+    # Log data source information
+    logger.info(f"Data source: {downloader.get_data_source()}")
     
     # Load or download data
     if download_fresh:
@@ -33,7 +38,7 @@ def load_and_preprocess_mimic_data(data_dir: str = "data/mimic",
     else:
         raw_data = downloader.load_existing_data()
         if raw_data is None:
-            logger.info("No existing data found, downloading sample data...")
+            logger.info("No existing data found, attempting to download/generate data...")
             raw_data = downloader.download_sample_data()
     
     # Preprocess each modality
@@ -79,3 +84,15 @@ if __name__ == "__main__":
     print(f"  Labels: {test_data['labels'].shape}")
     
     print(f"\nDisease classes: {classes}")
+    
+    # Test MIMIC-IV data verification
+    downloader = MIMICDownloader()
+    verification = downloader.verify_real_data()
+    print(f"\nMIMIC-IV data verification:")
+    for module, files in verification.items():
+        print(f"  {module}:")
+        for filename, available in files.items():
+            status = "✓" if available else "✗"
+            print(f"    {filename}: {status}")
+    
+    print(f"\nData source: {downloader.get_data_source()}")
