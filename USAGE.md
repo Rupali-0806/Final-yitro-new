@@ -132,13 +132,26 @@ trainer.train_complete_pipeline()
 
 ## Dataset
 
-The project uses synthetic MIMIC-IV-style data for demonstration:
-- **Clinical Notes**: Synthetic medical text
-- **Vital Signs**: Simulated ICU measurements
-- **Chest X-rays**: Generated medical images
-- **Disease Labels**: 9 common conditions
+The project now supports both **real MIMIC-IV data** and synthetic fallback:
 
-For real MIMIC-IV data, obtain access from PhysioNet and replace the data loading functions.
+### Real MIMIC-IV Data (Recommended for Research)
+- **Patient Demographics**: Age, gender, admission details from PhysioNet  
+- **Clinical Notes**: Real discharge summaries and clinical text
+- **Vital Signs**: ICU measurements, lab values, physiological data
+- **Disease Labels**: Derived from ICD codes and admission diagnoses
+- **Data Source**: PhysioNet MIMIC-IV Database v2.2
+
+**Setup**: See [MIMIC_INTEGRATION.md](MIMIC_INTEGRATION.md) for detailed instructions.
+
+### Synthetic MIMIC-IV-style Data (Development/Demo)
+- **Clinical Notes**: Generated medical text based on templates
+- **Vital Signs**: Simulated ICU measurements with realistic distributions  
+- **Chest X-rays**: Synthetic medical images for demonstration
+- **Disease Labels**: 9 common conditions with realistic prevalence
+
+**Auto-fallback**: System automatically uses synthetic data when real MIMIC-IV data is unavailable.
+
+For real MIMIC-IV data, obtain access from PhysioNet and follow the setup guide in MIMIC_INTEGRATION.md.
 
 ## Configuration
 
@@ -278,10 +291,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ```bibtex
 @misc{quantum-healthcare-2024,
-  title={Quantum Healthcare: Multimodal Disease Prediction},
+  title={Quantum Healthcare: Multimodal Disease Prediction with MIMIC-IV Integration},
   author={Quantum Healthcare Team},
   year={2024},
   url={https://github.com/Rupali-0806/Quantum_project}
+}
+
+@article{johnson2023mimic,
+  title={MIMIC-IV, a freely accessible electronic health record dataset},
+  author={Johnson, Alistair EW and Bulgarelli, Lucas and Shen, Lu and Gayles, Alvin and Shammout, Ayad and Horng, Steven and Pollard, Tom J and Hao, Sicheng and Moody, Benjamin and Gow, Brian and others},
+  journal={Scientific data},
+  volume={10},
+  number={1},
+  pages={1},
+  year={2023},
+  publisher={Nature Publishing Group}
 }
 ```
 
