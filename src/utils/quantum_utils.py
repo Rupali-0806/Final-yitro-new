@@ -4,10 +4,6 @@ Quantum utility functions for quantum circuit operations.
 
 import numpy as np
 import torch
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.circuit import ParameterVector
-from qiskit_aer import AerSimulator
-from qiskit.primitives import Estimator
 import pennylane as qml
 from typing import List, Tuple, Optional
 import logging
@@ -16,14 +12,14 @@ logger = logging.getLogger(__name__)
 
 class QuantumCircuitBuilder:
     """
-    Builder class for creating quantum circuits for different modalities.
+    Builder class for creating quantum circuits for different modalities using PennyLane.
     """
     
     @staticmethod
     def create_variational_circuit(n_qubits: int, n_layers: int, 
-                                 feature_map: str = 'angle_encoding') -> QuantumCircuit:
+                                 feature_map: str = 'angle_encoding'):
         """
-        Create a variational quantum circuit.
+        Create a variational quantum circuit using PennyLane.
         
         Args:
             n_qubits: Number of qubits
@@ -31,69 +27,64 @@ class QuantumCircuitBuilder:
             feature_map: Type of feature encoding ('angle_encoding', 'amplitude_encoding')
             
         Returns:
-            Parameterized quantum circuit
+            PennyLane QNode function
         """
-        # Create parameter vectors
-        input_params = ParameterVector('input', n_qubits)
-        weight_params = ParameterVector('weights', n_layers * n_qubits * 3)
+        dev = qml.device('default.qubit', wires=n_qubits)
         
-        qc = QuantumCircuit(n_qubits)
-        
-        # Feature encoding
-        if feature_map == 'angle_encoding':
-            for i in range(n_qubits):
-                qc.ry(input_params[i], i)
-        elif feature_map == 'amplitude_encoding':
-            # Simplified amplitude encoding
-            for i in range(n_qubits):
-                qc.ry(input_params[i] * np.pi, i)
-        
-        # Variational layers
-        param_idx = 0
-        for layer in range(n_layers):
-            # Rotation gates
-            for i in range(n_qubits):
-                qc.rx(weight_params[param_idx], i)
-                param_idx += 1
-                qc.ry(weight_params[param_idx], i)
-                param_idx += 1
-                qc.rz(weight_params[param_idx], i)
-                param_idx += 1
+        @qml.qnode(dev)
+        def circuit(inputs, weights):
+            # Feature encoding
+            if feature_map == 'angle_encoding':
+                for i in range(n_qubits):
+                    qml.RY(inputs[i], wires=i)
+            elif feature_map == 'amplitude_encoding':
+                for i in range(n_qubits):
+                    qml.RY(inputs[i] * np.pi, wires=i)
             
-            # Entangling gates
-            for i in range(n_qubits - 1):
-                qc.cx(i, i + 1)
-            if n_qubits > 1:
-                qc.cx(n_qubits - 1, 0)  # Circular entanglement
+            # Variational layers
+            for layer in range(n_layers):
+                # Rotation gates
+                for i in range(n_qubits):
+                    qml.RX(weights[layer, i, 0], wires=i)
+                    qml.RY(weights[layer, i, 1], wires=i)
+                    qml.RZ(weights[layer, i, 2], wires=i)
+                
+                # Entangling gates
+                for i in range(n_qubits - 1):
+                    qml.CNOT(wires=[i, i + 1])
+                if n_qubits > 1:
+                    qml.CNOT(wires=[n_qubits - 1, 0])  # Circular entanglement
+            
+            return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
         
-        return qc
+        return circuit
     
     @staticmethod
-    def create_quantum_convolutional_layer(n_qubits: int) -> QuantumCircuit:
+    def create_quantum_convolutional_layer(n_qubits: int):
         """
-        Create a quantum convolutional layer.
+        Create a quantum convolutional layer using PennyLane.
         
         Args:
             n_qubits: Number of qubits
             
         Returns:
-            Quantum convolutional circuit
+            PennyLane QNode function
         """
-        params = ParameterVector('conv_params', n_qubits * 2)
-        qc = QuantumCircuit(n_qubits)
+        dev = qml.device('default.qubit', wires=n_qubits)
         
-        param_idx = 0
-        # Apply local rotations
-        for i in range(n_qubits):
-            qc.ry(params[param_idx], i)
-            param_idx += 1
+        @qml.qnode(dev)
+        def conv_circuit(patch, weights):
+            # Apply local rotations
+            for i in range(min(len(patch), n_qubits)):
+                qml.RY(patch[i] * weights[i, 0], wires=i)
+            
+            # Apply controlled rotations (convolution-like operation)
+            for i in range(n_qubits - 1):
+                qml.CRY(weights[i, 1], wires=[i, i + 1])
+            
+            return qml.expval(qml.PauliZ(0))
         
-        # Apply controlled rotations (convolution-like operation)
-        for i in range(n_qubits - 1):
-            qc.cry(params[param_idx], i, i + 1)
-            param_idx += 1
-        
-        return qc
+        return conv_circuit
 
 class PennyLaneCircuits:
     """
@@ -101,7 +92,7 @@ class PennyLaneCircuits:
     """
     
     @staticmethod
-    def create_pennylane_device(n_qubits: int, shots: Optional[int] = None) -> qml.Device:
+    def create_pennylane_device(n_qubits: int, shots: Optional[int] = None):
         """Create PennyLane device."""
         if shots is None:
             return qml.device('default.qubit', wires=n_qubits)
