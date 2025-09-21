@@ -35,6 +35,21 @@ python src/data/data_loader.py
 
 ### 2. Download MIMIC-IV Data
 
+**NEW: Automatic Download Available!**
+
+You can now automatically download MIMIC-IV data using the implemented PhysioNet downloader:
+
+```bash
+# Quick automatic download
+python setup_credentials.py  # Sets up your PhysioNet credentials
+python download_mimic.py     # Downloads all required MIMIC-IV files
+
+# Test the download system
+python test_download.py
+```
+
+**Manual Download (Alternative)**
+
 ```bash
 # Create data directory
 mkdir -p data/mimic-iv
@@ -46,6 +61,8 @@ mkdir -p data/mimic-iv
 # Option B: Using wget (requires PhysioNet credentials)
 # See PhysioNet documentation for wget commands
 ```
+
+For detailed instructions, see: **[PHYSIONET_DOWNLOAD_GUIDE.md](PHYSIONET_DOWNLOAD_GUIDE.md)**
 
 ### 3. Required MIMIC-IV Files
 
