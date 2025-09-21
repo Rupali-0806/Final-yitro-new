@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import { QuantumHealthcare } from "./components/quantum/QuantumHealthcare";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +28,8 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/" element={<CompanyLogin />} />
+                <Route path="/" element={<QuantumHealthcare />} />
+                <Route path="/quantum" element={<QuantumHealthcare />} />
                 <Route path="/login" element={<CompanyLogin />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
