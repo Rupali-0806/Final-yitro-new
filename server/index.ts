@@ -4,6 +4,7 @@ import { handleDemo } from "./routes/demo";
 import * as crmRoutes from "./routes/crm-prisma";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
+import quantumRoutes from "./quantum/routes";
 import { initializeDatabase } from "./db/init-db";
 import { setupTestAccounts } from "./db/setup-test-accounts";
 
@@ -44,6 +45,9 @@ export function createServer(): Express {
   // Auth API Routes
   app.use("/api/auth", authRoutes);
   app.use("/api/admin", adminRoutes);
+
+  // Quantum Healthcare API Routes
+  app.use("/api/quantum", quantumRoutes);
 
   // CRM API Routes
 
