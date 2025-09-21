@@ -1,0 +1,56 @@
+# MIMIC-IV Dataset Configuration
+mimic:
+  # Dataset location - can be local path or remote
+  data_path: "data/mimic-iv"
+  
+  # PhysioNet credentials (set via environment variables)
+  physionet:
+    username: null  # Set PHYSIONET_USERNAME environment variable
+    password: null  # Set PHYSIONET_PASSWORD environment variable
+    
+  # Dataset version and components
+  version: "2.2"
+  
+  # Available data modules
+  modules:
+    core:
+      admissions: "hosp/admissions.csv.gz"
+      patients: "hosp/patients.csv.gz"
+      transfers: "hosp/transfers.csv.gz"
+    icu:
+      icustays: "icu/icustays.csv.gz"
+      chartevents: "icu/chartevents.csv.gz" 
+      outputevents: "icu/outputevents.csv.gz"
+    notes:
+      discharge: "note/discharge.csv.gz"
+      radiology: "note/radiology.csv.gz"
+    
+  # Data sampling for development/testing
+  sample_size: 1000  # Number of patients to load (-1 for all)
+  
+  # Fallback to synthetic data when real data unavailable
+  use_synthetic_fallback: true
+  
+# Data preprocessing settings
+preprocessing:
+  # Text settings
+  text:
+    max_length: 512
+    tokenizer: "bert-base-uncased"
+    
+  # Image settings  
+  image:
+    size: [224, 224]
+    channels: 1  # Grayscale
+    
+  # Tabular settings
+  tabular:
+    normalize: true
+    handle_missing: "mean"  # mean, median, drop, forward_fill
+    
+# Training settings
+training:
+  test_size: 0.2
+  validation_size: 0.1
+  random_state: 42
+  stratify: true

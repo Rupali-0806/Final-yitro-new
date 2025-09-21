@@ -14,7 +14,22 @@ A cutting-edge quantum machine learning system for disease prediction using mult
 
 ## 🚀 Quick Start
 
-### Option 1: Quick Demo (Offline)
+### Option 1: Quick Demo with Real MIMIC-IV Data
+```bash
+git clone https://github.com/Rupali-0806/Quantum_project.git
+cd Quantum_project
+
+# Check MIMIC-IV integration
+python test_mimic_minimal.py
+
+# Download MIMIC-IV data (requires PhysioNet access)
+# See MIMIC_INTEGRATION.md for detailed instructions
+
+# Run with real data
+python src/data/data_loader.py
+```
+
+### Option 2: Demo with Synthetic Data (No Setup Required)
 ```bash
 git clone https://github.com/Rupali-0806/Quantum_project.git
 cd Quantum_project
@@ -22,7 +37,7 @@ pip install torch pennylane matplotlib numpy pandas
 python demo.py
 ```
 
-### Option 2: Full Installation
+### Option 3: Full Installation
 ```bash
 git clone https://github.com/Rupali-0806/Quantum_project.git
 cd Quantum_project
@@ -30,7 +45,7 @@ pip install -r requirements.txt
 python test_simple.py
 ```
 
-### Option 3: Web Interface
+### Option 4: Web Interface
 ```bash
 # Streamlit (Recommended)
 streamlit run app.py
