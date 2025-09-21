@@ -22,16 +22,17 @@ class MIMICDownloader:
     Supports both real MIMIC-IV data from PhysioNet and synthetic data fallback.
     """
     
-    def __init__(self, data_dir: str = "data/mimic", config_path: str = "config.yaml"):
+    def __init__(self, data_dir: str = "data/mimic", config_path: str = "config.yaml", 
+                 physionet_username: str = None, physionet_password: str = None):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         
         # Load configuration
         self.config = self._load_config(config_path)
         
-        # PhysioNet credentials from environment variables
-        self.physionet_username = os.getenv('PHYSIONET_USERNAME')
-        self.physionet_password = os.getenv('PHYSIONET_PASSWORD')
+        # PhysioNet credentials from parameters or environment variables
+        self.physionet_username = physionet_username or os.getenv('PHYSIONET_USERNAME')
+        self.physionet_password = physionet_password or os.getenv('PHYSIONET_PASSWORD')
         
         # MIMIC-IV data paths
         self.mimic_path = Path(self.config['mimic']['data_path'])
@@ -128,13 +129,206 @@ class MIMICDownloader:
     def _download_from_physionet(self):
         """
         Download MIMIC-IV data from PhysioNet.
-        This is a placeholder - actual implementation would require
-        proper PhysioNet API integration with authentication.
+        Implements authentication and file download for MIMIC-IV dataset.
         """
-        logger.warning("PhysioNet download not yet implemented. Please manually download MIMIC-IV data.")
-        logger.info("Visit https://physionet.org/content/mimiciv/2.2/ to download the dataset")
-        logger.info(f"Extract to: {self.mimic_path}")
-        raise NotImplementedError("Automatic PhysioNet download not implemented")
+        logger.info("Starting PhysioNet download process...")
+        
+        if not self.physionet_username or not self.physionet_password:
+            raise ValueError("PhysioNet credentials not provided. Set PHYSIONET_USERNAME and PHYSIONET_PASSWORD environment variables.")
+        
+        # Create data directory structure
+        self.mimic_path.mkdir(parents=True, exist_ok=True)
+        for subdir in ['hosp', 'icu', 'note']:
+            (self.mimic_path / subdir).mkdir(exist_ok=True)
+        
+        # Download required files
+        base_url = "https://physionet.org/files/mimiciv/2.2/"
+        required_files = []
+        
+        # Collect all required files from config
+        for module, files in self.config['mimic']['modules'].items():
+            for name, filepath in files.items():
+                required_files.append(filepath)
+        
+        logger.info(f"Will download {len(required_files)} files from PhysioNet")
+        
+        # Try requests method first, fall back to wget if needed
+        try:
+            # Create authenticated session
+            session = self._create_physionet_session()
+            
+            # Download each file using requests
+            for filepath in required_files:
+                local_path = self.mimic_path / filepath
+                if local_path.exists():
+                    logger.info(f"File already exists, skipping: {filepath}")
+                    continue
+                    
+                url = urljoin(base_url, filepath)
+                logger.info(f"Downloading: {filepath}")
+                
+                try:
+                    self._download_file_with_session(session, url, local_path)
+                    logger.info(f"Successfully downloaded: {filepath}")
+                except Exception as e:
+                    logger.error(f"Failed to download {filepath} with requests: {e}")
+                    # Try wget as fallback
+                    self._download_with_wget(url, local_path)
+                    
+        except Exception as e:
+            logger.warning(f"Requests-based download failed: {e}")
+            logger.info("Falling back to wget method...")
+            
+            # Fall back to wget method
+            for filepath in required_files:
+                local_path = self.mimic_path / filepath
+                if local_path.exists():
+                    logger.info(f"File already exists, skipping: {filepath}")
+                    continue
+                    
+                url = urljoin(base_url, filepath)
+                logger.info(f"Downloading with wget: {filepath}")
+                self._download_with_wget(url, local_path)
+        
+        logger.info("PhysioNet download completed successfully!")
+    
+    def _create_physionet_session(self):
+        """Create authenticated session for PhysioNet."""
+        session = requests.Session()
+        
+        # Login to PhysioNet
+        login_url = "https://physionet.org/login/"
+        
+        # Get login page to extract CSRF token
+        login_page = session.get(login_url, timeout=30)
+        login_page.raise_for_status()
+        
+        # Extract CSRF token from login page
+        csrf_token = None
+        for line in login_page.text.split('\n'):
+            if 'csrfmiddlewaretoken' in line and 'value=' in line:
+                csrf_token = line.split('value="')[1].split('"')[0]
+                break
+        
+        if not csrf_token:
+            raise RuntimeError("Could not find CSRF token on login page")
+        
+        # Login data
+        login_data = {
+            'username': self.physionet_username,
+            'password': self.physionet_password,
+            'csrfmiddlewaretoken': csrf_token
+        }
+        
+        # Perform login
+        login_response = session.post(login_url, data=login_data, allow_redirects=True, timeout=30)
+        
+        # Check if login was successful
+        if 'login' in login_response.url.lower() or login_response.status_code != 200:
+            raise RuntimeError("PhysioNet login failed. Please check your credentials.")
+        
+        logger.info("Successfully authenticated with PhysioNet")
+        return session
+    
+    def _download_file_with_session(self, session, url, local_path):
+        """Download a file using authenticated session with progress tracking."""
+        # Create parent directory if it doesn't exist
+        local_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Start download with streaming
+        response = session.get(url, stream=True, timeout=60)
+        response.raise_for_status()
+        
+        # Get file size from headers
+        total_size = int(response.headers.get('content-length', 0))
+        
+        # Download with progress tracking
+        downloaded = 0
+        chunk_size = 8192  # 8KB chunks
+        
+        with open(local_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=chunk_size):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    
+                    # Log progress for large files (every 10MB)
+                    if total_size > 0 and downloaded % (10 * 1024 * 1024) == 0:
+                        progress = (downloaded / total_size) * 100
+                        logger.info(f"Download progress: {progress:.1f}% ({downloaded:,} / {total_size:,} bytes)")
+        
+        # Verify download
+        if total_size > 0 and downloaded != total_size:
+            raise RuntimeError(f"Download incomplete: {downloaded} / {total_size} bytes")
+        
+        logger.info(f"Download completed: {local_path.name} ({downloaded:,} bytes)")
+    
+    def _download_with_wget(self, url, local_path):
+        """Download file using wget as fallback method."""
+        import subprocess
+        
+        # Create parent directory if it doesn't exist
+        local_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Build wget command with authentication
+        cmd = [
+            'wget',
+            '--user', self.physionet_username,
+            '--password', self.physionet_password,
+            '--no-check-certificate',  # In case of SSL issues
+            '--timeout=60',
+            '--tries=3',
+            '--continue',  # Resume partial downloads
+            '--progress=bar:force',
+            '--output-document', str(local_path),
+            url
+        ]
+        
+        logger.info(f"Running wget command for {local_path.name}")
+        
+        try:
+            # Run wget
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            logger.info(f"wget download completed: {local_path.name}")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"wget failed for {local_path.name}: {e.stderr}")
+            raise RuntimeError(f"wget download failed: {e.stderr}")
+    
+    def _create_demo_data_structure(self):
+        """
+        Create demo data structure for testing when PhysioNet is not accessible.
+        This creates empty files in the correct structure for demonstration.
+        """
+        logger.info("Creating demo data structure for testing...")
+        
+        # Create directory structure
+        self.mimic_path.mkdir(parents=True, exist_ok=True)
+        for subdir in ['hosp', 'icu', 'note']:
+            (self.mimic_path / subdir).mkdir(exist_ok=True)
+        
+        # Create demo files with minimal content
+        demo_files = {
+            'hosp/patients.csv.gz': 'subject_id,gender,anchor_age\n10000032,F,52\n10000048,M,78\n',
+            'hosp/admissions.csv.gz': 'subject_id,hadm_id,admittime,dischtime\n10000032,20000001,2150-09-01,2150-09-05\n10000048,20000002,2160-03-15,2160-03-22\n',
+            'hosp/transfers.csv.gz': 'subject_id,hadm_id,transfer_id\n10000032,20000001,30000001\n10000048,20000002,30000002\n',
+            'icu/icustays.csv.gz': 'subject_id,hadm_id,stay_id,intime,outtime\n10000032,20000001,40000001,2150-09-01,2150-09-03\n10000048,20000002,40000002,2160-03-15,2160-03-18\n',
+            'icu/chartevents.csv.gz': 'subject_id,hadm_id,stay_id,itemid,value\n10000032,20000001,40000001,220045,85\n10000048,20000002,40000002,220045,72\n',
+            'icu/outputevents.csv.gz': 'subject_id,hadm_id,stay_id,itemid,value\n10000032,20000001,40000001,40055,1200\n10000048,20000002,40000002,40055,800\n',
+            'note/discharge.csv.gz': 'subject_id,hadm_id,text\n10000032,20000001,"Patient discharged in stable condition."\n10000048,20000002,"Recovery uneventful, discharged home."\n',
+            'note/radiology.csv.gz': 'subject_id,hadm_id,text\n10000032,20000001,"Chest X-ray shows clear lungs."\n10000048,20000002,"CT scan normal."\n'
+        }
+        
+        import gzip
+        
+        for filepath, content in demo_files.items():
+            full_path = self.mimic_path / filepath
+            # Write as gzipped content
+            with gzip.open(full_path, 'wt') as f:
+                f.write(content)
+            logger.info(f"Created demo file: {filepath}")
+        
+        logger.info("Demo data structure created successfully!")
+        logger.warning("Note: This is demo data, not real MIMIC-IV data!")
     
     def _load_mimic_files(self) -> Dict[str, Any]:
         """Load and process real MIMIC-IV data files."""
